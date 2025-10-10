@@ -1,1 +1,279 @@
+\documentclass{article}
 
+%%%%% packages to import %%%%%%
+\usepackage{graphicx} % Required for inserting images
+\usepackage[useregional]{datetime2}
+\usepackage[margin=1in]{geometry}
+
+%%%%% title information %%%%%%
+\title{CS482/495/496 Software Project Proposal: \\ 
+add your tentative project title here}
+\author{Fabrizio Guzzo, Dylan Morales, Will Troisi, Zoe Willis}
+\date{\today}
+
+\begin{document}
+\maketitle % make title information appear here
+
+\section{Client Information}
+By sharing this client information and the rest of this document, you are stating that this client has provided this project as something they want (not something you created and asked if they wanted), and that they are interested in having you complete this project for your capstone.
+% Complete the list items about your client
+\begin{itemize}
+    \item Client name: Prof. Ebert
+    \item Client title: Professor
+    \item Client email address: eebert@loyola.edu
+    \item Client employer: University Of Loyola Maryland
+    \item How you know the client: Professor at Loyola
+\end{itemize}
+
+\section{Project Description}
+% You must complete the following 4 subsections. The instructor will use this information to determine if your project might be feasible or not.
+
+% Comment out the bracketed instructions as you finish subsections
+\subsection{Overview}
+[Add a few paragraphs describing your project succinctly. What problem are you trying to solve, what is the purpose of your project? Why does your client want this project?]
+
+\subsection{Key Features}
+[At this point you should have a basic understanding of your client's needs. List out the key features of the software system the client wants you to build.]
+
+\subsection{Why this Project is Interesting}
+[Why did you decide this project was interesting enough to you to be a capstone project? What about this project is enticing? Why should anyone care?]
+
+\subsection{Areas of CS required}
+[What subfields of computer science seem most likely to be relevant to your project? A capstone must involve multiple.]
+
+\subsection{Potential Concerns and Questions}
+[Is there any aspect of this project that makes you unsure if it will work, either due to your own interests/background, or that you aren't sure if it fits the requirements? Are there questions you have about this project that you want instructor feedback about?]
+
+\subsection{Summary of Efforts to Find a Project}
+(Not necessary for 482) [Briefly list out when/how you've discussed with this client, and if you've discussed with other clients who either didn't work out or didn't respond. If you considered a different project and it didn't work out, why didn't it work out?] 
+
+[Most CS495 projects end here. The sections below are for CS482 and CS496 software projects].
+
+\subsection{Comparison to Draft}
+[For CS496 only, focus on highlighting the major differences between the draft proposal in CS495 and this one here. If there are no major differences, you can remove this subsection.]
+
+\section{Requirements}
+
+\subsection{Non-Functional Requirements}
+[Non-functional requirements are just as important as functional requirements. Dont forget to specify them.]
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{c l c p{9cm}}
+\hline
+\textbf{ID} & \textbf{NFR Title} & \textbf{Category} & \textbf{Description} \\
+\hline
+NFR1 & NFR Example 1 & Usability & Description of the NFR (it does not follow a user story template) \\ \hline
+NFR2 & NFR Example 2 & Security & Description of the NFR (it does not follow a user story template) \\ \hline
+\end{tabular}
+\caption{Non-Functional requirements}
+\end{table}
+
+
+\subsection{Functional Requirements (User Stories)}
+[In CS482, all functional requirements are written as User Stories. In CS496, some projects may use a different template to write the requirements. The table below is an example of writing the Stories. Adapt accordingly to different templates or if you want to display more info.]
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{c l c p{10cm}}
+\hline
+\textbf{ID} & \textbf{Story Title} & \textbf{Points} & \textbf{Description} \\
+\hline
+S1 & Story Example 1 & 5 & As a user, I want to write a user story example, so that people will understand them. \\ \hline
+S2 & Story Example 2 & 2 & As a user, I want to write a user story example, so that people will understand them. \\ \hline
+
+\end{tabular}
+\caption{Functional requirements as User Stories.}
+\end{table}
+
+\section{System Design}
+
+\subsection{Architecture}
+[Which type of software architecture are you team following? Layered architecture, MVC, other? What are the main modules for your software?]
+
+Our team has chosen to utilize the MVC structured architecture to allow for obvious focus point on our development. Using MVC we can split up our work into 3 main categories: Model, View, and Controller. Using this style of structure will promote scalability, mendability, and maintenance as we move further down the road. It will allow for developers to handle different parts of the project, avoiding the conflict of waiting on another group member to finish before starting your work. When it comes to tools we will use for each part of MVC that will be explained in our Technology section. The module will be the main branch that handles our data that will contain important information for the game consistently and securely. The controller is the link between the model and the view. It will take in requests data from the user and retrieve data from the model to display on the view. The view is the display of the structure and it allows for the user to see the information our software is displaying. Many benefits will be created from using this structure that will allow for efficiency, debugging, organization, modular development, team collaboration, and maintainable software.
+
+\subsection{Diagrams}
+[CS482, on sprints/iterations 2-3, you need to create and update a diagram (check the assignment for which type of diagram). On CS496, since before sprint/iteration 1 you should have a class diagram and keep it up-to-date.]
+
+\subsection{Technology}
+
+For the front-end, we will use React to handle with the user interface. In terms of our back-end we will use JavaScript to handle the interaction of the front-end with data. For API usage, we are going to utilize NodeJS to gather the necessary information to display on our website.
+
+
+\subsection{Coding Standards}
+-We are going to limit the use of global variables.
+-Header Format of each different Moduel: 
+Name
+Date
+Author
+Synopse
+Variables
+-We are going to utilize CammelCase for Variables and Functions
+-Final Code Shouldn't be pushed unless tested beforehand or explicitly given noticed of an issue
+-Comments must be made in order to help entire team understand code
+\subsection{Data}
+Logical Model of the database entities and their relationships:
+
+Adult (
+	id\_Adult;
+	Name;
+	Dob;
+	Email;
+	Phone;
+	Permissions;
+);
+
+Player/Child (
+	@id\_player;
+	\#id\_Adult;
+	\#id\_Team;
+	Dob;
+);
+
+Coach (
+	@id\_Coach,
+	\#id\_Adult;
+	\#id\_Team;
+);
+
+Team (
+	@id\_Team;
+	\#id\_Coach;
+	\#id\_Manager;
+	Playerlist;
+	
+);
+
+Guest (
+@id\_Guest;
+Permissions;
+);
+
+Admin (
+	@id\_Admin;
+	\#id\_Adult;
+);
+
+Manager (
+	@id\_Manager;
+	\#id\_Team;
+	\#id\_Adult;
+);
+
+Parent (
+	@id\_Parent;
+	\#id\_Adult;
+);
+	
+
+\subsection{UI Mocks}
+% Page 1
+\includegraphics[page=1, width=\textwidth]{UI Mocks.pdf}
+
+\newpage
+% Page 2
+\includegraphics[page=2, width=\textwidth]{UI Mocks.pdf}
+
+\section{Iterations}
+
+\subsection{Iteration Planning}
+[In CS496, you plan all iterations beforehand. In CS482, you update the planning here at each iteration. ]
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{c l p{7cm} c}
+\hline
+\textbf{Iteration} & \textbf{Dates} & \textbf{Stories} & \textbf{Points} \\
+\hline
+1 & 01/01 - 02/01 & S1 Story Example, S2 Story Example 2 & 07 \\ \hline
+2 & 02/01 - 03/01 & S3 Story Title, S4 Story Title, S5 Story Title, S6 Story Title & 17 \\ \hline
+3 & 03/01 - 04/01 & S7 Story Title, S8 Story Title, S9 Story Title, S10 Story Title, S11 Story Title & 21 \\ \hline
+4 & 04/01 - 05/01 & S12 Story Title, S13 Story Title, S14 Story Title, S15 Story Title & 19 \\ \hline
+5 & 05/01 - 06/01 & S16 Story Title, S17 Story Title & 06 \\ \hline
+\multicolumn{3}{r}{\bf Total: } & 70 \\ \hline
+\end{tabular}
+\caption{Iteration Planning for Incremental Deliveries}
+\end{table}
+
+\subsection{Iteration/Sprint 1}
+\subsubsection{Planning}
+[Which stories did you plan for this iteration/sprint. Add the total points for this plan. You can also explain the reason behind your planning, and what major feature(s) your team is focusing on delivering by completing these stories. You may use a table for a summary display of the planning, but elaborate in text more detail in your focus and feature plan.]
+
+\subsubsection{Work Done}
+[Which stories did you complete in this iteration/sprint. Which ones did you partially complete? Who worked on which story? You may elaborate in paragraph(s) to add more detail about the work done.]
+
+\subsubsection{Testing Coverage}
+[Testing is very important. Show your coverage here. Is this coverage good enough? Explain why you think so. Is it not good enough? Explain a plan to increase the coverage. You may also elaborate on why some artifacts do not undergo much testing. If the testing changed from the last iteration, explain the reasons.]
+
+\subsubsection{Retroespective \& Reflection}
+[What were the pitfalls, challenges, and issues you had in this iteration? How can you address them to improve the process in the next iteration? Did anything not go according to plan? Why so and how to avoid the same mistake? Write a personal reflection on what you learned in this iteration (even if a small technical thing like Database storage).]
+
+
+\subsection{Iteration/Sprint 2}
+\subsubsection{Planning}
+[Which stories did you plan for this iteration/sprint. Add the total points for this plan. You can also explain the reason behind your planning, and what major feature(s) your team is focusing on delivering by completing these stories. You may use a table for a summary display of the planning, but elaborate in text more detail in your focus and feature plan.]
+
+\subsubsection{Work Done}
+[Which stories did you complete in this iteration/sprint. Which ones did you partially complete? Who worked on which story? You may elaborate in paragraph(s) to add more detail about the work done.]
+
+\subsubsection{Testing Coverage}
+[Testing is very important. Show your coverage here. Is this coverage good enough? Explain why you think so. Is it not good enough? Explain a plan to increase the coverage. You may also elaborate on why some artifacts do not undergo much testing. If the testing changed from the last iteration, explain the reasons.]
+
+\subsubsection{Retroespective \& Reflection}
+[What were the pitfalls, challenges, and issues you had in this iteration? How can you address them to improve the process in the next iteration? Did anything not go according to plan? Why so and how to avoid the same mistake? Write a personal reflection on what you learned in this iteration (even if a small technical thing like Database storage).]
+
+\subsection{Iteration/Sprint 3}
+\subsubsection{Planning}
+[Which stories did you plan for this iteration/sprint. Add the total points for this plan. You can also explain the reason behind your planning, and what major feature(s) your team is focusing on delivering by completing these stories. You may use a table for a summary display of the planning, but elaborate in text more detail in your focus and feature plan.]
+
+\subsubsection{Work Done}
+[Which stories did you complete in this iteration/sprint. Which ones did you partially complete? Who worked on which story? You may elaborate in paragraph(s) to add more detail about the work done.]
+
+\subsubsection{Testing Coverage}
+[Testing is very important. Show your coverage here. Is this coverage good enough? Explain why you think so. Is it not good enough? Explain a plan to increase the coverage. You may also elaborate on why some artifacts do not undergo much testing. If the testing changed from the last iteration, explain the reasons.]
+
+\subsubsection{Retroespective \& Reflection}
+[What were the pitfalls, challenges, and issues you had in this iteration? How can you address them to improve the process in the next iteration? Did anything not go according to plan? Why so and how to avoid the same mistake? Write a personal reflection on what you learned in this iteration (even if a small technical thing like Database storage).]
+
+\subsection{Iteration/Sprint 4}
+[CS496 has 5 sprints. CS482 only has only 3 sprints (remove Iterations 4 and 5 from this doc if you are writing a doc for 482]
+
+\subsubsection{Planning}
+[Which stories did you plan for this iteration/sprint. Add the total points for this plan. You can also explain the reason behind your planning, and what major feature(s) your team is focusing on delivering by completing these stories. You may use a table for a summary display of the planning, but elaborate in text more detail in your focus and feature plan.]
+
+\subsubsection{Work Done}
+[Which stories did you complete in this iteration/sprint. Which ones did you partially complete? Who worked on which story? You may elaborate in paragraph(s) to add more detail about the work done.]
+
+\subsubsection{Testing Coverage}
+[Testing is very important. Show your coverage here. Is this coverage good enough? Explain why you think so. Is it not good enough? Explain a plan to increase the coverage. You may also elaborate on why some artifacts do not undergo much testing. If the testing changed from the last iteration, explain the reasons.]
+
+\subsubsection{Retroespective \& Reflection}
+[What were the pitfalls, challenges, and issues you had in this iteration? How can you address them to improve the process in the next iteration? Did anything not go according to plan? Why so and how to avoid the same mistake? Write a personal reflection on what you learned in this iteration (even if a small technical thing like Database storage).]
+
+\subsection{Iteration/Sprint 5}
+\subsubsection{Planning}
+[Which stories did you plan for this iteration/sprint. Add the total points for this plan. You can also explain the reason behind your planning, and what major feature(s) your team is focusing on delivering by completing these stories. You may use a table for a summary display of the planning, but elaborate in text more detail in your focus and feature plan.]
+
+\subsubsection{Work Done}
+[Which stories did you complete in this iteration/sprint. Which ones did you partially complete? Who worked on which story? You may elaborate in paragraph(s) to add more detail about the work done.]
+
+\subsubsection{Testing Coverage}
+[Testing is very important. Show your coverage here. Is this coverage good enough? Explain why you think so. Is it not good enough? Explain a plan to increase the coverage. You may also elaborate on why some artifacts do not undergo much testing. If the testing changed from the last iteration, explain the reasons.]
+
+\subsubsection{Retroespective \& Reflection}
+[What were the pitfalls, challenges, and issues you had in this iteration? How can you address them to improve the process in the next iteration? Did anything not go according to plan? Why so and how to avoid the same mistake? Write a personal reflection on what you learned in this iteration (even if a small technical thing like Database storage).]
+
+\section{Final Remarks}
+
+\subsection{Overall Progress}
+[Have you completed everything? If so, present evidence on how you brought value to your client, and the overall client satisfaction. Otherwise, estimate how much progress you done and how long it would take to finish this project.]
+
+\subsection{Project Reflection}
+[Your personal reflection on the project. What lessons did you learned. What would you have done differently. How can you do better work in future projects? You may write this as a team or per person (or both)]
+
+\section*{Appendix}
+[Appendix section if needed]
+
+
+\end{document}
