@@ -9,7 +9,7 @@ mongoose.connect('mongodb+srv://dpmorales777_db_user:pCkylHNN2NfyUT5G@cluster0.g
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log("✅ Connected to MongoDB with Mongoose"))
+.then(() => console.log("Connected to MongoDB with Mongoose"))
 .catch(err => console.error("Connection error:", err));
 
 const recordSchema = new mongoose.Schema({
