@@ -1,12 +1,31 @@
 export class Team{
+    name;
+    players;
+    coach;
+    manager;
+    record;
+    schedule;
+    logo;
 
     constructor(name){
     
         this.name = name;
+
+        this.players = [];
+
+        this.coach;
     
-        this.team = new Map();
+        //this.team = new Map();
     
-        this.team.set('Players', []);
+        //this.team.set('Players', []);
+        
+        this.manager;
+
+        this.record;
+
+        this.schedule;
+
+        this.logo;
     
     }
     
@@ -14,9 +33,11 @@ export class Team{
     
     addPlayer(player){
     
-        let players = this.team.get('Players');
+        //let players = this.team.get('Players');
     
-        players.push(player);
+        //players.push(player);
+
+        this.players.push(player);
     
     }
     
@@ -24,13 +45,13 @@ export class Team{
     
     deletePlayer(player){
     
-        let players = this.team.get('Players');
+        //let players = this.team.get('Players');
     
         let index = players.indexOf(player);
     
         if (index !== -1) {
     
-        players.splice(index, 1);
+            players.splice(index, 1);
     
         }
     
@@ -40,7 +61,8 @@ export class Team{
     
     assignCoach(coach){
     
-        this.team.set('Coach',coach);
+        //this.team.set('Coach',coach);
+        this.coach = coach;
     
     }
     
@@ -48,7 +70,9 @@ export class Team{
     
     assignManager(manager){
     
-        this.team.set('Manager',manager);
+        //this.team.set('Manager',manager);
+
+        this.manager = manager;
     
     }
     
@@ -56,7 +80,8 @@ export class Team{
     
     assignLogo(logo){
     
-        this.team.set('Logo',logo);
+        //this.team.set('Logo',logo);
+        this.logo = logo;
     
     }
     
@@ -72,7 +97,8 @@ export class Team{
     
         record.set('Ties',tie);
     
-        this.team.set('Record',record);
+        //this.team.set('Record',record);
+        this.record = record;
     
     }
     
@@ -80,22 +106,28 @@ export class Team{
     
     assignSchedule(teams){
     
-        this.team.set('Schedule',teams);
+        //this.team.set('Schedule',teams);
+        this.schedule = teams;
     
     }
     //might need work
 
     //returns a Map of key as the team name and value as team attributes
 
-    getTeam(){  
+    //getTeam(){  
 
-        let team = new Map();
+        //let team = new Map();
     
-        team.set(this.name, this.team);
+        //team.set(this.name, this.team);
     
-        return team;
+        //return team;
     
-    }
+   //}
+    
+    
+    
+}
+
     
     
     
