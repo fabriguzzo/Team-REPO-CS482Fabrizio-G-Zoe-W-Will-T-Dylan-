@@ -1,0 +1,16 @@
+# Ignore top-level files you don’t want in Git
+score.html
+scorestyle.css
+script.js
+
+# Node & Vite defaults
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor & system files
+.vscode/*
+.idea
+.DS_Store
+*.sw?
