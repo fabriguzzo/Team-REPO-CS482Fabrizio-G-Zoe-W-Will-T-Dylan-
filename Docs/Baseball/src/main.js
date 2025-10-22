@@ -18,6 +18,7 @@ const recordSchema = new mongoose.Schema({
     loss: { type: Number, default: 0 },
 });
 
+//schematic for how the data will be stored in the database
 const teamSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     players: [{ type: String }],  
@@ -28,9 +29,11 @@ const teamSchema = new mongoose.Schema({
     schedule: [{ type: String }]
   });
 
+//make an object BaseballTeam with schema as attributes
 const BaseballTeam = mongoose.model('Team', teamSchema);
 
 async function run() {
+    //create a team object and fill it in
     const team = new Team('Talons');
     team.addPlayer('Dylan');
     team.addPlayer('Tyler');
@@ -45,17 +48,17 @@ async function run() {
       await newTeam.save();
       console.log("Team saved:", newTeam.toObject());
   
-      // Find all users
+      // Find all teams
       const teams = await BaseballTeam.find();
       console.log("All teams:", teams.map(t => t.toObject()));
   
-      // Update a user
+      // Update a team
       await BaseballTeam.updateOne({ name: 'TALONS' }, { coach: "Julio" });
       console.log("Team updated");
   
-      // Delete a user
+      // Delete a team
       await BaseballTeam.deleteOne({ name: "Talons" });
-      console.log("User deleted");
+      console.log("Team deleted");
 
       
     } catch (err) {
