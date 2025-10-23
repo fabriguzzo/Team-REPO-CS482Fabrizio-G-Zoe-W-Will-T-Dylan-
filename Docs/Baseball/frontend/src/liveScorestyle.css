@@ -1,0 +1,80 @@
+/* ---------- Full page background ---------- */
+body {
+  background-color: #1a1a1a; /* solid dark backdrop behind scoreboard */
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  color: white;
+}
+
+/* ---------- Scoreboard container ---------- */
+.container {
+  background-image: url("./LiveScore.png");
+  background-size: cover;
+  background-repeat: repeat;
+  background-position: center;
+  /* Rounded, pill-like ends */
+  border-radius: 3rem; /* Increase this for more curve */
+  
+  width: 360px;
+  padding: 1.0em;
+
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.8s ease-in-out;
+  color: white;
+  backdrop-filter: blur(3px);
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Header ---------- */
+h1 {
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+/* ---------- Score table ---------- */
+.score-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5em;
+}
+
+.score-table th,
+.score-table td {
+  text-align: center;
+  padding: 0.5em;
+}
+
+.score-table button {
+  margin: 0 0.2em;
+  cursor: pointer;
+  border: none;
+  padding: 0.3em 0.6em;
+  border-radius: 0.3em;
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.score-table button:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+
+
