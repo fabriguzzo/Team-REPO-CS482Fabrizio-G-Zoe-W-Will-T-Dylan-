@@ -14,7 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/fabriguzzo/Team-REPO-CS482Fabrizio-G-Zoe-W-Will-T-Dylan-/issues"
   },
