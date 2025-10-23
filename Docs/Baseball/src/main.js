@@ -4,13 +4,9 @@ import { Team } from './team.js';
 
 
 
-mongoose.connect('mongodb+srv://dpmorales777_db_user:pCkylHNN2NfyUT5G@cluster0.grq5znw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
-, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log("✅ Connected to MongoDB with Mongoose"))
-.catch(err => console.error("Connection error:", err));
+mongoose.connect('mongodb+srv://dpmorales777_db_user:pCkylHNN2NfyUT5G@cluster0.grq5znw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+  .then(() => console.log("Connected to MongoDB"))
+  .catch(err => console.error("Connection error:", err));
 
 const recordSchema = new mongoose.Schema({
     win: { type: Number, default: 0 },
@@ -18,6 +14,7 @@ const recordSchema = new mongoose.Schema({
     loss: { type: Number, default: 0 },
 });
 
+//schematic for how the data will be stored in the database
 const teamSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     players: [{ type: String }],  
@@ -26,11 +23,15 @@ const teamSchema = new mongoose.Schema({
     logo: { type: String }, 
     record: recordSchema,
     schedule: [{ type: String }]
-  });
+});
 
+//make an object BaseballTeam with schema as attributes
 const BaseballTeam = mongoose.model('Team', teamSchema);
 
+const Record = mongoose.model('Record', recordSchema);
+
 async function run() {
+    //create a team object and fill it in
     const team = new Team('Talons');
     team.addPlayer('Dylan');
     team.addPlayer('Tyler');
@@ -41,24 +42,25 @@ async function run() {
     team.assignSchedule(['Tigers','Bears']);
     try {
       // Create a new team
-      //const newTeam = new BaseballTeam({ name:team.name,players:team.players,coach:team.coach,manager:team.manager,logo:team.logo,record:team.record,schedule:team.schedule});
-      //await newTeam.save();
-     // console.log("Team saved:", newTeam.toObject());
-  
-      // Find all users
-      //const teams = await BaseballTeam.find();
-      //console.log("All teams:", teams.map(t => t.toObject()));
-  
-      // Update a user
-      //await BaseballTeam.updateOne({ name: 'TALONS' }, { coach: "Julio" });
-      //console.log("Team updated");
-  
-      // Delete a user
-      await BaseballTeam.deleteOne({ name: "Talons" });
-      console.log("User deleted");
+      const record = new Record({win: team.record.get('Wins'),tie: team.record.get('Ties'),loss: team.record.get('Losses')});
+      const newTeam = new BaseballTeam({ name:team.name,players:team.players,coach:team.coach,manager:team.manager,logo:team.logo,record: record,schedule:team.schedule});
+      await newTeam.save();
+      console.log("Team saved:", newTeam.toObject());
 
+      // Update a team
+      await BaseballTeam.updateOne({ name: 'Talons' }, { coach: "Julio" });
+      console.log("Team updated");
+  
+      // Find all teams
       const teams = await BaseballTeam.find();
       console.log("All teams:", teams.map(t => t.toObject()));
+  
+      
+      // Delete a team
+      await BaseballTeam.deleteOne({ name: "Talons" });
+      console.log("Team deleted");
+
+      
     } catch (err) {
       console.error("Error:", err);
     } finally {
