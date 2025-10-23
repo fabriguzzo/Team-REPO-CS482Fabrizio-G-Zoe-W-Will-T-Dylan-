@@ -126,9 +126,5 @@ export class Team{
     
     
     
-}
-
+} 
     
-    
-    
-}
