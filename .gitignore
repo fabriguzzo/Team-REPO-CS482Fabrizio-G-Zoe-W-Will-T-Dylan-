@@ -2,6 +2,7 @@
 score.html
 scorestyle.css
 script.js
+.env
 
 # Node & Vite defaults
 node_modules
