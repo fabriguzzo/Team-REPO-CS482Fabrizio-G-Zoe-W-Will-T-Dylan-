@@ -1,4 +1,4 @@
-/*import LiveScore from "./liveScore";
+import LiveScore from "./liveScore";
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
 }
 
 export default App;
-*/
+/*
 import SeasonStandings from "./seasonStandings";
 
 function App() {
@@ -17,4 +17,4 @@ function App() {
 }
 
 export default App;
-
+*/

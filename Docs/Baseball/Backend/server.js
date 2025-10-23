@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Team } from './team.js';
+import { Team } from './teamRevised.js';
 
 const recordSchema = new mongoose.Schema({
   win: { type: Number, default: 0 },
@@ -53,7 +53,7 @@ async function findAll(model) {
       if (result.modifiedCount > 0) {
         console.log(" Team updated:", filter, "->", updateData);
       } else {
-        console.log("⚠️ No matching document found for update.");
+        console.log("No matching document found for update.");
       }
     } catch (err) {
       console.error("Update error:", err);
@@ -75,7 +75,7 @@ async function run() {
     team.assignLogo('Talon.png');
     team.assignRecord(1, 1, 5);
     team.assignSchedule(['Tigers', 'Bears']);
-
+    /** 
     const BaseballTeam = mongoose.model('Team', teamSchema);
     const Record = mongoose.model('Record', recordSchema);
 
@@ -95,10 +95,23 @@ async function run() {
         schedule: team.schedule
     });
 
+    const newTeam2 = new BaseballTeam({
+        name: 'Tigers',
+        players: team.players,
+        coach: team.coach,
+        manager: team.manager,
+        logo: team.logo,
+        record: record,
+        schedule: team.schedule
+    });
+    */
+    const newTeam = team.getTeamDoc();
     await save(newTeam);
-    await update(BaseballTeam, {name: 'Talons'}, {coach: 'Julio'})
-    await findAll(BaseballTeam);
-    await del(BaseballTeam, { name: 'Talons' });
+    //await save(newTeam2)
+    //await update(BaseballTeam, {name: 'Talons'}, {coach: 'Julio'})
+    //await findAll(BaseballTeam);
+    const BaseballTeam = team.getTeamModel();
+    //await del(BaseballTeam, { name: 'Talons' });
     
 
   } catch (err) {

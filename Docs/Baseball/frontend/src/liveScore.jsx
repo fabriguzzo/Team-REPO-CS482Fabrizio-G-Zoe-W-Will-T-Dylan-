@@ -52,6 +52,9 @@ export default function ScorePage() {
       <button id="reset-btn" onClick={resetScores}>
         Reset
       </button>
+      <button className="save-btn">
+        Save
+      </button>
     </div>
   );
 }

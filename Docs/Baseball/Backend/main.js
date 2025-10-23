@@ -23,7 +23,7 @@ const teamSchema = new mongoose.Schema({
     logo: { type: String }, 
     record: recordSchema,
     schedule: [{ type: String }]
-  });
+});
 
 //make an object BaseballTeam with schema as attributes
 const BaseballTeam = mongoose.model('Team', teamSchema);
