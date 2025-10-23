@@ -121,15 +121,7 @@ export class Team{
         //team.set(this.name, this.team);
     
         //return team;
-<<<<<<< HEAD:Docs/Baseball/src/team.js
-    
-   //}
-=======
-    
-   //}
-    
->>>>>>> effb616eb47972f14c1899d8e2a139359949520d:Docs/Baseball/Backend/team.js
-    
+
     
 } 
     
