@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     phone: {type : String, required: false},
     permission: {type : Number, required: false},
     name: {type : String, required: false},
-    role: {type : String, enum: ["coach", "manager", "admin", "player", "parent"], default : "null", required: false},
+    role: {type : String, enum: ["coach", "manager", "admin", "player", "parent"], default : "parent", required: false},
     team: {type : mongoose.Schema.Types.ObjectId, ref: "Team", required: false},
     timeCreated: {type : Date, default: Date.now}
 })

@@ -45,7 +45,7 @@ exports.createOrUpdate = async function (req, res) {
         res.status(201).json(newUser);
 
     } catch(err) {
-        console.error("Error creating/updating user");
+        console.error("Error creating/updating user", err);
         res.status(500).json({error: "Failed to create/update user"});
     }
 }
@@ -58,7 +58,7 @@ exports.deleteOne = async function (req, res) {
     }
 
     try {
-        const deleted = await dao.del(id);
+        const deleted = await dao.delete(id);
         if (deleted) {
             res.status(200).json ({ message: "User deleted successfully"});
         } else {
