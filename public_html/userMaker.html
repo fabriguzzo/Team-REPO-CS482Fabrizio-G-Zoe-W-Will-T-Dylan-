@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add User</title>
+  <style>
+    body { font-family: Arial; background: #f2f2f2; text-align: center; }
+    form { background: white; padding: 20px; margin: 50px auto; width: 300px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    input, button { width: 90%; margin: 10px 0; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+    button { background: #28a745; color: white; border: none; cursor: pointer; }
+    button:hover { background: #218838; }
+  </style>
+</head>
+<body>
+  <h1>Add a User</h1>
+  <form id="userForm">
+    <input type="text" id="username" placeholder="Username" required /><br />
+    <input type="password" id="password" placeholder="Password" /><br />
+    <input type="email" id="email" placeholder="Email" /><br />
+    <button type="submit">Add User</button>
+  </form>
+  <p id="message"></p>
+
+  <script>
+    document.getElementById("userForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const user = {
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value,
+        email: document.getElementById("email").value
+      };
+
+      const response = await fetch("http://localhost:4000/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user)
+      });
+
+      const data = await response.json();
+      const msg = document.getElementById("message");
+
+      if (response.ok) {
+        msg.textContent = "User added successfully!";
+        document.getElementById("userForm").reset();
+      } else {
+        msg.textContent = `Error: ${data.error || "Failed to add user"}`;
+      }
+    });
+  </script>
+</body>
+</html>
