@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Team</title>
+  <style>
+    body { font-family: Arial; background: #f2f2f2; text-align: center; }
+    form { background: white; padding: 20px; margin: 50px auto; width: 300px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    input, button { width: 90%; margin: 10px 0; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+    button { background: #28a745; color: white; border: none; cursor: pointer; }
+    button:hover { background: #218838; }
+  </style>
+</head>
+<body>
+  <h1>Add a Team</h1>
+  <form id="teamForm">
+    <input type="text" id="name" placeholder="Team Name" required /><br />
+    <input type="text" id="manager" placeholder="Manager" /><br />
+    <input type="text" id="logo" placeholder="Logo URL" /><br />
+    <button type="submit">Add Team</button>
+  </form>
+  <p id="message"></p>
+
+  <script>
+    document.getElementById("teamForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const team = {
+        name: document.getElementById("name").value,
+        manager: document.getElementById("manager").value,
+        logo: document.getElementById("logo").value
+      };
+
+      const response = await fetch("http://localhost:4000/teams", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(team)
+      });
+
+      const data = await response.json();
+      const msg = document.getElementById("message");
+
+      if (response.ok) {
+        msg.textContent = "Team added successfully!";
+        document.getElementById("teamForm").reset();
+      } else {
+        msg.textContent = `Error: ${data.error || "Failed to add team"}`;
+      }
+    });
+  </script>
+</body>
+</html>

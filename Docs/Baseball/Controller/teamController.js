@@ -1,5 +1,7 @@
 
-const dao = require('./Docs/Model/teamDao');
+const dao = require('../Model/teamDao');
+
+
 
 
 exports.getAll = async function (req, res) {
@@ -33,29 +35,22 @@ exports.getOne = async function (req, res) {
 exports.createOrUpdate = async function (req, res) {
     const teamData = {
         name: req.body.name,
-        players: req.body.players || [],
-        coach: req.body.coach,
+        players: [],
+        coach: "",
         manager: req.body.manager,
         logo: req.body.logo,
-        record: req.body.record || { win: 0, tie: 0, loss: 0 },
-        schedule: req.body.schedule || []
+        wins: 0,
+        ties: 0,
+        losses: 0,
+        schedule: []
     };
 
     try {
-        // Only admins can update but if not they can create a team
-        if (req.body.name && exports.adminCheck(req)) {
-            // Update
-            const updated = await dao.update(req.body.name, teamData);
-            if (updated.modifiedCount > 0) {
-                res.status(200).json({ message: 'Team updated successfully' });
-            } else {
-                res.status(404).json({ error: 'Team not found' });
-            }
-        } else {
-            // Create new team
-            const newTeam = await dao.create(teamData);
-            res.status(201).json(newTeam);
-        }
+        
+        // Create new team
+        const newTeam = await dao.create(teamData);
+        res.status(201).json(newTeam);
+        
     } catch (err) {
         console.error('Error creating/updating team:', err);
         res.status(500).json({ error: 'Failed to create or update team' });

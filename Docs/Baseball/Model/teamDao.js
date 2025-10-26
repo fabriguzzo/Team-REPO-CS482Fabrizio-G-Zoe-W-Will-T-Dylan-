@@ -1,11 +1,7 @@
 const mongoose = require('mongoose');
 
 
-const recordSchema = new mongoose.Schema({
-    win: { type: Number, default: 0 },
-    tie: { type: Number, default: 0 },
-    loss: { type: Number, default: 0 },
-});
+
 
 const teamSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
@@ -13,26 +9,34 @@ const teamSchema = new mongoose.Schema({
     coach: { type: String },
     manager: { type: String },
     logo: { type: String },
-    record: this.recordSchema,
+    wins: {type: Number},
+    ties: {type: Number},
+    losses:  {type: Number},
     schedule: [{ type: String }]
 });
-const recordModel = mongoose.model('Record', this.recordSchema);
 
-const teamModel = mongoose.model('Team', this.teamSchema);
+
+const teamModel = mongoose.model('Team', teamSchema);
 
 exports.create = async function(newTeam){
-    try {
-      const team = new teamModel(newTeam)
-      await team.save();
-      return team;
-    } catch (err) {
-      console.error("Error:", err);
-    }
+    
+    const team = new teamModel(newTeam)
+    await team.save();
+    return team;
+    
+      
+    
 }
 
 exports.read = async function(id){
     let team = await teamModel.findById(id);
     return team;
+}
+
+exports.readByName = async function(teamName){
+    let team = await teamModel.findOne({name : teamName});
+    return team;
+
 }
 
 
@@ -51,7 +55,15 @@ exports.deleteAll = async function(){
     await teamModel.deleteMany();
 }
 
-exports.update = function(user){
+exports.update = async function(teamName,filter){
+
+    const updated = await teamModel.updateOne({ name: teamName }, filter);
+
+    if (updated.modifiedCount > 0) {
+        console.log("Team updated:", filter);
+    } else {
+        console.log("No matching document found for update.");
+    }
     
 }
 
