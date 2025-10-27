@@ -186,7 +186,7 @@ Parent (
 \hline
 \textbf{Iteration} & \textbf{Dates} & \textbf{Stories} & \textbf{Points} \\
 \hline
-1 & 01/01 - 02/01 & S1 Story Example, S2 Story Example 2 & 07 \\ \hline
+1 & 10/09 - 10/023 & A0 Register & 03 \\ \hline
 2 & 02/01 - 03/01 & S3 Story Title, S4 Story Title, S5 Story Title, S6 Story Title & 17 \\ \hline
 3 & 03/01 - 04/01 & S7 Story Title, S8 Story Title, S9 Story Title, S10 Story Title, S11 Story Title & 21 \\ \hline
 4 & 04/01 - 05/01 & S12 Story Title, S13 Story Title, S14 Story Title, S15 Story Title & 19 \\ \hline
@@ -199,15 +199,16 @@ Parent (
 \subsection{Iteration/Sprint 1}
 \subsubsection{Planning}
 [Which stories did you plan for this iteration/sprint. Add the total points for this plan. You can also explain the reason behind your planning, and what major feature(s) your team is focusing on delivering by completing these stories. You may use a table for a summary display of the planning, but elaborate in text more detail in your focus and feature plan.]
+As a user, I want to be able to create an account so that I can have an account to store personal information
 
 \subsubsection{Work Done}
-[Which stories did you complete in this iteration/sprint. Which ones did you partially complete? Who worked on which story? You may elaborate in paragraph(s) to add more detail about the work done.]
+[Which stories did you complete in this iteration/sprint. Which ones did you partially complete? Who worked on which story? You may elaborate in paragraph(s) to add more detail about the work done.] \\\\Will: In this sprint, my goal was to complete M5, U1, M0, and M1, but ended up changing what I did completely. I ended up partially creating the CRUD for Users (including the UserController and UserDao) but still needing to complete the update function. CRUD counts as 8 story points but since I was only able to partially complete update, I only did 6-7 story points is what I did. Because we had to establish a database and other essentials to running the server/database, it is hard to gauge how much time I spent strictly on the CRUD, but it was at least 10 hours and a couple more for testing.
 
 \subsubsection{Testing Coverage}
 [Testing is very important. Show your coverage here. Is this coverage good enough? Explain why you think so. Is it not good enough? Explain a plan to increase the coverage. You may also elaborate on why some artifacts do not undergo much testing. If the testing changed from the last iteration, explain the reasons.]
 
 \subsubsection{Retroespective \& Reflection}
-[What were the pitfalls, challenges, and issues you had in this iteration? How can you address them to improve the process in the next iteration? Did anything not go according to plan? Why so and how to avoid the same mistake? Write a personal reflection on what you learned in this iteration (even if a small technical thing like Database storage).]
+[What were the pitfalls, challenges, and issues you had in this iteration? How can you address them to improve the process in the next iteration? Did anything not go according to plan? Why so and how to avoid the same mistake? Write a personal reflection on what you learned in this iteration (even if a small technical thing like Database storage).]\\\\Will: For me, the biggest challenges I ran into was starting the project. I assumed that I could simply complete my story points and be done with this sprint, but because it is the first sprint, we had to set up the environment; which took much longer than I expected. I think to avoid this in the future, I should really take into consideration what I am doing; rather than just following directions. Something that didn't go according to plan would be completing my assigned user story. I realized that the stories I was focusing on were not able to be completed until other portions of code were already implemented; meaning I could not do my story points until more code was programmed. Something I learned this sprint was despite this project seeming very challenging, breaking it up into smaller segments made it a lot more reasonable. I was also surprised with how connecting to a database was not as hard as I originally thought and it made me much more confident in my coding skills knowing that this would have been unimaginable for me to do a few years ago.
 
 
 \subsection{Iteration/Sprint 2}
