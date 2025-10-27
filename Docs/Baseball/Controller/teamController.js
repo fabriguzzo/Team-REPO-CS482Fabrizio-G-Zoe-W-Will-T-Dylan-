@@ -1,4 +1,3 @@
-
 const dao = require('../Model/teamDao');
 
 
@@ -61,9 +60,7 @@ exports.createOrUpdate = async function (req, res) {
 exports.deleteOne = async function (req, res) {
     const id = req.params.id;
 
-    if (!exports.adminCheck(req)) {
-        return res.status(403).json({ error: 'Admin privileges required' });
-    }
+    
 
     try {
         const deleted = await dao.del(id);
@@ -80,9 +77,7 @@ exports.deleteOne = async function (req, res) {
 
 
 exports.deleteAll = async function (req, res) {
-    if (!exports.adminCheck(req)) {
-        return res.status(403).json({ error: 'Admin privileges required' });
-    }
+    
 
     try {
         await dao.deleteAll();
