@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Test Game Controller</title>
+  <style>
+    body { font-family: Arial; background: #c95d0a; text-align: center; }
+    form { background: rgb(11, 9, 9); padding: 20px; margin: 50px auto; width: 320px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    input, button { width: 90%; margin: 10px 0; padding: 8px; border-radius: 6px; border: 1px solid #080606; }
+    button { background: #f37805; color: rgb(7, 2, 2); border: none; cursor: pointer; }
+    button:hover { background: #d86f13; }
+    hr { margin: 30px 0; }
+  </style>
+</head>
+<body>
+  <h1>Game Tester</h1>
+
+  <!--Game Create-->>
+  <form id="createGameForm">
+    <h2>Create New Game</h2>
+    <input type="text" id="teamA" placeholder="Team A Name" required /><br />
+    <input type="text" id="teamB" placeholder="Team B Name" required /><br />
+    <button type="submit">Create Game</button>
+  </form>
+  <hr />
+
+  <!-- Score update -->
+  <form id="updateScoreForm">
+    <h2>Update Score</h2>
+    <input type="text" id="gameIdScore" placeholder="Game ID" required /><br />
+    <input type="number" id="scoreA" placeholder="Score A" required /><br />
+    <input type="number" id="scoreB" placeholder="Score B" required /><br />
+    <button type="submit">Update Score</button>
+  </form>
+  <hr />
+
+  <!-- Finish game -->
+  <form id="finishGameForm">
+    <h2>Finish Game</h2>
+    <input type="text" id="gameIdFinish" placeholder="Game ID" required /><br />
+    <input type="number" id="finalScoreA" placeholder="Final Score A" required /><br />
+    <input type="number" id="finalScoreB" placeholder="Final Score B" required /><br />
+    <button type="submit">Finish Game</button>
+  </form>
+  <p id="message"></p>
+
+  <script>
+        const BASE_URL = "http://localhost:4000/game";
+
+    document.getElementById("createGameForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      console.log("Create Game button clicked!");
+      const game = {
+        teamA: document.getElementById("teamA").value,
+        teamB: document.getElementById("teamB").value
+      };
+
+      const response = await fetch(BASE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(game)
+      });
+
+      const data = await response.json();
+      const msg = document.getElementById("message");
+
+      if (response.ok) {
+        msg.textContent = `Game created! Heres the ID: ${data._id || data.id}`;
+        document.getElementById("createGameForm").reset();
+      } else {
+        msg.textContent = `Error: ${data.error || "Failed to create game"}`;
+      }
+    });
+
+    // Score update
+    document.getElementById("updateScoreForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("gameIdScore").value;
+      const scores = {
+        scoreA: parseInt(document.getElementById("scoreA").value),
+        scoreB: parseInt(document.getElementById("scoreB").value)
+      };
+
+      const response = await fetch(`${BASE_URL}/${id}/score`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(scores)
+      });
+
+      const data = await response.json();
+      const msg = document.getElementById("message");
+
+      if (response.ok) {
+        msg.textContent = `Score has beeen updated: ${data.scoreA}-${data.scoreB}`;
+        document.getElementById("updateScoreForm").reset();
+      } else {
+        msg.textContent = `Error: ${data.error || "Failed to update score"}`;
+      }
+    });
+
+    //Finish game
+    document.getElementById("finishGameForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("gameIdFinish").value;
+      const finalScores = {
+        scoreA: parseInt(document.getElementById("finalScoreA").value),
+        scoreB: parseInt(document.getElementById("finalScoreB").value)
+      };
+
+      const response = await fetch(`${BASE_URL}/${id}/finish`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(finalScores)
+      });
+
+      const data = await response.json();
+      const msg = document.getElementById("message");
+
+      if (response.ok) {
+        msg.textContent = `Game finished! The Final Result: ${data.game?.result || "Check database"}`;
+        document.getElementById("finishGameForm").reset();
+      } else {
+        msg.textContent = `Error: ${data.error || "Failed to finish game"}`;
+      }
+    });
+  </script>
+</body>
+</html>
