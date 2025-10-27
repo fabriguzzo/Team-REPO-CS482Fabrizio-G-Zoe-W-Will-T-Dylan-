@@ -1,4 +1,4 @@
-const dao = require('../Model/GameDao.js');
+const dao = require('../Model/gameDao.js');
 
 //New game
 exports.create = async function (req, res) {
