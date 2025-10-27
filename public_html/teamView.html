@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>All Teams</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    h1 {
+      background-color: #28a745;
+      color: white;
+      padding: 15px 0;
+      margin-bottom: 20px;
+    }
+
+    #teamsContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      padding: 10px;
+    }
+
+    .team-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 250px;
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+
+    .team-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .team-card img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 10px;
+      border: 2px solid #ccc;
+    }
+
+    .team-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .team-manager {
+      font-size: 14px;
+      color: #666;
+    }
+
+    #message {
+      margin-top: 20px;
+      color: red;
+      font-weight: bold;
+    }
+
+    button {
+      margin-top: 20px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <h1>Team List</h1>
+  <button onclick="loadTeams()">Reload Teams</button>
+  <div id="teamsContainer"></div>
+  <p id="message"></p>
+
+  <script>
+    async function loadTeams() {
+      const container = document.getElementById('teamsContainer');
+      const msg = document.getElementById('message');
+      container.innerHTML = '';
+      msg.textContent = '';
+
+      try {
+        const response = await fetch('http://localhost:4000/teams');
+        const data = await response.json();
+
+        if (!response.ok) {
+          msg.textContent = `Error: ${data.error || 'Failed to load teams'}`;
+          return;
+        }
+
+        if (data.length === 0) {
+          msg.textContent = 'No teams found.';
+          return;
+        }
+
+        data.forEach(team => {
+          const card = document.createElement('div');
+          card.className = 'team-card';
+
+          const logo = document.createElement('img');
+          logo.src = team.logo || 'https://via.placeholder.com/100?text=Team';
+          card.appendChild(logo);
+
+          const name = document.createElement('div');
+          name.className = 'team-name';
+          name.textContent = team.name;
+          card.appendChild(name);
+
+          const manager = document.createElement('div');
+          manager.className = 'team-manager';
+          manager.textContent = `Manager: ${team.manager || 'N/A'}`;
+          card.appendChild(manager);
+
+          container.appendChild(card);
+        });
+      } catch (err) {
+        msg.textContent = 'Error connecting to server.';
+        console.error(err);
+      }
+    }
+
+    // Auto-load teams on page load
+    window.onload = loadTeams;
+  </script>
+</body>
+</html>
