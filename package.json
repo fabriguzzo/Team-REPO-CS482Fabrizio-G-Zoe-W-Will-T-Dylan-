@@ -1,10 +1,12 @@
-  {
+{
   "name": "team-repo-cs482fabrizio-g-zoe-w-will-t-dylan-",
   "version": "1.0.0",
   "description": "",
   "main": "Server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "coverage": "jest --coverage",
     "start": "node server.js"
   },
   "repository": {
@@ -23,7 +25,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "jest": "^30.2.0",
     "mongoose": "^8.19.2"
   }
 }
-

@@ -5,15 +5,15 @@ exports.getAll = async function (req, res) {
         const users = await dao.readAll();
         res.status(200).json(users);
     } catch (err) {
-        console.error('Error fetching teams:', err);
-        res.status(500).json({ error: 'Failed to retrieve teams'});
+        console.error('Error fetching users:', err);
+        res.status(500).json({ error: 'Failed to retrieve users'});
     }
 }
 
 exports.getOneUser = async function (req, res) {
     try {
-        const id = req.params.id;
-        const user = await dao.read(id);
+        const username = req.params.username;
+        const user = await dao.read(username);
 
         if (!user) {
             return res.status(404).json({ error: 'User not found'});
@@ -22,7 +22,7 @@ exports.getOneUser = async function (req, res) {
         res.status(200).json(user);
     } catch (err) {
         console.error('Error fetching user', err);
-        res.status(500).json({ error: 'Error retrieving team'});
+        res.status(500).json({ error: 'Error retrieving user'});
     }
 }
 
@@ -51,14 +51,14 @@ exports.createOrUpdate = async function (req, res) {
 }
 
 exports.deleteOne = async function (req, res) {
-    const id = req.params.id;
+    const user = req.params.username;
 
-    if (!exports.adminCheck(req)) {
-        return res.status(403).json ({ error: "Adin privileges required"});
-    }
+    // if (!exports.adminCheck(req)) {
+    //     return res.status(403).json ({ error: "Admin privileges required"});
+    // }
 
     try {
-        const deleted = await dao.delete(id);
+        const deleted = await dao.delete(user);
         if (deleted) {
             res.status(200).json ({ message: "User deleted successfully"});
         } else {
@@ -71,16 +71,16 @@ exports.deleteOne = async function (req, res) {
 }
 
 exports.deleteAll = async function (req, res) {
-    if (!exports.adminCheck(req)) {
-        return res.status(403).json({ error: 'Admin privileges required'});
-    }
+    // if (!exports.adminCheck(req)) {
+    //     return res.status(403).json({ error: 'Admin privileges required'});
+    // }
 
     try {
         await dao.deleteAll();
         res.status(200).json({ message: "All users deleted successfully"});
     } catch (err) {
         console.error("Error deleting all users:", err);
-        res.status(500).json({ error: 'Failed to delete all teams'});
+        res.status(500).json({ error: 'Failed to delete all users'});
     }
 }
 
@@ -88,13 +88,13 @@ exports.getByName = async function (req, res) {
     const userName = req.params.name;
 
     try {
-        const team = await dao.readByName(userName);
-        if (!team) {
+        const user = await dao.readByName(userName);
+        if (!user) {
             return res.status(404).json({ error: 'User not found'});
         }
-        res.status(200).json(team);
+        res.status(200).json(user);
     } catch (err) {
-        console.error('Error finding team by name:', err);
+        console.error('Error finding user by name:', err);
         res.status(500).json({ error: "Error retrieving user"});
     }
 }

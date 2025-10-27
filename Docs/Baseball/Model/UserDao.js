@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     username: {type : String, required: true, unique: true},
     password: {type : String, required: true},
-    email: {type : String, required: true, unique: true},
+    email: {type : String, required: true},
     phone: {type : String, required: false},
     permission: {type : Number, required: false},
     name: {type : String, required: false},
@@ -35,13 +35,13 @@ exports.readByName = async function(userName) {
     return user;
 }
 
-exports.delete = async function(id) {
-    const user = await userModel.findByIdAndDelete(id);
+exports.delete = async function(username) {
+    const user = await userModel.findOneAndDelete(username);
     return user;
 }
 
 exports.deleteAll = async function() {
-    await userModel.deleteMany();
+    return await userModel.deleteMany();
 }
 
 exports.update = async function() {

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Delete User</title>
+  <style>
+    body { font-family: Arial; background: #f2f2f2; text-align: center; }
+    form { background: white; padding: 20px; margin: 50px auto; width: 300px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    input, button { width: 90%; margin: 10px 0; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+    button { background: #dc3545; color: white; border: none; cursor: pointer; }
+    button:hover { background: #c82333; }
+  </style>
+</head>
+<body>
+  <h1>Delete a User</h1>
+  <form id="deleteForm">
+    <input type="text" id="userId" placeholder="Enter User ID or Username" required /><br />
+    <button type="submit">Delete User</button>
+  </form>
+  <p id="message"></p>
+
+  <script>
+    document.getElementById("deleteForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const userInput = document.getElementById("userId").value.trim();
+      const msg = document.getElementById("message");
+
+      if (!userInput) {
+        msg.textContent = "Please enter a valid user ID or username.";
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:4000/users/${userInput}`, {
+          method: "DELETE",
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          msg.textContent = data.message || "User deleted successfully!";
+        } else {
+          msg.textContent = `Error: ${data.error || "Failed to delete user"}`;
+        }
+
+      } catch (err) {
+        console.error("Error deleting user:", err);
+        msg.textContent = "Error: Unable to connect to server.";
+        msg.style.color = "red";
+      }
+
+      document.getElementById("deleteForm").reset();
+    });
+  </script>
+</body>
+</html>

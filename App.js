@@ -16,11 +16,12 @@ app.use(express.static(path.join(__dirname, "public_html")));
 const testPath = path.join(__dirname, "public_html", "test.html");
 const addTeamPath = path.join(__dirname, "public_html", "teamMaker.html");
 const addUserPath = path.join(__dirname, "public_html", "userMaker.html");
+const deleteUserPath = path.join(__dirname, "public_html", "deleteUser.html");
 
 app.get("/", (req, res) => res.sendFile(testPath));
 app.get("/addTeam", (req, res) => res.sendFile(addTeamPath));
 app.get("/addUser", (req, res) => res.sendFile(addUserPath));
-
+app.get("/deleteUser", (req, res) => res.sendFile(deleteUserPath));
 //  the API routes for team (connected to controller)
 app.get("/teams", teamController.getAll);
 app.get("/teams/:id", teamController.getOne);
@@ -31,7 +32,7 @@ app.delete("/teams", teamController.deleteAll);
 
 //User
 app.get("/users", userController.getAll);
-app.get("/users/:id", userController.getOneUser);
+// app.get("/users/:id", userController.getOneUser);
 app.get("/users/name/:name", userController.getByName);
 app.post("/users", userController.createOrUpdate);
 app.delete("/users/:id", userController.deleteOne);
