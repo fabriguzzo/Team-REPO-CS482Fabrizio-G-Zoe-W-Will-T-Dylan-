@@ -34,4 +34,44 @@
     <button type="reset">Reset</button>
   </form>
 
+  
+  <p id="message"></p>
+
+  <script>
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("message");
+
+      const user = {
+        username: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        password: document.getElementById("password").value
+      };
+
+      try {
+        const response = await fetch("http://localhost:4000/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(user)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          msg.style.color = "green";
+          msg.textContent = "✅ Signup successful!";
+          document.getElementById("signupForm").reset();
+        } else {
+          msg.style.color = "red";
+          msg.textContent = `Error: ${data.error || "Signup failed"}`;
+        }
+      } catch (err) {
+        msg.style.color = "red";
+        msg.textContent = "⚠️ Unable to connect to server.";
+        console.error(err);
+      }
+    });
+  </script>
+</body>
 </html>
