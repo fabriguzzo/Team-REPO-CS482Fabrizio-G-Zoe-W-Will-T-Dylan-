@@ -62,6 +62,11 @@
           msg.style.color = "green";
           msg.textContent = "✅ Signup successful!";
           document.getElementById("signupForm").reset();
+
+          setTimeout(() => {
+            window.location.href = "teamView.html";
+          }, 1000);
+          
         } else {
           msg.style.color = "red";
           msg.textContent = `Error: ${data.error || "Signup failed"}`;
