@@ -20,12 +20,14 @@ const addTeamPath = path.join(__dirname, "public_html", "teamMaker.html");
 const addUserPath = path.join(__dirname, "public_html", "userMaker.html");
 const addGamePath = path.join(__dirname, "public_html", "gameMaker.html");
 const addTeamsPath = path.join(__dirname, "public_html", "teamView.html");
+const deleteUserPath = path.join(__dirname, "public_html", "deleteUser.html");
 
 app.get("/", (req, res) => res.sendFile(testPath));
 app.get("/addTeam", (req, res) => res.sendFile(addTeamPath));
 app.get("/addUser", (req, res) => res.sendFile(addUserPath));
 app.get("/addGame", (req, res) => res.sendFile(addGamePath));
 app.get("/viewTeams", (req, res) => res.sendFile(addTeamsPath));
+app.get("/deleteUser", (req, res) => res.sendFile(deleteUserPath));
 
 //  the API routes for team (connected to controller)
 app.get("/teams", teamController.getAll);
