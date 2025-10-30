@@ -98,3 +98,49 @@ exports.getByName = async function (req, res) {
         res.status(500).json({ error: "Error retrieving user"});
     }
 }
+
+// Add a child (player) under a parent user
+exports.addChild = async function (req, res) {
+    try {
+        // parentId can be provided as a URL param or in the body
+        const parentId = req.params.parentId || req.body.parentId;
+        if (!parentId) {
+            return res.status(400).json({ error: 'parentId is required (param or body)'});
+        }
+
+        // Simple child payload extraction; required fields: username, password, email, name
+        const childData = {
+            username: req.body.username,
+            password: req.body.password,
+            email: req.body.email,
+            phone: req.body.phone,
+            permission: req.body.permission,
+            name: req.body.name,
+            role: req.body.role || 'player',
+            team: req.body.team,
+            timeCreated: req.body.timeCreated
+        }
+
+        // Basic validation
+        if (!childData.username || !childData.password || !childData.email || !childData.name) {
+            return res.status(400).json({ error: 'Missing required child fields: username, password, email, name' });
+        }
+
+        // Ensure parent exists
+        const parent = await dao.read(parentId);
+        if (!parent) {
+            return res.status(404).json({ error: 'Parent user not found' });
+        }
+
+        // Create child via DAO
+        const newChild = await dao.createChild(parent._id, childData);
+        res.status(201).json(newChild);
+    } catch (err) {
+        console.error('Error creating child user:', err);
+        // Handle duplicate username error from mongoose
+        if (err && err.code === 11000) {
+            return res.status(409).json({ error: 'Username or email already exists' });
+        }
+        res.status(500).json({ error: 'Failed to create child user' });
+    }
+}
