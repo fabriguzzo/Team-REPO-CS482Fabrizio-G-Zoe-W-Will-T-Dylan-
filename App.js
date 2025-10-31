@@ -44,6 +44,8 @@ app.get("/users/name/:name", userController.getByName);
 app.post("/users", userController.createOrUpdate);
 app.delete("/users/:id", userController.deleteOne);
 app.delete("/users", userController.deleteAll);
+// Create a child (player) under a parent user
+app.post('/users/:parentId/children', userController.addChild);
 // const UserCont = require("./Docs/Baseball/Controller/UserController.js");
 // app.post('/user',UserCont.postCreateOrUpdate); // register new user
 // app.get('/user',UserCont.getAll);
