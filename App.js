@@ -21,6 +21,7 @@ const addUserPath = path.join(__dirname, "public_html", "userMaker.html");
 const addGamePath = path.join(__dirname, "public_html", "gameMaker.html");
 const addTeamsPath = path.join(__dirname, "public_html", "teamView.html");
 const deleteUserPath = path.join(__dirname, "public_html", "deleteUser.html");
+const viewUserPath = path.join(__dirname, "public_html", "userView.html");
 
 app.get("/", (req, res) => res.sendFile(testPath));
 app.get("/addTeam", (req, res) => res.sendFile(addTeamPath));
@@ -28,6 +29,7 @@ app.get("/addUser", (req, res) => res.sendFile(addUserPath));
 app.get("/addGame", (req, res) => res.sendFile(addGamePath));
 app.get("/viewTeams", (req, res) => res.sendFile(addTeamsPath));
 app.get("/deleteUser", (req, res) => res.sendFile(deleteUserPath));
+app.get("/viewUsers", (req, res) => res.sendFile(viewUserPath));
 
 //  the API routes for team (connected to controller)
 app.get("/teams", teamController.getAll);
@@ -45,9 +47,6 @@ app.post("/users", userController.createOrUpdate);
 app.delete("/users/:id", userController.deleteOne);
 app.delete("/users", userController.deleteAll);
 app.post('/users/:parentId/children', userController.addChild);
-// const UserCont = require("./Docs/Baseball/Controller/UserController.js");
-// app.post('/user',UserCont.postCreateOrUpdate); // register new user
-// app.get('/user',UserCont.getAll);
 
 //Game
 app.post('/game', gameController.create);

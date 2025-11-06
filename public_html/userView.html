@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Manage Users</title>
+  <title>All Users</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,7 +13,7 @@
     }
 
     h1 {
-      background-color: #dc3545;
+      background-color: #007bff;
       color: white;
       padding: 15px 0;
       margin-bottom: 20px;
@@ -35,7 +35,6 @@
       padding: 20px;
       text-align: center;
       transition: transform 0.2s ease;
-      position: relative;
     }
 
     .user-card:hover {
@@ -66,21 +65,6 @@
     .user-role {
       font-size: 14px;
       color: #444;
-      margin-bottom: 10px;
-    }
-
-    .delete-btn {
-      background: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 15px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .delete-btn:hover {
-      background: #c82333;
     }
 
     #message {
@@ -89,8 +73,8 @@
       font-weight: bold;
     }
 
-    button#reload {
-      margin-bottom: 20px;
+    button {
+      margin-top: 20px;
       background: #007bff;
       color: white;
       border: none;
@@ -99,14 +83,14 @@
       cursor: pointer;
     }
 
-    button#reload:hover {
+    button:hover {
       background: #0069d9;
     }
   </style>
 </head>
 <body>
-  <h1>Manage Users</h1>
-  <button id="reload" onclick="loadUsers()">Reload Users</button>
+  <h1>User List</h1>
+  <button onclick="loadUsers()">Reload Users</button>
   <div id="usersContainer"></div>
   <p id="message"></p>
 
@@ -135,10 +119,6 @@
           const card = document.createElement('div');
           card.className = 'user-card';
 
-          const avatar = document.createElement('img');
-          avatar.src = user.avatar || 'https://via.placeholder.com/100?text=User';
-          card.appendChild(avatar);
-
           const name = document.createElement('div');
           name.className = 'user-name';
           name.textContent = user.username;
@@ -154,12 +134,6 @@
           role.textContent = `Role: ${user.role || 'User'}`;
           card.appendChild(role);
 
-          const deleteBtn = document.createElement('button');
-          deleteBtn.className = 'delete-btn';
-          deleteBtn.textContent = 'Delete User';
-          deleteBtn.onclick = () => deleteUser(user.username);
-          card.appendChild(deleteBtn);
-
           container.appendChild(card);
         });
       } catch (err) {
@@ -168,34 +142,7 @@
       }
     }
 
-    async function deleteUser(username) {
-      if (!confirm(`Are you sure you want to delete user "${username}"?`)) return;
-
-      const msg = document.getElementById('message');
-      msg.textContent = '';
-
-      try {
-        const response = await fetch(`http://localhost:4000/users/${username}`, {
-          method: 'DELETE',
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-          msg.style.color = 'green';
-          msg.textContent = data.message || `User "${username}" deleted successfully!`;
-          loadUsers(); // reload updated list
-        } else {
-          msg.style.color = 'red';
-          msg.textContent = `Error: ${data.error || 'Failed to delete user'}`;
-        }
-      } catch (err) {
-        console.error('Error deleting user:', err);
-        msg.style.color = 'red';
-        msg.textContent = 'Error: Unable to connect to server.';
-      }
-    }
-
-    // Load users on page load
+    // Auto-load users on page load
     window.onload = loadUsers;
   </script>
 </body>
