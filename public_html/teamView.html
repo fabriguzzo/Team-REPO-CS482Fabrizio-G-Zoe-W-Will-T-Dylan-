@@ -61,13 +61,28 @@
       color: #666;
     }
 
+    .edit-btn {
+      margin-top: 15px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .edit-btn:hover {
+      background: #0069d9;
+    }
+
     #message {
       margin-top: 20px;
       color: red;
       font-weight: bold;
     }
 
-    button {
+    button#reloadBtn {
       margin-top: 20px;
       background: #28a745;
       color: white;
@@ -77,14 +92,14 @@
       cursor: pointer;
     }
 
-    button:hover {
+    button#reloadBtn:hover {
       background: #218838;
     }
   </style>
 </head>
 <body>
   <h1>Team List</h1>
-  <button onclick="loadTeams()">Reload Teams</button>
+  <button id="reloadBtn" onclick="loadTeams()">Reload Teams</button>
   <div id="teamsContainer"></div>
   <p id="message"></p>
 
@@ -127,6 +142,16 @@
           manager.textContent = `Manager: ${team.manager || 'N/A'}`;
           card.appendChild(manager);
 
+          //Add Edit button
+          const editBtn = document.createElement('button');
+          editBtn.className = 'edit-btn';
+          editBtn.textContent = 'Edit Team';
+          editBtn.onclick = () => {
+            window.location.href = `editTeam.html?id=${team._id}`;
+            //window.location.href = `http://localhost:4000/editTeam?id=${team._id}`;
+          };
+          card.appendChild(editBtn);
+
           container.appendChild(card);
         });
       } catch (err) {
@@ -140,3 +165,4 @@
   </script>
 </body>
 </html>
+
