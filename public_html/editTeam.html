@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Team</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #040303;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    h1 {
+      background-color: #ffaa00;
+      color: rgb(7, 6, 6);
+      padding: 15px 0;
+      margin-bottom: 20px;
+    }
+
+    form {
+      background: rgb(239, 131, 9);
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: rgb(11, 6, 6);
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid rgb(240, 138, 14);
+      border-radius: 6px;
+    }
+
+    button {
+      background: #ffb300;
+      color: rgb(7, 1, 1);
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: #a06e0b;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    .back-btn {
+      display: inline-block;
+      background: #ffb300;
+      margin-top: 15px;
+    }
+
+    .back-btn:hover {
+      background: #a06e0b;
+    }
+  </style>
+</head>
+<body>
+  <h1>Edit Team</h1>
+
+  <form id="editForm">
+    <label for="name">Team Name</label>
+    <input type="text" id="name" name="name" required />
+
+    <label for="manager">Manager</label>
+    <input type="text" id="manager" name="manager" />
+
+    <label for="logo">Logo URL</label>
+    <input type="text" id="logo" name="logo" placeholder="https://example.com/logo.png" />
+
+    <button type="submit">Save Changes</button>
+  </form>
+
+  <p id="message"></p>
+  <button class="back-btn" onclick="window.location.href='teamView.html'">← Back to Teams</button>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const teamId = params.get('id');
+    const form = document.getElementById('editForm');
+    const msg = document.getElementById('message');
+
+    // Load existing team info
+    async function loadTeam() {
+      if (!teamId) {
+        msg.textContent = 'No team ID provided.';
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:4000/teams/${teamId}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          msg.textContent = data.error || 'Failed to load team.';
+          return;
+        }
+
+        document.getElementById('name').value = data.name || '';
+        document.getElementById('manager').value = data.manager || '';
+        document.getElementById('logo').value = data.logo || '';
+      } catch (err) {
+        console.error(err);
+        msg.textContent = 'Error fetching team data.';
+      }
+    }
+
+    // Handle form submission (update)
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = '';
+
+      const updatedTeam = {
+        _id: teamId,
+        name: form.name.value.trim(),
+        manager: form.manager.value.trim(),
+        logo: form.logo.value.trim()
+      };
+
+      try {
+        const res = await fetch('http://localhost:4000/teams', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedTeam)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          msg.style.color = 'green';
+          msg.textContent = 'Team updated successfully!';
+          setTimeout(() => window.location.href = 'teamView.html', 1000);
+        } else {
+          msg.style.color = 'red';
+          msg.textContent = data.error || 'Failed to update team.';
+        }
+      } catch (err) {
+        console.error(err);
+        msg.style.color = 'red';
+        msg.textContent = 'Error connecting to server.';
+      }
+    });
+
+    // Auto-load the team data
+    window.onload = loadTeam;
+  </script>
+</body>
+</html>
