@@ -202,5 +202,85 @@ describe('UserController.createOrUpdate', () => {
     })
 
     
+    // Tests for addChild
+    test('addChild returns 400 if parentId not provided', async () => {
+        const reqNoParent = { params: {}, body: {} };
+        await userController.addChild(reqNoParent, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'parentId is required (param or body)'});
+    });
+
+    test('addChild returns 400 if required child fields are missing', async () => {
+        const reqMissingFields = { params: { parentId: 'parent123' }, body: {} };
+        // parent existence isn't checked because fields validation happens first
+        await userController.addChild(reqMissingFields, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Missing required child fields: username, password, email, name' });
+    });
+
+    test('addChild returns 404 if parent not found', async () => {
+        const reqNotFound = { params: { parentId: 'parent123' }, body: { username: 'c', password: 'p', email: 'e@e.com', name: 'Child' } };
+        userDao.read.mockResolvedValue(null);
+
+        await userController.addChild(reqNotFound, res);
+
+        expect(userDao.read).toHaveBeenCalledWith('parent123');
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Parent user not found' });
+    });
+
+    test('addChild creates child and returns 201 on success', async () => {
+        const reqGood = { params: { parentId: 'parent123' }, body: { username: 'childUser', password: 'pw', email: 'c@c.com', name: 'Child Name', phone: '123' } };
+        const parentObj = { _id: 'parent123', username: 'parent' };
+        const createdChild = { _id: 'child123', username: 'childUser', parent: 'parent123' };
+
+        userDao.read.mockResolvedValue(parentObj);
+        userDao.createChild.mockResolvedValue(createdChild);
+
+        await userController.addChild(reqGood, res);
+
+        expect(userDao.read).toHaveBeenCalledWith('parent123');
+        expect(userDao.createChild).toHaveBeenCalledWith('parent123', {
+            username: 'childUser',
+            password: 'pw',
+            email: 'c@c.com',
+            phone: '123',
+            permission: undefined,
+            name: 'Child Name',
+            role: 'player',
+            team: undefined,
+            timeCreated: undefined
+        });
+
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalledWith(createdChild);
+    });
+
+    test('addChild returns 409 on duplicate key error', async () => {
+        const reqDup = { params: { parentId: 'parent123' }, body: { username: 'childUser', password: 'pw', email: 'c@c.com', name: 'Child Name' } };
+        const parentObj = { _id: 'parent123' };
+        userDao.read.mockResolvedValue(parentObj);
+        const duplicateErr = new Error('dup'); duplicateErr.code = 11000;
+        userDao.createChild.mockRejectedValue(duplicateErr);
+
+        await userController.addChild(reqDup, res);
+
+        expect(res.status).toHaveBeenCalledWith(409);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Username or email already exists' });
+    });
+
+    test('addChild returns 500 on DAO error', async () => {
+        const reqErr = { params: { parentId: 'parent123' }, body: { username: 'childUser', password: 'pw', email: 'c@c.com', name: 'Child Name' } };
+        const parentObj = { _id: 'parent123' };
+        userDao.read.mockResolvedValue(parentObj);
+        userDao.createChild.mockRejectedValue(new Error('DB fail'));
+
+        await userController.addChild(reqErr, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Failed to create child user' });
+    });
 });
 
