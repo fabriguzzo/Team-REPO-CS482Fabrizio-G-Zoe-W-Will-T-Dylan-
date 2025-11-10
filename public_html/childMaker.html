@@ -40,6 +40,16 @@
   <p id="message"></p>
 
   <script>
+    (function prefillParent(){
+      try {
+        const u = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        if (u && u._id) {
+          const parentInput = document.getElementById('parentId');
+          if (parentInput && !parentInput.value) parentInput.value = u._id;
+        }
+      } catch (_) {}
+    })();
+
     document.getElementById('childForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 

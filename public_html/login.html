@@ -48,8 +48,14 @@
         const res = await fetch('/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         const data = await res.json();
         if (res.ok) {
+          try {
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
+          } catch (e) {
+            console.warn('Unable to persist user in localStorage', e);
+          }
           msg.style.color = 'green';
-          msg.textContent = 'Signed in as ' + (data.user?.username || 'user') + '.';
+          msg.textContent = 'Signed in as ' + (data.user?.username || 'user') + '. Redirecting...';
+          setTimeout(() => { window.location.href = '/'; }, 800);
         } else {
           msg.style.color = 'red';
           msg.textContent = data.error || 'Login failed';
@@ -62,4 +68,3 @@
   </script>
 </body>
 </html>
-

@@ -190,5 +190,33 @@
     table.innerHTML = html;
 </script>
 
+<script>
+  // Render login box based on localStorage user
+  (function renderAuthBox(){
+    const box = document.querySelector('.login-box');
+    if (!box) return;
+    let user = null;
+    try { user = JSON.parse(localStorage.getItem('currentUser') || 'null'); } catch (_) {}
+    if (!user || !user.username) return; // leave default links for signed-out users
+
+    const role = user.role ? ` (Role: ${user.role})` : '';
+    const addChildLink = `<a href="/addChild">Add Child</a>`;
+    const signOutBtn = `<button id="signOutBtn" style="margin-top:10px;">Sign Out</button>`;
+
+    box.innerHTML = `
+      <h3>Account</h3>
+      <div>Signed in as <strong>${user.username}</strong>${role}</div>
+      ${addChildLink}
+      ${signOutBtn}
+    `;
+
+    const btn = document.getElementById('signOutBtn');
+    if (btn) btn.addEventListener('click', function(){
+      try { localStorage.removeItem('currentUser'); } catch (_) {}
+      location.reload();
+    });
+  })();
+  </script>
+
 </body>
 </html>
