@@ -1,6 +1,6 @@
 const dao = require('../Model/teamDao');
 
-
+ 
 
 
 exports.getAll = async function (req, res) {
