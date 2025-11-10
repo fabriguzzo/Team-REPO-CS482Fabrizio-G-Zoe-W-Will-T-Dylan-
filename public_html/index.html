@@ -107,15 +107,60 @@
 
         
         <div class="side-buttons">
-            <a href="/addGame" class="nav-btn">Games</a>
+            <a href="/andGame" class="nav-btn">Games</a>
             <a href="/viewTeams" class="nav-btn">Teams</a>
         </div>
 
         
         <div class="calendar">
-        <h2 style="text-align:center; margin-bottom:15px;">Calendar</h2>
-        <table>
-        <tr><td></td><td></td><td><div class="dot"></div></td><td></td><td></td></tr>
+        <table id="calendarTable"></table>
+        </div>
+
+
+        <script>
+        const calendarTable = document.getElementById("calendarTable");
+        const monthName = document.getElementById("monthName");
+
+
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth();
+
+
+        const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+        monthName.textContent = monthNames[month] + " " + year;
+
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+
+        let tableHTML = "<tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr><tr>";
+
+
+        for (let i = 0; i < firstDay; i++) tableHTML += "<td></td>";
+
+
+        let day = 1;
+        for (let i = firstDay; i < 7; i++) {
+        tableHTML += `<td>${day}</td>`;
+        day++;
+        }
+        tableHTML += "</tr>";
+
+
+        while (day <= daysInMonth) {
+        tableHTML += "<tr>";
+        for (let i = 0; i < 7 && day <= daysInMonth; i++) {
+        tableHTML += `<td>${day}</td>`;
+        day++;
+        }
+        tableHTML += "</tr>";
+        }
+
+
+        calendarTable.innerHTML = tableHTML;
+        </script></td><td></td><td></td></tr>
         <tr><td></td><td></td><td></td><td></td><td><div class="dot"></div></td></tr>
         <tr><td><div class="dot"></div></td><td></td><td></td><td></td><td></td></tr>
         </table>
