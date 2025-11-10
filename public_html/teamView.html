@@ -109,49 +109,76 @@
       const msg = document.getElementById('message');
       container.innerHTML = '';
       msg.textContent = '';
-
+  
       try {
         const response = await fetch('http://localhost:4000/teams');
         const data = await response.json();
-
+  
         if (!response.ok) {
           msg.textContent = `Error: ${data.error || 'Failed to load teams'}`;
           return;
         }
-
+  
         if (data.length === 0) {
           msg.textContent = 'No teams found.';
           return;
         }
-
+  
         data.forEach(team => {
           const card = document.createElement('div');
           card.className = 'team-card';
-
+  
           const logo = document.createElement('img');
           logo.src = team.logo || 'https://via.placeholder.com/100?text=Team';
           card.appendChild(logo);
-
+  
           const name = document.createElement('div');
           name.className = 'team-name';
           name.textContent = team.name;
           card.appendChild(name);
-
+  
           const manager = document.createElement('div');
           manager.className = 'team-manager';
           manager.textContent = `Manager: ${team.manager || 'N/A'}`;
           card.appendChild(manager);
-
-          //Add Edit button
+  
+          
           const editBtn = document.createElement('button');
           editBtn.className = 'edit-btn';
           editBtn.textContent = 'Edit Team';
           editBtn.onclick = () => {
             window.location.href = `editTeam.html?id=${team._id}`;
-            //window.location.href = `http://localhost:4000/editTeam?id=${team._id}`;
           };
           card.appendChild(editBtn);
-
+  
+          
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'edit-btn';
+          deleteBtn.style.background = '#dc3545';
+          deleteBtn.style.marginLeft = '10px';
+          deleteBtn.textContent = 'Delete';
+          deleteBtn.onclick = async () => {
+            if (confirm(`Are you sure you want to delete "${team.name}"?`)) {
+              try {
+                const res = await fetch(`http://localhost:4000/teams/${team._id}`, {
+                  method: 'DELETE'
+                });
+                const result = await res.json();
+  
+                if (res.ok) {
+                  alert('Team deleted successfully!');
+                  loadTeams();
+                } else {
+                  alert(result.error || 'Failed to delete team.');
+                }
+              } catch (err) {
+                alert('Error connecting to server.');
+                console.error(err);
+              }
+            }
+          };
+          card.appendChild(deleteBtn);
+  
           container.appendChild(card);
         });
       } catch (err) {
@@ -159,10 +186,7 @@
         console.error(err);
       }
     }
-
-    // Auto-load teams on page load
     window.onload = loadTeams;
   </script>
 </body>
 </html>
-
