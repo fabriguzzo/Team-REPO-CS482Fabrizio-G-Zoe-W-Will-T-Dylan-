@@ -2,54 +2,135 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Test Game Controller</title>
+  <title>Game Manager</title>
   <style>
-    body { font-family: Arial; background: #c95d0a; text-align: center; }
-    form { background: rgb(11, 9, 9); padding: 20px; margin: 50px auto; width: 320px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    input, button { width: 90%; margin: 10px 0; padding: 8px; border-radius: 6px; border: 1px solid #080606; }
-    button { background: #f37805; color: rgb(7, 2, 2); border: none; cursor: pointer; }
-    button:hover { background: #d86f13; }
-    hr { margin: 30px 0; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', Arial, sans-serif;
+      background: #c95d0a;
+      color: #fff;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 40px;
+      font-size: 2.4em;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      margin: 40px auto;
+      width: 60%;
+    }
+
+    form {
+      background: #111;
+      color: #fff;
+      padding: 25px 20px;
+      margin: 40px auto;
+      width: 360px;
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    form:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4);
+    }
+
+    h2 {
+      color: #f37805;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #f37805;
+      display: inline-block;
+      padding-bottom: 5px;
+    }
+
+    input, select {
+      width: 90%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #222;
+      color: #fff;
+      font-size: 0.95em;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: #f37805;
+    }
+
+    button {
+      width: 94%;
+      margin-top: 10px;
+      padding: 10px;
+      background: #f37805;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.1s ease;
+    }
+
+    button:hover {
+      background: #d86f13;
+      transform: scale(1.02);
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #000;
+    }
   </style>
 </head>
 <body>
-  <h1>Game Tester</h1>
+  <h1>Game Manager</h1>
 
-  <!--Game Create-->>
+  <!--New Game CREA-->
   <form id="createGameForm">
     <h2>Create New Game</h2>
     <input type="text" id="teamA" placeholder="Team A Name" required /><br />
     <input type="text" id="teamB" placeholder="Team B Name" required /><br />
     <button type="submit">Create Game</button>
   </form>
+
   <hr />
 
-  <!-- Score update -->
-  <form id="updateScoreForm">
-    <h2>Update Score</h2>
-    <input type="text" id="gameIdScore" placeholder="Game ID" required /><br />
-    <input type="number" id="scoreA" placeholder="Score A" required /><br />
-    <input type="number" id="scoreB" placeholder="Score B" required /><br />
-    <button type="submit">Update Score</button>
-  </form>
-  <hr />
+  <!--Manage CUR Games-->
+  <form id="manageGameForm">
+    <h2>Manage Current Game</h2>
+    <select id="gameDropdown">
+      <option value="">-- Select a Game --</option>
+    </select><br />
 
-  <!-- Finish game -->
-  <form id="finishGameForm">
-    <h2>Finish Game</h2>
-    <input type="text" id="gameIdFinish" placeholder="Game ID" required /><br />
-    <input type="number" id="finalScoreA" placeholder="Final Score A" required /><br />
-    <input type="number" id="finalScoreB" placeholder="Final Score B" required /><br />
-    <button type="submit">Finish Game</button>
+    <input type="number" id="scoreA" placeholder="Score A" /><br />
+    <input type="number" id="scoreB" placeholder="Score B" /><br />
+    <button type="button" onclick="updateScore()">Update Score</button>
+    <button type="button" onclick="finishGame()">Finish Game</button>
   </form>
+
   <p id="message"></p>
 
   <script>
-        const BASE_URL = "http://localhost:4000/game";
+    const BASE_URL = "http://localhost:4000/game";
+    let games = [];
 
+    //Create NEw Game
     document.getElementById("createGameForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      console.log("Create Game button clicked!");
       const game = {
         teamA: document.getElementById("teamA").value,
         teamB: document.getElementById("teamB").value
@@ -65,64 +146,123 @@
       const msg = document.getElementById("message");
 
       if (response.ok) {
-        msg.textContent = `Game created! Heres the ID: ${data._id || data.id}`;
+        msg.textContent = `Game created: ${data.teamA} vs ${data.teamB}`;
         document.getElementById("createGameForm").reset();
+        //"Resfresh Games"
+        loadGames();
       } else {
-        msg.textContent = `Error: ${data.error || "Failed to create game"}`;
+        msg.textContent = `Error: ${data.error || "Failed to create a game"}`;
       }
     });
 
-    // Score update
-    document.getElementById("updateScoreForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const id = document.getElementById("gameIdScore").value;
+    // ===== LOAD ALL GAMES =====
+    async function loadGames() {
+      const dropdown = document.getElementById("gameDropdown");
+      dropdown.innerHTML = '<option value="">--Select a Game--</option>';
+      const msg = document.getElementById("message");
+      msg.textContent = "";
+
+      try {
+        const response = await fetch(BASE_URL);
+        const data = await response.json();
+
+        if (!response.ok) {
+          msg.textContent = "Error loading games.";
+          return;
+        }
+        //Only active games
+        games = data.filter(g => g.status === "in-progress"); 
+
+        if (games.length === 0) {
+          msg.textContent = "No active games found.";
+          return;
+        }
+
+        games.forEach(g => {
+          const opt = document.createElement("option");
+          opt.value = g._id;
+          opt.textContent = `${g.teamA} vs ${g.teamB} (${g.scoreA}-${g.scoreB})`;
+          dropdown.appendChild(opt);
+        });
+      } catch (err) {
+        msg.textContent = "Error connecting to server.";
+        console.error(err);
+      }
+    }
+
+    //SCore Updates
+    async function updateScore() {
+      const id = document.getElementById("gameDropdown").value;
+      const msg = document.getElementById("message");
+      if (!id) {
+        msg.textContent = "Select a game first.";
+        return;
+      }
+
       const scores = {
         scoreA: parseInt(document.getElementById("scoreA").value),
         scoreB: parseInt(document.getElementById("scoreB").value)
       };
 
-      const response = await fetch(`${BASE_URL}/${id}/score`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(scores)
-      });
+      try {
+        const response = await fetch(`${BASE_URL}/${id}/score`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(scores)
+        });
 
-      const data = await response.json();
-      const msg = document.getElementById("message");
+        const data = await response.json();
 
-      if (response.ok) {
-        msg.textContent = `Score has beeen updated: ${data.scoreA}-${data.scoreB}`;
-        document.getElementById("updateScoreForm").reset();
-      } else {
-        msg.textContent = `Error: ${data.error || "Failed to update score"}`;
+        if (response.ok) {
+          msg.textContent = `Score updated: ${data.scoreA}-${data.scoreB}`;
+          loadGames();
+        } else {
+          msg.textContent = `Error: ${data.error || "Failed to update score"}`;
+        }
+      } catch (err) {
+        msg.textContent = "Error connecting to server.";
+        console.error(err);
       }
-    });
+    }
 
-    //Finish game
-    document.getElementById("finishGameForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const id = document.getElementById("gameIdFinish").value;
+    // Finishing a Game
+    async function finishGame() {
+      const id = document.getElementById("gameDropdown").value;
+      const msg = document.getElementById("message");
+      if (!id) {
+        msg.textContent = "Select a game to finish.";
+        return;
+      }
+
       const finalScores = {
-        scoreA: parseInt(document.getElementById("finalScoreA").value),
-        scoreB: parseInt(document.getElementById("finalScoreB").value)
+        scoreA: parseInt(document.getElementById("scoreA").value),
+        scoreB: parseInt(document.getElementById("scoreB").value)
       };
 
-      const response = await fetch(`${BASE_URL}/${id}/finish`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(finalScores)
-      });
+      try {
+        const response = await fetch(`${BASE_URL}/${id}/finish`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(finalScores)
+        });
 
-      const data = await response.json();
-      const msg = document.getElementById("message");
+        const data = await response.json();
 
-      if (response.ok) {
-        msg.textContent = `Game finished! The Final Result: ${data.game?.result || "Check database"}`;
-        document.getElementById("finishGameForm").reset();
-      } else {
-        msg.textContent = `Error: ${data.error || "Failed to finish game"}`;
+        if (response.ok) {
+          msg.textContent = `Game finished! ${data.game?.result || "Check database."}`;
+          loadGames(); 
+        } else {
+          msg.textContent = `Error: ${data.error || "Failed to finish game"}`;
+        }
+      } catch (err) {
+        msg.textContent = "Error connecting to server.";
+        console.error(err);
       }
-    });
+    }
+
+    //Loading games when page loads
+    window.onload = loadGames;
   </script>
 </body>
 </html>
+
