@@ -1,82 +1,143 @@
 <!DOCTYPE html>
-<html lang="en"
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Sign Up</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; margin: 0; padding: 0; text-align: center;}
-    h1 { background-color: #28a745; color: white; padding: 15px 0; margin-bottom: 20px; }
-    form { background: white; padding: 25px; margin: 50px auto; width: 320px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); text-align: left; }
-    label { font-weight: bold; display: block; margin-top: 10px; }
-    input { width: 95%; padding: 8px; margin-top: 5px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; }
-    button { margin-top: 15px; width: 100%; background: #28a745; color: white; border: none; border-radius: 8px; padding: 10px; font-size: 16px; cursor: pointer; }
-    button:hover { background: #218838; }
-    #message { margin-top: 15px; color: #333; font-weight: bold; text-align: center; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baseball League</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+        header {
+            background: #1b4332;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 32px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 200px 1fr 250px;
+            gap: 20px;
+            padding: 20px;
+        }
+        /* LEFT BUTTONS */
+        .side-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .nav-btn {
+            display: block;
+            padding: 15px;
+            background: #2d6a4f;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 20px;
+            transition: 0.2s;
+        }
+        .nav-btn:hover {
+            background: #1b4332;
+            transform: scale(1.05);
+        }
+        /* CALENDAR */
+        .calendar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .calendar table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .calendar td, .calendar th {
+            border: 1px solid #ccc;
+            height: 50px;
+            text-align: center;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: #1b4332;
+            border-radius: 50%;
+            margin: auto;
+        }
+        /* RIGHT SIDE LOGIN */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .login-box a {
+            display: block;
+            padding: 10px;
+            background: #40916c;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        /* FEED */
+        .feed {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .feed-item {
+            background: #eeeeee;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Welcome to the Baseball Signup Page</h1>
+    <header>Baseball League</header>
 
-  <form id="signupForm">
-    <label for="name">Name:</label>
-    <input type="text" id="name" name="name" required />
+    <div class="container">
 
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required />
+        <!-- LEFT BUTTONS -->
+        <div class="side-buttons">
+            <a href="/addGame" class="nav-btn">Games</a>
+            <a href="/viewTeams" class="nav-btn">Teams</a>
+        </div>
 
-    <label for="phone">Phone:</label>
-    <input type="text" id="phone" name="phone" />
+        <!-- CALENDAR -->
+        <div class="calendar">
+            <h2 style="text-align:center; margin-bottom:15px;">Calendar</h2>
+            <table>
+                <tr><td></td><td></td><td><div class="dot"></div></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td><td><div class="dot"></div></td></tr>
+                <tr><td><div class="dot"></div></td><td></td><td></td><td></td><td></td></tr>
+            </table>
+        </div>
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required />
+        <!-- LOGIN AREA -->
+        <div class="right-panel">
+            <div class="login-box">
+                <h3>Login</h3>
+                <a href="/login">Sign In</a>
+                <a href="/signup">Sign Up</a>
+            </div>
+        </div>
+    </div>
 
-    <button type="submit">Sign Up</button>
-    <button type="reset">Reset</button>
-  </form>
+    <!-- FEED SECTION -->
+    <div class="feed">
+        <h2>Feed</h2>
+        <div class="feed-item">User posted a video/picture</div>
+        <div class="feed-item">User posted a video/picture</div>
+        <div class="feed-item">User posted a video/picture</div>
+    </div>
 
-  
-  <p id="message"></p>
-
-  <script>
-    document.getElementById("signupForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const msg = document.getElementById("message");
-
-      const user = {
-        username: document.getElementById("name").value,
-        email: document.getElementById("email").value,
-        phone: document.getElementById("phone").value,
-        password: document.getElementById("password").value
-      };
-
-      try {
-        const response = await fetch("http://localhost:4000/users", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(user)
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          msg.style.color = "green";
-          msg.textContent = "✅ Signup successful!";
-          document.getElementById("signupForm").reset();
-
-          setTimeout(() => {
-            window.location.href = "teamView.html";
-          }, 1000);
-          
-        } else {
-          msg.style.color = "red";
-          msg.textContent = `Error: ${data.error || "Signup failed"}`;
-        }
-      } catch (err) {
-        msg.style.color = "red";
-        msg.textContent = "⚠️ Unable to connect to server.";
-        console.error(err);
-      }
-    });
-  </script>
 </body>
 </html>
