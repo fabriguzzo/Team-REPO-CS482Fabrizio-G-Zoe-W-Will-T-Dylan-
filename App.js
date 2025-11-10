@@ -1,6 +1,8 @@
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
+const multer = require('multer');
+const fs = require('fs');
 
 const teamController = require("./Docs/Baseball/Controller/teamController");
 const userController = require("./Docs/Baseball/Controller/UserController");
@@ -25,6 +27,7 @@ const deleteUserPath = path.join(__dirname, "public_html", "deleteUser.html");
 const viewUserPath = path.join(__dirname, "public_html", "userView.html");
 const viewGamesPath = path.join(__dirname, "public_html", "viewGames.html");
 
+
 app.get("/", (req, res) => res.sendFile(testPath));
 app.get("/addTeam", (req, res) => res.sendFile(addTeamPath));
 app.get("/addUser", (req, res) => res.sendFile(addUserPath));
@@ -35,6 +38,24 @@ app.get("/deleteUser", (req, res) => res.sendFile(deleteUserPath));
 app.get("/viewUsers", (req, res) => res.sendFile(viewUserPath));
 app.get("/viewGames", (req, res) => res.sendFile(viewGamesPath));
 
+//create a folder to store logos for teams
+const uploadDir = path.join(__dirname, 'public_html', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+      const uniqueName = Date.now() + '-' + file.originalname;
+      cb(null, uniqueName);
+    }
+});
+
+const upload = multer({ storage });
+
 //  the API routes for team (connected to controller)
 app.get("/teams", teamController.getAll);
 app.get("/teams/:id", teamController.getOne);
@@ -42,6 +63,7 @@ app.get("/teams/name/:name", teamController.getByName);
 app.post("/teams", teamController.createOrUpdate);
 app.delete("/teams/:id", teamController.deleteOne);
 app.delete("/teams", teamController.deleteAll);
+app.use('/uploads', express.static(path.join(__dirname, 'public_html', 'uploads')));
 
 //User
 app.get("/users", userController.getAll);
