@@ -1,98 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Edit Team</title>
   <style>
     body {
+      background-color: black;
+      color: white;
       font-family: Arial, sans-serif;
-      background: #040303;
-      margin: 0;
-      padding: 0;
       text-align: center;
     }
 
     h1 {
-      background-color: #ffaa00;
-      color: rgb(7, 6, 6);
-      padding: 15px 0;
-      margin-bottom: 20px;
+      background-color: orange;
+      color: black;
+      padding: 15px;
+      margin: 0;
     }
 
     form {
-      background: rgb(239, 131, 9);
-      max-width: 400px;
-      margin: 0 auto;
+      background-color: orange;
+      width: 400px;
+      margin: 30px auto;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
     }
 
     label {
       display: block;
       text-align: left;
       margin-bottom: 5px;
+      color: black;
       font-weight: bold;
-      color: rgb(11, 6, 6);
     }
 
-    input {
+    input[type="text"],
+    input[type="file"] {
       width: 100%;
       padding: 8px;
       margin-bottom: 15px;
-      border: 1px solid rgb(240, 138, 14);
-      border-radius: 6px;
+      border: none;
+      border-radius: 5px;
     }
 
     button {
-      background: #ffb300;
-      color: rgb(7, 1, 1);
+      background-color: #ffb300;
+      color: black;
       border: none;
-      border-radius: 8px;
       padding: 10px 20px;
+      border-radius: 8px;
       cursor: pointer;
       margin-top: 10px;
-      transition: background 0.2s ease;
     }
 
     button:hover {
-      background: #a06e0b;
+      background-color: #a06e0b;
     }
 
     #message {
+      color: white;
       margin-top: 15px;
       font-weight: bold;
     }
 
     .back-btn {
-      display: inline-block;
-      background: #ffb300;
-      margin-top: 15px;
+      background-color: #ffb300;
+      color: black;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
     }
 
     .back-btn:hover {
-      background: #a06e0b;
+      background-color: #a06e0b;
     }
   </style>
 </head>
 <body>
   <h1>Edit Team</h1>
 
-  <form id="editForm">
+  <form id="editForm" enctype="multipart/form-data">
     <label for="name">Team Name</label>
-    <input type="text" id="name" name="name" required />
+    <input type="text" id="name" name="name" required>
 
     <label for="manager">Manager</label>
-    <input type="text" id="manager" name="manager" />
+    <input type="text" id="manager" name="manager">
 
-    <label for="logo">Logo URL</label>
-    <input type="text" id="logo" name="logo" placeholder="https://example.com/logo.png" />
+    <label for="logo">Upload New Logo</label>
+    <input type="file" id="logo" name="logo" accept="image/*">
 
     <button type="submit">Save Changes</button>
   </form>
 
   <p id="message"></p>
-  <button class="back-btn" onclick="window.location.href='teamView.html'">← Back to Teams</button>
+  <button class="back-btn" onclick="window.location.href='viewTeams'">← Back to Teams</button>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -100,13 +103,7 @@
     const form = document.getElementById('editForm');
     const msg = document.getElementById('message');
 
-    // Load existing team info
     async function loadTeam() {
-      if (!teamId) {
-        msg.textContent = 'No team ID provided.';
-        return;
-      }
-
       try {
         const res = await fetch(`http://localhost:4000/teams/${teamId}`);
         const data = await res.json();
@@ -118,30 +115,27 @@
 
         document.getElementById('name').value = data.name || '';
         document.getElementById('manager').value = data.manager || '';
-        document.getElementById('logo').value = data.logo || '';
       } catch (err) {
-        console.error(err);
         msg.textContent = 'Error fetching team data.';
       }
     }
 
-    // Handle form submission (update)
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       msg.textContent = '';
 
-      const updatedTeam = {
-        _id: teamId,
-        name: form.name.value.trim(),
-        manager: form.manager.value.trim(),
-        logo: form.logo.value.trim()
-      };
+      const formData = new FormData();
+      formData.append('_id', teamId);
+      formData.append('name', form.name.value.trim());
+      formData.append('manager', form.manager.value.trim());
+      if (form.logo.files[0]) {
+        formData.append('logo', form.logo.files[0]);
+      }
 
       try {
         const res = await fetch('http://localhost:4000/teams', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updatedTeam)
+          body: formData
         });
 
         const data = await res.json();
@@ -154,13 +148,11 @@
           msg.textContent = data.error || 'Failed to update team.';
         }
       } catch (err) {
-        console.error(err);
         msg.style.color = 'red';
         msg.textContent = 'Error connecting to server.';
       }
     });
 
-    // Auto-load the team data
     window.onload = loadTeam;
   </script>
 </body>
