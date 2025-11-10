@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     phone: {type : String, required: false},
     permission: {type : Number, required: false},
     name: {type : String, required: false},
-    role: {type : String, enum: ["coach", "manager", "admin", "player", "parent"], default : "parent", required: false},
+    role: {type : String, enum: ["coach", "manager", "admin", "player", "child"], default : "player", required: false},
     team: {type : mongoose.Schema.Types.ObjectId, ref: "Team", required: false},
     parent: {type: mongoose.Schema.Types.ObjectId, ref: "User", required: false},
     timeCreated: {type : Date, default: Date.now}
@@ -21,10 +21,8 @@ exports.create = async function(newUser) {
     return user;
 }
 
-// Create a child user linked to a parent user (parentId should be an ObjectId/string)
 exports.createChild = async function(parentId, childData) {
-    // Always enforce role 'player' for children
-    const data = Object.assign({}, childData, { role: 'player' });
+    const data = Object.assign({}, childData, { role: 'child' });
     data.parent = parentId;
 
     const child = new userModel(data);

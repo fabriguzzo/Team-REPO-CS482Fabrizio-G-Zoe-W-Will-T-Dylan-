@@ -146,7 +146,7 @@ exports.addChild = async function (req, res) {
             password: req.body.password,
             email: req.body.email,
             permission: req.body.permission,
-            role: 'player',
+            role: 'child',
             team: req.body.team,
             timeCreated: req.body.timeCreated
         }
