@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 
 
-
+/** 
 const teamSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     players: [{ type: String }],
@@ -14,6 +14,23 @@ const teamSchema = new mongoose.Schema({
     losses:  {type: Number},
     schedule: [{ type: String }]
 });
+*/
+
+const teamSchema = new mongoose.Schema({
+    name: { type: String, required: true, unique: true },
+    players: [{ type: String }],
+    coach: { type: String },
+    manager: { type: String },
+    logo: {
+      data: Buffer,
+      contentType: String
+    },
+    wins: { type: Number },
+    ties: { type: Number },
+    losses: { type: Number },
+    schedule: [{ type: String }]
+});
+  
 
 
 const teamModel = mongoose.model('Team', teamSchema);
@@ -71,3 +88,7 @@ exports.updateById = async function (id, updatedFields) {
     const updatedTeam = await teamModel.findByIdAndUpdate(id, updatedFields, { new: true });
     return updatedTeam;
 };
+
+
+
+
