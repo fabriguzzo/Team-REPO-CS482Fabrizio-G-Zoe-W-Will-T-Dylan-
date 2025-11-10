@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Child (Player)</title>
+  <style>
+    body { font-family: Arial; background: #f2f2f2; text-align: center; }
+    form { background: white; padding: 20px; margin: 40px auto; width: 350px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    input, button, select { width: 92%; margin: 8px 0; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+    button { background: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background: #0069d9; }
+    label { display: block; text-align: left; margin-left: 4%; font-weight: bold; }
+    #message { margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Register a Child (Player)</h1>
+  <form id="childForm">
+    <label for="parentId">Parent ID</label>
+    <input type="text" id="parentId" placeholder="Parent user id (ObjectId)" required />
+
+    <label for="username">Child Username</label>
+    <input type="text" id="username" placeholder="Username" required />
+
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="Password" required />
+
+    <label for="email">Email</label>
+    <input type="email" id="email" placeholder="Email" required />
+
+    <label for="name">Full Name</label>
+    <input type="text" id="name" placeholder="Child's full name" required />
+
+    <label for="phone">Phone (optional)</label>
+    <input type="text" id="phone" placeholder="Phone number" />
+
+    <button type="submit">Create Child</button>
+  </form>
+
+  <p id="message"></p>
+
+  <script>
+    document.getElementById('childForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const parentId = document.getElementById('parentId').value.trim();
+      const payload = {
+        username: document.getElementById('username').value.trim(),
+        password: document.getElementById('password').value,
+        email: document.getElementById('email').value.trim(),
+        name: document.getElementById('name').value.trim(),
+        phone: document.getElementById('phone').value.trim()
+      };
+
+      const msg = document.getElementById('message');
+      msg.textContent = 'Creating child...';
+
+      try {
+        const res = await fetch(`/users/${encodeURIComponent(parentId)}/children`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          msg.style.color = 'green';
+          msg.textContent = 'Child created successfully: ' + (data._id || data.username || '');
+          document.getElementById('childForm').reset();
+        } else {
+          msg.style.color = 'red';
+          msg.textContent = 'Error: ' + (data.error || JSON.stringify(data));
+        }
+      } catch (err) {
+        msg.style.color = 'red';
+        msg.textContent = 'Network error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
