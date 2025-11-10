@@ -24,7 +24,6 @@
             gap: 20px;
             padding: 20px;
         }
-        
         .side-buttons {
             display: flex;
             flex-direction: column;
@@ -45,30 +44,45 @@
             background: #1b4332;
             transform: scale(1.05);
         }
-        
+
+        /* NEW CALENDAR DESIGN */
         .calendar {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.12);
         }
-        .calendar table {
+        #monthHeader {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        table {
             width: 100%;
             border-collapse: collapse;
-        }
-        .calendar td, .calendar th {
-            border: 1px solid #ccc;
-            height: 50px;
             text-align: center;
         }
-        .dot {
-            width: 10px;
-            height: 10px;
-            background: #1b4332;
-            border-radius: 50%;
-            margin: auto;
+        th {
+            color: #555;
+            padding-bottom: 10px;
         }
-        
+        td {
+            height: 55px;
+            border-radius: 10px;
+            transition: 0.15s;
+        }
+        td:hover {
+            background: #d8f3dc;
+            cursor: pointer;
+        }
+        .today {
+            background: #74c69d;
+            color: white;
+            font-weight: bold;
+            border-radius: 50%;
+        }
+
         .right-panel {
             display: flex;
             flex-direction: column;
@@ -84,7 +98,7 @@
             border-radius: 8px;
             margin-top: 10px;
         }
-        
+
         .feed {
             margin-top: 30px;
             background: white;
@@ -101,88 +115,76 @@
     </style>
 </head>
 <body>
-    <header>Baseball League</header>
+<header>Baseball League</header>
 
-    <div class="container">
+<div class="container">
+    <div class="side-buttons">
+        <a href="/addGame" class="nav-btn">Games</a>
+        <a href="/viewTeams" class="nav-btn">Teams</a>
+    </div>
 
-        
-        <div class="side-buttons">
-            <a href="/andGame" class="nav-btn">Games</a>
-            <a href="/viewTeams" class="nav-btn">Teams</a>
-        </div>
-
-        
-        <div class="calendar">
+    <!-- BEAUTIFUL CALENDAR -->
+    <div class="calendar">
+        <div id="monthHeader"></div>
         <table id="calendarTable"></table>
+    </div>
+
+    <div class="right-panel">
+        <div class="login-box">
+            <h3>Login</h3>
+            <a href="/login">Sign In</a>
+            <a href="/signup">Sign Up</a>
         </div>
+    </div>
+</div>
 
+<div class="feed">
+    <h2>Feed</h2>
+    <div class="feed-item">User posted a video/picture</div>
+    <div class="feed-item">User posted a video/picture</div>
+    <div class="feed-item">User posted a video/picture</div>
+</div>
 
-        <script>
-        const calendarTable = document.getElementById("calendarTable");
-        const monthName = document.getElementById("monthName");
+<script>
+    const table = document.getElementById("calendarTable");
+    const header = document.getElementById("monthHeader");
 
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = today.getMonth();
+    header.textContent = `${monthNames[month]} ${year}`;
 
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-        monthName.textContent = monthNames[month] + " " + year;
+    let html = `<tr>
+        <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+    </tr><tr>`;
 
+    for (let i = 0; i < firstDay; i++) html += "<td></td>";
 
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-
-        let tableHTML = "<tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr><tr>";
-
-
-        for (let i = 0; i < firstDay; i++) tableHTML += "<td></td>";
-
-
-        let day = 1;
-        for (let i = firstDay; i < 7; i++) {
-        tableHTML += `<td>${day}</td>`;
+    let day = 1;
+    for (let i = firstDay; i < 7; i++) {
+        const isToday = day === today.getDate();
+        html += `<td class="${isToday ? 'today' : ''}">${day}</td>`;
         day++;
-        }
-        tableHTML += "</tr>";
+    }
+    html += "</tr>";
 
-
-        while (day <= daysInMonth) {
-        tableHTML += "<tr>";
+    while (day <= daysInMonth) {
+        html += "<tr>";
         for (let i = 0; i < 7 && day <= daysInMonth; i++) {
-        tableHTML += `<td>${day}</td>`;
-        day++;
+            const isToday = day === today.getDate();
+            html += `<td class="${isToday ? 'today' : ''}">${day}</td>`;
+            day++;
         }
-        tableHTML += "</tr>";
-        }
+        html += "</tr>";
+    }
 
-
-        calendarTable.innerHTML = tableHTML;
-        </script></td><td></td><td></td></tr>
-        <tr><td></td><td></td><td></td><td></td><td><div class="dot"></div></td></tr>
-        <tr><td><div class="dot"></div></td><td></td><td></td><td></td><td></td></tr>
-        </table>
-        </div>
-
-        
-        <div class="right-panel">
-            <div class="login-box">
-                <h3>Login</h3>
-                <a href="/login">Sign In</a>
-                <a href="/signup">Sign Up</a>
-            </div>
-        </div>
-    </div>
-
-    
-    <div class="feed">
-        <h2>Feed</h2>
-        <div class="feed-item">User posted a video/picture</div>
-        <div class="feed-item">User posted a video/picture</div>
-        <div class="feed-item">User posted a video/picture</div>
-    </div>
+    table.innerHTML = html;
+</script>
 
 </body>
 </html>
