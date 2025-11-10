@@ -86,7 +86,6 @@ exports.deleteAll = async function (req, res) {
 
 exports.getByName = async function (req, res) {
     const userName = req.params.name;
-
     try {
         const user = await dao.readByName(userName);
         if (!user) {
@@ -96,6 +95,24 @@ exports.getByName = async function (req, res) {
     } catch (err) {
         console.error('Error finding user by name:', err);
         res.status(500).json({ error: "Error retrieving user"});
+    }
+}
+
+exports.login = async function (req, res) {
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(400).json({ error: 'username and password are required' });
+        }
+        const user = await dao.readByUsername(username);
+        if (!user || user.password !== password) {
+            return res.status(401).json({ error: 'Invalid username or password' });
+        }
+        const { password: _, ...safeUser } = user.toObject ? user.toObject() : user;
+        return res.status(200).json({ message: 'Login successful', user: safeUser });
+    } catch (err) {
+        console.error('Error during login:', err);
+        return res.status(500).json({ error: 'Login failed' });
     }
 }
 
