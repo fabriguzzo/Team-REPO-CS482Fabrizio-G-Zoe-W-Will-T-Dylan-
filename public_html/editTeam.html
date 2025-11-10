@@ -91,6 +91,14 @@
     <label for="logo">Upload New Logo</label>
     <input type="file" id="logo" name="logo" accept="image/*">
 
+    <hr>
+    <h3 style="color:black;">Players</h3>
+    <div id="playerList" style="text-align:left; background:#fff; color:#000; padding:10px; border-radius:8px; max-height:220px; overflow:auto;"></div>
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <input type="text" id="newPlayer" placeholder="Add player name" style="flex:1;">
+      <button type="button" id="addPlayerBtn">Add</button>
+    </div>
+
     <button type="submit">Save Changes</button>
   </form>
 
@@ -102,6 +110,10 @@
     const teamId = params.get('id');
     const form = document.getElementById('editForm');
     const msg = document.getElementById('message');
+    const playerListEl = document.getElementById('playerList');
+    const newPlayerInput = document.getElementById('newPlayer');
+    const addPlayerBtn = document.getElementById('addPlayerBtn');
+    let players = [];
 
     async function loadTeam() {
       try {
@@ -115,10 +127,51 @@
 
         document.getElementById('name').value = data.name || '';
         document.getElementById('manager').value = data.manager || '';
+        players = Array.isArray(data.players) ? data.players.slice() : [];
+        renderPlayers();
       } catch (err) {
         msg.textContent = 'Error fetching team data.';
       }
     }
+
+    function renderPlayers(){
+      playerListEl.innerHTML = '';
+      if (!players.length) {
+        const empty = document.createElement('div');
+        empty.textContent = 'No players yet.';
+        empty.style.color = '#333';
+        playerListEl.appendChild(empty);
+        return;
+      }
+      players.forEach((p, idx) => {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.justifyContent = 'space-between';
+        row.style.padding = '6px 0';
+        const name = document.createElement('span');
+        name.textContent = p;
+        const rm = document.createElement('button');
+        rm.type = 'button';
+        rm.textContent = 'Remove';
+        rm.style.background = '#fff';
+        rm.style.border = '1px solid #a06e0b';
+        rm.style.borderRadius = '6px';
+        rm.style.cursor = 'pointer';
+        rm.addEventListener('click', () => { players.splice(idx,1); renderPlayers(); });
+        row.appendChild(name);
+        row.appendChild(rm);
+        playerListEl.appendChild(row);
+      });
+    }
+
+    addPlayerBtn.addEventListener('click', () => {
+      const val = newPlayerInput.value.trim();
+      if (!val) return;
+      players.push(val);
+      newPlayerInput.value = '';
+      renderPlayers();
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -131,6 +184,7 @@
       if (form.logo.files[0]) {
         formData.append('logo', form.logo.files[0]);
       }
+      formData.append('players', JSON.stringify(players));
 
       try {
         const res = await fetch('http://localhost:4000/teams', {

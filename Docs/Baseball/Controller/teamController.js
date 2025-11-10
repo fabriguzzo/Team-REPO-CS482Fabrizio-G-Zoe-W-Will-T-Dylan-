@@ -31,13 +31,32 @@ exports.getOne = async function (req, res) {
     }
 };
 
-/** 
+
 exports.createOrUpdate = async function (req, res) {
     try {
       const teamData = {
         name: req.body.name,
         manager: req.body.manager
       };
+
+      if (typeof req.body.players !== 'undefined') {
+        let players = req.body.players;
+        try {
+          if (typeof players === 'string') {
+            players = JSON.parse(players);
+          }
+        } catch (_) {
+          if (typeof req.body.players === 'string') {
+            players = req.body.players
+              .split(',')
+              .map(s => s.trim())
+              .filter(Boolean);
+          }
+        }
+        if (Array.isArray(players)) {
+          teamData.players = players;
+        }
+      }
   
       
       if (req.body._id) {
@@ -72,7 +91,7 @@ exports.createOrUpdate = async function (req, res) {
       res.status(500).json({ error: 'Failed to create or update team' });
     }
   };
-*/
+
 
 exports.createOrUpdate = async function (req, res) {
     try {
@@ -93,31 +112,35 @@ exports.createOrUpdate = async function (req, res) {
         if (!existingTeam) {
           return res.status(404).json({ error: 'Team not found for update' });
         }
-  
+
         if (!req.file) {
           teamData.logo = existingTeam.logo;
         }
-  
+
+        if (typeof teamData.players === 'undefined') {
+          teamData.players = existingTeam.players;
+        }
+
         const updated = await dao.updateById(req.body._id, teamData);
         return res.status(200).json(updated);
       }
-  
+
       const newTeam = await dao.create({
         ...teamData,
-        players: [],
+        players: Array.isArray(teamData.players) ? teamData.players : [],
         coach: "",
         wins: 0,
         ties: 0,
         losses: 0,
         schedule: []
       });
-  
+
       res.status(201).json(newTeam);
     } catch (err) {
       console.error('Error creating/updating team:', err);
       res.status(500).json({ error: 'Failed to create or update team' });
     }
-};
+  };
 
 
 exports.deleteOne = async function (req, res) {
