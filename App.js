@@ -29,6 +29,7 @@ const addTeamsPath = path.join(__dirname, "public_html", "teamView.html");
 const deleteUserPath = path.join(__dirname, "public_html", "deleteUser.html");
 const viewUserPath = path.join(__dirname, "public_html", "userView.html");
 const viewGamesPath = path.join(__dirname, "public_html", "viewGames.html");
+const updateUserPath = path.join(__dirname, "public_html", "updateUser.html");
 
 
 app.get("/", (req, res) => res.sendFile(testPath));
@@ -43,6 +44,7 @@ app.get("/viewTeams", (req, res) => res.sendFile(addTeamsPath));
 app.get("/deleteUser", (req, res) => res.sendFile(deleteUserPath));
 app.get("/viewUsers", (req, res) => res.sendFile(viewUserPath));
 app.get("/viewGames", (req, res) => res.sendFile(viewGamesPath));
+app.get("/updateUser", (req, res) => res.sendFile(updateUserPath));
 
 //create a folder to store logos for teams
 const uploadDir = path.join(__dirname, 'public_html', 'uploads');

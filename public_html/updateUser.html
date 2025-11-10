@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Update Users</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    h1 {
+      background-color: #007bff;
+      color: white;
+      padding: 15px 0;
+      margin-bottom: 20px;
+    }
+
+    #usersContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      padding: 10px;
+    }
+
+    .user-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 260px;
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.2s ease;
+      position: relative;
+    }
+
+    .user-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .user-card img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 10px;
+      border: 2px solid #ccc;
+    }
+
+    .user-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .user-email {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .user-role {
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 10px;
+    }
+
+    .update-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-right: 5px;
+    }
+
+    .update-btn:hover {
+      background: #218838;
+    }
+
+    .cancel-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+
+    .cancel-btn:hover {
+      background: #5a6268;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    button#reload {
+      margin-bottom: 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    button#reload:hover {
+      background: #0069d9;
+    }
+
+    .update-form {
+      display: none;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .update-form input, .update-form select {
+      width: 100%;
+      padding: 6px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .save-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+
+    .save-btn:hover {
+      background: #0069d9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Update Users</h1>
+  <button id="reload" onclick="loadUsers()">Reload Users</button>
+  <div id="usersContainer"></div>
+  <p id="message"></p>
+
+  <script>
+    async function loadUsers() {
+      const container = document.getElementById('usersContainer');
+      const msg = document.getElementById('message');
+      container.innerHTML = '';
+      msg.textContent = '';
+
+      try {
+        const response = await fetch('http://localhost:4000/users');
+        const data = await response.json();
+
+        if (!response.ok) {
+          msg.style.color = 'red';
+          msg.textContent = `Error: ${data.error || 'Failed to load users'}`;
+          return;
+        }
+
+        if (data.length === 0) {
+          msg.textContent = 'No users found.';
+          return;
+        }
+
+        data.forEach(user => {
+          const card = document.createElement('div');
+          card.className = 'user-card';
+
+          const avatar = document.createElement('img');
+          avatar.src = user.avatar || 'https://via.placeholder.com/100?text=User';
+          card.appendChild(avatar);
+
+          const name = document.createElement('div');
+          name.className = 'user-name';
+          name.textContent = user.username;
+          card.appendChild(name);
+
+          const email = document.createElement('div');
+          email.className = 'user-email';
+          email.textContent = user.email || 'No email';
+          card.appendChild(email);
+
+          const role = document.createElement('div');
+          role.className = 'user-role';
+          role.textContent = `Role: ${user.role || 'User'}`;
+          card.appendChild(role);
+
+          const updateBtn = document.createElement('button');
+          updateBtn.className = 'update-btn';
+          updateBtn.textContent = 'Update User';
+          updateBtn.onclick = () => toggleUpdateForm(card, user);
+          card.appendChild(updateBtn);
+
+          const form = document.createElement('form');
+          form.className = 'update-form';
+          form.innerHTML = `
+            <input type="text" name="email" placeholder="Email" value="${user.email || ''}" />
+            <input type="text" name="avatar" placeholder="Avatar URL" value="${user.avatar || ''}" />
+            <select name="role">
+              <option value="User" ${user.role === 'User' ? 'selected' : ''}>User</option>
+              <option value="Admin" ${user.role === 'Admin' ? 'selected' : ''}>Admin</option>
+            </select>
+            <button type="submit" class="save-btn">Save</button>
+            <button type="button" class="cancel-btn" onclick="toggleUpdateForm(card)">Cancel</button>
+          `;
+          form.onsubmit = (e) => {
+            e.preventDefault();
+            updateUser(user.username, new FormData(form));
+          };
+
+          card.appendChild(form);
+          container.appendChild(card);
+        });
+      } catch (err) {
+        msg.style.color = 'red';
+        msg.textContent = 'Error connecting to server.';
+        console.error(err);
+      }
+    }
+
+    function toggleUpdateForm(card, user) {
+      const form = card.querySelector('.update-form');
+      form.style.display = form.style.display === 'block' ? 'none' : 'block';
+    }
+
+    async function updateUser(username, formData) {
+      const msg = document.getElementById('message');
+      msg.textContent = '';
+
+      const body = Object.fromEntries(formData.entries());
+
+      try {
+        const response = await fetch(`http://localhost:4000/users/${username}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          msg.style.color = 'green';
+          msg.textContent = data.message || `User "${username}" updated successfully!`;
+          loadUsers();
+        } else {
+          msg.style.color = 'red';
+          msg.textContent = `Error: ${data.error || 'Failed to update user'}`;
+        }
+      } catch (err) {
+        console.error('Error updating user:', err);
+        msg.style.color = 'red';
+        msg.textContent = 'Error: Unable to connect to server.';
+      }
+    }
+
+    window.onload = loadUsers;
+  </script>
+</body>
+</html>
