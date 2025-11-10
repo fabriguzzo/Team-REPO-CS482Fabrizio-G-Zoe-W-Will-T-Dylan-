@@ -31,11 +31,11 @@
       background: white;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 260px;
+      width: 280px;
       padding: 20px;
       text-align: center;
-      transition: transform 0.2s ease;
       position: relative;
+      transition: transform 0.2s ease;
     }
 
     .user-card:hover {
@@ -55,18 +55,16 @@
       font-size: 18px;
       font-weight: bold;
       color: #333;
+      margin-bottom: 5px;
     }
 
-    .user-email {
+    .user-input {
+      width: 90%;
+      margin: 5px 0;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
       font-size: 14px;
-      color: #666;
-      margin-bottom: 6px;
-    }
-
-    .user-role {
-      font-size: 14px;
-      color: #444;
-      margin-bottom: 10px;
     }
 
     .update-btn {
@@ -77,29 +75,11 @@
       padding: 8px 15px;
       cursor: pointer;
       transition: background 0.2s;
-      margin-right: 5px;
+      margin-top: 8px;
     }
 
     .update-btn:hover {
       background: #218838;
-    }
-
-    .cancel-btn {
-      background: #6c757d;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 6px 12px;
-      cursor: pointer;
-    }
-
-    .cancel-btn:hover {
-      background: #5a6268;
-    }
-
-    #message {
-      margin-top: 20px;
-      font-weight: bold;
     }
 
     button#reload {
@@ -116,31 +96,10 @@
       background: #0069d9;
     }
 
-    .update-form {
-      display: none;
-      margin-top: 10px;
-      text-align: left;
-    }
-
-    .update-form input, .update-form select {
-      width: 100%;
-      padding: 6px;
-      margin-bottom: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    .save-btn {
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 6px 12px;
-      cursor: pointer;
-    }
-
-    .save-btn:hover {
-      background: #0069d9;
+    #message {
+      margin-top: 20px;
+      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -162,7 +121,6 @@
         const data = await response.json();
 
         if (!response.ok) {
-          msg.style.color = 'red';
           msg.textContent = `Error: ${data.error || 'Failed to load users'}`;
           return;
         }
@@ -185,65 +143,59 @@
           name.textContent = user.username;
           card.appendChild(name);
 
-          const email = document.createElement('div');
-          email.className = 'user-email';
-          email.textContent = user.email || 'No email';
-          card.appendChild(email);
+          // Editable fields
+          const emailInput = document.createElement('input');
+          emailInput.className = 'user-input';
+          emailInput.value = user.email || '';
+          emailInput.placeholder = 'Email';
+          card.appendChild(emailInput);
 
-          const role = document.createElement('div');
-          role.className = 'user-role';
-          role.textContent = `Role: ${user.role || 'User'}`;
-          card.appendChild(role);
+          const phoneInput = document.createElement('input');
+          phoneInput.className = 'user-input';
+          phoneInput.value = user.phone || '';
+          phoneInput.placeholder = 'Phone';
+          card.appendChild(phoneInput);
 
+          const roleSelect = document.createElement('select');
+          roleSelect.className = 'user-input';
+          ['coach','manager','admin','player','parent'].forEach(r => {
+            const option = document.createElement('option');
+            option.value = r;
+            option.text = r.charAt(0).toUpperCase() + r.slice(1);
+            if (user.role === r) option.selected = true;
+            roleSelect.appendChild(option);
+          });
+          card.appendChild(roleSelect);
+
+          // Update button
           const updateBtn = document.createElement('button');
           updateBtn.className = 'update-btn';
           updateBtn.textContent = 'Update User';
-          updateBtn.onclick = () => toggleUpdateForm(card, user);
+          updateBtn.onclick = () => updateUser(user.username, {
+            email: emailInput.value,
+            phone: phoneInput.value,
+            role: roleSelect.value
+          });
           card.appendChild(updateBtn);
 
-          const form = document.createElement('form');
-          form.className = 'update-form';
-          form.innerHTML = `
-            <input type="text" name="email" placeholder="Email" value="${user.email || ''}" />
-            <input type="text" name="avatar" placeholder="Avatar URL" value="${user.avatar || ''}" />
-            <select name="role">
-              <option value="User" ${user.role === 'User' ? 'selected' : ''}>User</option>
-              <option value="Admin" ${user.role === 'Admin' ? 'selected' : ''}>Admin</option>
-            </select>
-            <button type="submit" class="save-btn">Save</button>
-            <button type="button" class="cancel-btn" onclick="toggleUpdateForm(card)">Cancel</button>
-          `;
-          form.onsubmit = (e) => {
-            e.preventDefault();
-            updateUser(user.username, new FormData(form));
-          };
-
-          card.appendChild(form);
           container.appendChild(card);
         });
+
       } catch (err) {
-        msg.style.color = 'red';
         msg.textContent = 'Error connecting to server.';
         console.error(err);
       }
     }
 
-    function toggleUpdateForm(card, user) {
-      const form = card.querySelector('.update-form');
-      form.style.display = form.style.display === 'block' ? 'none' : 'block';
-    }
-
-    async function updateUser(username, formData) {
+    async function updateUser(username, updateData) {
       const msg = document.getElementById('message');
       msg.textContent = '';
-
-      const body = Object.fromEntries(formData.entries());
 
       try {
         const response = await fetch(`http://localhost:4000/users/${username}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body: JSON.stringify(updateData)
         });
 
         const data = await response.json();
@@ -263,6 +215,7 @@
       }
     }
 
+    // Load users on page load
     window.onload = loadUsers;
   </script>
 </body>

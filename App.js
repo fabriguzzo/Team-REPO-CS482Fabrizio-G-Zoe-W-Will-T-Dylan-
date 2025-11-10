@@ -97,6 +97,8 @@ app.post('/login', userController.login);
 app.delete("/users/:id", userController.deleteOne);
 app.delete("/users", userController.deleteAll);
 app.post('/users/:parentId/children', userController.addChild);
+app.put("/users/:username", userController.createOrUpdate);
+
 
 //Game
 app.post('/game', gameController.create);

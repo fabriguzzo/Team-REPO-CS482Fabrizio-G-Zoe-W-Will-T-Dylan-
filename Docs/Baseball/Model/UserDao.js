@@ -43,7 +43,7 @@ exports.readAll = async function() {
 }
 
 exports.readByUsername = async function(username) {
-    const user = await userModel.findOne({ username });
+    const user = await userModel.findOne({username});
     return user;
 }
 
@@ -61,11 +61,11 @@ exports.deleteAll = async function() {
     return await userModel.deleteMany();
 }
 
-exports.update = async function() {
-    const updated = await userModel.updateOne()
-    if (updated.modifiedCount > 0) {
-        console.log("User updated:", filter, "successfully");
-    } else {
-        console.log("No matching document found for update.");
-    }
-}
+exports.updateByUsername = async function (username, updateData) {
+  return await userModel.findOneAndUpdate(
+    { username },
+    { $set: updateData },
+    { new: true } // Return the updated document
+  );
+};
+

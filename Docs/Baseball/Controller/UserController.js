@@ -26,48 +26,39 @@ exports.getOneUser = async function (req, res) {
     }
 }
 
+
 exports.createOrUpdate = async function (req, res) {
-    
-    //Get username to update 
-    const username = req.body.username;
-    try {
-        const userData = {
-            username: req.body.username,
-            password: req.body.password,
-            email: req.body.email,
-            phone: req.body.phone,
-            permission: req.body.permission,
-            name: req.body.name,
-            role: req.body.role,
-            team: req.body.team,
-            timeCreated: req.body.timeCreated
-        }
+  try {
+    const username = req.params.username || req.body.username;
 
-        //Check if username exists to potentially update
-        const existingUser = await dao.readByName(username);
-
-        //username exists, so update not create
-        if (existingUser) {
-            const updatedUser = await dao.update(username, userData);
-            return res.status(200).json({
-                message: 'User $(username) updated Succesfully!',
-                user: updatedUser,
-            });
-        //username doesn't exist, so create.
-        } else {
-            const newUser = await dao.create(userData);
-            res.status(201).json(newUser);
-            return res.status(201).json({
-                message: "User $(username created successfully!",
-                user: newUser,
-            });
-        }
-
-    } catch(err) {
-        console.error("Error creating/updating user", err);
-        res.status(500).json({error: "Failed to create/update user"});
+    if (!username) {
+      return res.status(400).json({ error: "Username is required" });
     }
-}
+
+    // Check if user exists
+    const existingUser = await dao.readByUsername(username);
+
+    if (existingUser) {
+      // Perform update
+      const updatedUser = await dao.updateByUsername(username, req.body);
+      return res.status(200).json({
+        message: `User "${username}" updated successfully`,
+        user: updatedUser,
+      });
+    } else {
+      // Create new user
+      const newUser = await dao.create(req.body);
+      return res.status(201).json({
+        message: `User "${username}" created successfully`,
+        user: newUser,
+      });
+    }
+  } catch (err) {
+    console.error("Error in createOrUpdate:", err);
+    res.status(500).json({ error: "Server error while creating/updating user" });
+  }
+};
+
 
 exports.deleteOne = async function (req, res) {
     const user = req.params.username;
@@ -79,7 +70,7 @@ exports.deleteOne = async function (req, res) {
     try {
         const deleted = await dao.delete(user);
         if (deleted) {
-            res.status().json ({ message: "User deleted successfully"});
+            res.status(200).json ({ message: "User deleted successfully"});
         } else {
             res.status(404).json({ error: "User not found"});
         }
