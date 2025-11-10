@@ -32,29 +32,46 @@ exports.getOne = async function (req, res) {
 
 
 exports.createOrUpdate = async function (req, res) {
-    const teamData = {
+    try {
+      const teamData = {
         name: req.body.name,
+        manager: req.body.manager
+      };
+  
+      
+      if (req.body._id) {
+        const existingTeam = await dao.read(req.body._id);
+        if (!existingTeam) {
+          return res.status(404).json({ error: 'Team not found for update' });
+        }
+  
+        teamData.logo = req.file
+          ? `/uploads/${req.file.filename}`
+          : existingTeam.logo; 
+  
+        const updated = await dao.updateById(req.body._id, teamData);
+        return res.status(200).json(updated);
+      }
+  
+      
+      teamData.logo = req.file ? `/uploads/${req.file.filename}` : req.body.logo || '';
+      const newTeam = await dao.create({
+        ...teamData,
         players: [],
         coach: "",
-        manager: req.body.manager,
-        logo: req.body.logo,
         wins: 0,
         ties: 0,
         losses: 0,
         schedule: []
-    };
-
-    try {
-        
-        // Create new team
-        const newTeam = await dao.create(teamData);
-        res.status(201).json(newTeam);
-        
+      });
+  
+      res.status(201).json(newTeam);
     } catch (err) {
-        console.error('Error creating/updating team:', err);
-        res.status(500).json({ error: 'Failed to create or update team' });
+      console.error('Error creating/updating team:', err);
+      res.status(500).json({ error: 'Failed to create or update team' });
     }
-};
+  };
+
 
 
 exports.deleteOne = async function (req, res) {
