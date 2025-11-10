@@ -15,8 +15,9 @@
   <h1>Add a User</h1>
   <form id="userForm">
     <input type="text" id="username" placeholder="Username" required /><br />
-    <input type="password" id="password" placeholder="Password" /><br />
-    <input type="email" id="email" placeholder="Email" /><br />
+    <input type="password" id="password" placeholder="Password" required /><br />
+    <input type="email" id="email" placeholder="Email" required /><br />
+    <input type="number" id="age" placeholder="Age" min="0" required /><br />
     <button type="submit">Add User</button>
   </form>
   <p id="message"></p>
@@ -24,10 +25,20 @@
   <script>
     document.getElementById("userForm").addEventListener("submit", async (e) => {
       e.preventDefault();
+      const ageVal = parseInt(document.getElementById("age").value, 10);
+      if (Number.isNaN(ageVal)) {
+        document.getElementById("message").textContent = "Error: Age is required to sign up";
+        return;
+      }
+      if (ageVal < 18) {
+        document.getElementById("message").textContent = "Error: Cannot sign up as minor; must be under a parent";
+        return;
+      }
       const user = {
-        username: document.getElementById("username").value,
+        username: document.getElementById("username").value.trim(),
         password: document.getElementById("password").value,
-        email: document.getElementById("email").value
+        email: document.getElementById("email").value.trim(),
+        age: ageVal
       };
 
       const response = await fetch("http://localhost:4000/users", {
