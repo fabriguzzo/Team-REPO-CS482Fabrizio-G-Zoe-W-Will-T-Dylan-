@@ -46,6 +46,15 @@ exports.createOrUpdate = async function (req, res) {
         user: updatedUser,
       });
     } else {
+      // Sign-up path: require age and block minors
+      const rawAge = req.body.age;
+      const age = rawAge !== undefined ? parseInt(rawAge, 10) : NaN;
+      if (Number.isNaN(age)) {
+        return res.status(400).json({ error: 'Age is required to sign up' });
+      }
+      if (age < 18) {
+        return res.status(400).json({ error: 'Cannot sign up as minor; must be under a parent' });
+      }
       // Create new user
       const newUser = await dao.create(req.body);
       return res.status(201).json({
