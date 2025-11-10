@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign In</title>
+  <style>
+    body { font-family: Arial; background: #f2f2f2; text-align: center; margin: 0; }
+    h1 { background: #007bff; color: #fff; padding: 16px 0; margin: 0 0 24px 0; }
+    form { background: #fff; width: 340px; margin: 30px auto; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: left; }
+    label { display: block; font-weight: bold; margin: 8px 0 4px; }
+    input { width: 95%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+    button { width: 100%; margin-top: 14px; background: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px; cursor: pointer; }
+    button:hover { background: #0069d9; }
+    #message { margin-top: 12px; font-weight: bold; }
+    .hint { margin-top: 10px; font-size: 13px; color: #444; text-align: center; }
+  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  </head>
+<body>
+  <h1>Sign In</h1>
+  <form id="loginForm">
+    <label for="username">Username</label>
+    <input type="text" id="username" required />
+
+    <label for="password">Password</label>
+    <input type="password" id="password" required />
+
+    <button type="submit">Sign In</button>
+  </form>
+  <div class="hint">Don't have an account? <a href="/signup">Sign up</a>.</div>
+  <p id="message"></p>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('message');
+      msg.textContent = 'Signing in...'; msg.style.color = '#333';
+
+      const payload = {
+        username: document.getElementById('username').value.trim(),
+        password: document.getElementById('password').value
+      };
+
+      try {
+        const res = await fetch('/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await res.json();
+        if (res.ok) {
+          msg.style.color = 'green';
+          msg.textContent = 'Signed in as ' + (data.user?.username || 'user') + '.';
+        } else {
+          msg.style.color = 'red';
+          msg.textContent = data.error || 'Login failed';
+        }
+      } catch (err) {
+        msg.style.color = 'red';
+        msg.textContent = 'Network error: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
+
