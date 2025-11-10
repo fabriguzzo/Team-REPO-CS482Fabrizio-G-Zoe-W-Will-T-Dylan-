@@ -67,5 +67,7 @@ exports.update = async function(teamName,filter){
     
 }
 
-
-
+exports.updateById = async function (id, updatedFields) {
+    const updatedTeam = await teamModel.findByIdAndUpdate(id, updatedFields, { new: true });
+    return updatedTeam;
+};
