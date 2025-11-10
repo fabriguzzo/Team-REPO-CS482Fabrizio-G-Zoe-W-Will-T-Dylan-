@@ -46,7 +46,6 @@ exports.createOrUpdate = async function (req, res) {
         user: updatedUser,
       });
     } else {
-      // Sign-up path: require age and block minors
       const rawAge = req.body.age;
       const age = rawAge !== undefined ? parseInt(rawAge, 10) : NaN;
       if (Number.isNaN(age)) {
@@ -130,7 +129,7 @@ exports.login = async function (req, res) {
         const { password: _, ...safeUser } = user.toObject ? user.toObject() : user;
         return res.status(200).json({ message: 'Login successful', user: safeUser });
     } catch (err) {
-        console.error('Error during login:', err);
+        console.error('Error duriAng login:', err);
         return res.status(500).json({ error: 'Login failed' });
     }
 }
@@ -146,16 +145,14 @@ exports.addChild = async function (req, res) {
             username: req.body.username,
             password: req.body.password,
             email: req.body.email,
-            phone: req.body.phone,
             permission: req.body.permission,
-            name: req.body.name,
             role: 'player',
             team: req.body.team,
             timeCreated: req.body.timeCreated
         }
 
-        if (!childData.username || !childData.password || !childData.email || !childData.name) {
-            return res.status(400).json({ error: 'Missing required child fields: username, password, email, name' });
+        if (!childData.username || !childData.password || !childData.email) {
+            return res.status(400).json({ error: 'Missing required child fields: username, password, email' });
         }
 
         const parent = await dao.read(parentId);

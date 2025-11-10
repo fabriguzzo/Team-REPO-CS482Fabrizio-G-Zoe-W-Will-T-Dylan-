@@ -28,12 +28,6 @@
     <label for="email">Email</label>
     <input type="email" id="email" placeholder="Email" required />
 
-    <label for="name">Full Name</label>
-    <input type="text" id="name" placeholder="Child's full name" required />
-
-    <label for="phone">Phone (optional)</label>
-    <input type="text" id="phone" placeholder="Phone number" />
-
     <button type="submit">Create Child</button>
   </form>
 
@@ -57,9 +51,7 @@
       const payload = {
         username: document.getElementById('username').value.trim(),
         password: document.getElementById('password').value,
-        email: document.getElementById('email').value.trim(),
-        name: document.getElementById('name').value.trim(),
-        phone: document.getElementById('phone').value.trim()
+        email: document.getElementById('email').value.trim()
       };
 
       const msg = document.getElementById('message');
