@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Game History Management</title>
+  <style>
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background: #c95d0a;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      background-color: #000;
+      color: #f37805;
+      padding: 20px 0;
+      margin: 0 0 30px 0;
+      font-size: 2em;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #111;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      padding: 30px;
+    }
+
+    select {
+      width: 80%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #222;
+      color: #fff;
+      font-size: 1em;
+      transition: border-color 0.2s ease;
+    }
+
+    select:focus {
+      border-color: #f37805;
+      outline: none;
+    }
+
+    .buttons {
+      margin-bottom: 25px;
+    }
+
+    button {
+      background: #f37805;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      margin: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.1s ease;
+    }
+
+    button:hover {
+      background: #d86f13;
+      transform: scale(1.05);
+    }
+
+    .game-details {
+      margin-top: 20px;
+      background: #222;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: left;
+      display: none;
+    }
+
+    .game-details p {
+      margin: 8px 0;
+      color: #ddd;
+    }
+
+    .highlight {
+      color: #f37805;
+      font-weight: bold;
+    }
+
+    #message {
+      margin-top: 15px;
+      color: #000;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Game History</h1>
+  <div class="container">
+    <div class="buttons">
+      <button onclick="resetGames()">Reset All Games</button>
+      <button onclick="loadGames()">Reload List</button>
+    </div>
+
+    <select id="gameDropdown" onchange="showGameDetails()">
+      <option value="">-- Select a Game --</option>
+    </select>
+
+    <div class="game-details" id="gameDetails">
+      <p><span class="highlight">Game ID:</span> <span id="detailId"></span></p>
+      <p><span class="highlight">Teams:</span> <span id="detailTeams"></span></p>
+      <p><span class="highlight">Score:</span> <span id="detailScore"></span></p>
+      <p><span class="highlight">Status:</span> <span id="detailStatus"></span></p>
+      <p><span class="highlight">Result:</span> <span id="detailResult"></span></p>
+      <p><span class="highlight">Created:</span> <span id="detailCreated"></span></p>
+      <p><span class="highlight">Finished:</span> <span id="detailFinished"></span></p>
+      <button onclick="deleteGame()">Delete This Game</button>
+    </div>
+
+    <p id="message"></p>
+  </div>
+
+  <script>
+    const BASE_URL = "http://localhost:4000/game";
+    let games = [];
+
+    async function loadGames() {
+      const dropdown = document.getElementById('gameDropdown');
+      const msg = document.getElementById('message');
+      const details = document.getElementById('gameDetails');
+      dropdown.innerHTML = '<option value="">-- Select a Game --</option>';
+      msg.textContent = '';
+      details.style.display = 'none';
+
+      try {
+        const response = await fetch(BASE_URL);
+        const data = await response.json();
+
+        if (!response.ok) {
+          msg.textContent = `Error: ${data.error || 'Failed to load games'}`;
+          return;
+        }
+
+        games = data;
+        if (data.length === 0) {
+          msg.textContent = 'No games found.';
+          return;
+        }
+
+        data.forEach(g => {
+          const option = document.createElement('option');
+          option.value = g._id;
+          option.textContent = `${g.teamA} vs ${g.teamB} (${g.status})`;
+          dropdown.appendChild(option);
+        });
+      } catch (err) {
+        msg.textContent = 'Error connecting to server.';
+        console.error(err);
+      }
+    }
+
+    function showGameDetails() {
+      const id = document.getElementById('gameDropdown').value;
+      const details = document.getElementById('gameDetails');
+      const msg = document.getElementById('message');
+      msg.textContent = '';
+
+      if (!id) {
+        details.style.display = 'none';
+        return;
+      }
+
+      const game = games.find(g => g._id === id);
+      if (!game) {
+        msg.textContent = 'Game not found in cache.';
+        return;
+      }
+
+      document.getElementById('detailId').textContent = game._id;
+      document.getElementById('detailTeams').textContent = `${game.teamA} vs ${game.teamB}`;
+      document.getElementById('detailScore').textContent = `${game.scoreA} - ${game.scoreB}`;
+      document.getElementById('detailStatus').textContent = game.status;
+      document.getElementById('detailResult').textContent = game.result || 'N/A';
+      document.getElementById('detailCreated').textContent = new Date(game.dateCreated).toLocaleString();
+      document.getElementById('detailFinished').textContent = game.dateFinished ? new Date(game.dateFinished).toLocaleString() : 'Not finished';
+
+      details.style.display = 'block';
+    }
+
+    async function deleteGame() {
+      const id = document.getElementById('gameDropdown').value;
+      const msg = document.getElementById('message');
+      if (!id) {
+        msg.textContent = 'Select a game to delete.';
+        return;
+      }
+
+      if (!confirm('Are you sure you want to delete this game?')) return;
+
+      try {
+        const response = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE' });
+        const data = await response.json();
+
+        if (response.ok) {
+          msg.textContent = 'Game deleted successfully.';
+          loadGames();
+        } else {
+          msg.textContent = `Error: ${data.error || 'Failed to delete game'}`;
+        }
+      } catch (err) {
+        msg.textContent = 'Error connecting to server.';
+        console.error(err);
+      }
+    }
+
+    async function resetGames() {
+      const msg = document.getElementById('message');
+      //"2FA" Make sure Admin is aware of current state
+      if (!confirm('Are you sure you want to delete ALL games History? This cannot be undone.')) return;
+
+      try {
+        const response = await fetch(BASE_URL, { method: 'DELETE' });
+        const data = await response.json();
+
+        if (response.ok) {
+          msg.textContent = 'All game history has been reset.';
+          loadGames();
+        } else {
+          msg.textContent = `Error: ${data.error || 'Failed to delete all games'}`;
+        }
+      } catch (err) {
+        msg.textContent = 'Error connecting to server.';
+        console.error(err);
+      }
+    }
+    
+    window.onload = loadGames;
+  </script>
+</body>
+</html>
+
