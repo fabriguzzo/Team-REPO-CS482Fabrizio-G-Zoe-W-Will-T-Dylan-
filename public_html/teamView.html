@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -131,7 +129,11 @@
           card.className = 'team-card';
   
           const logo = document.createElement('img');
-          logo.src = team.logo || 'https://via.placeholder.com/100?text=Team';
+          //logo.src = team.logo || 'https://via.placeholder.com/100?text=Team';
+          logo.src = `http://localhost:4000/teams/${team._id}/logo`;
+          logo.onerror = () => {
+            logo.src = 'https://via.placeholder.com/100?text=Team';
+          };
           card.appendChild(logo);
   
           const name = document.createElement('div');
