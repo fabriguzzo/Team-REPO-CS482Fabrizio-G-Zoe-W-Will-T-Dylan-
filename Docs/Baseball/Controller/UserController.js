@@ -27,6 +27,9 @@ exports.getOneUser = async function (req, res) {
 }
 
 exports.createOrUpdate = async function (req, res) {
+    
+    //Get username to update 
+    const username = req.body.username;
     try {
         const userData = {
             username: req.body.username,
@@ -40,9 +43,25 @@ exports.createOrUpdate = async function (req, res) {
             timeCreated: req.body.timeCreated
         }
 
-        //Create new user
-        const newUser = await dao.create(userData);
-        res.status(201).json(newUser);
+        //Check if username exists to potentially update
+        const existingUser = await dao.readByName(username);
+
+        //username exists, so update not create
+        if (existingUser) {
+            const updatedUser = await dao.update(username, userData);
+            return res.status(200).json({
+                message: 'User $(username) updated Succesfully!',
+                user: updatedUser,
+            });
+        //username doesn't exist, so create.
+        } else {
+            const newUser = await dao.create(userData);
+            res.status(201).json(newUser);
+            return res.status(201).json({
+                message: "User $(username created successfully!",
+                user: newUser,
+            });
+        }
 
     } catch(err) {
         console.error("Error creating/updating user", err);
@@ -60,7 +79,7 @@ exports.deleteOne = async function (req, res) {
     try {
         const deleted = await dao.delete(user);
         if (deleted) {
-            res.status(200).json ({ message: "User deleted successfully"});
+            res.status().json ({ message: "User deleted successfully"});
         } else {
             res.status(404).json({ error: "User not found"});
         }
