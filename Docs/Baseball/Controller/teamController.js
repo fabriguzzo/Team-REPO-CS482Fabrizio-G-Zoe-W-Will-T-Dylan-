@@ -1,6 +1,7 @@
 const dao = require('../Model/teamDao');
 
- 
+const fs = require('fs');
+
 
 
 exports.getAll = async function (req, res) {
@@ -30,7 +31,7 @@ exports.getOne = async function (req, res) {
     }
 };
 
-
+/** 
 exports.createOrUpdate = async function (req, res) {
     try {
       const teamData = {
@@ -71,7 +72,52 @@ exports.createOrUpdate = async function (req, res) {
       res.status(500).json({ error: 'Failed to create or update team' });
     }
   };
+*/
 
+exports.createOrUpdate = async function (req, res) {
+    try {
+      const teamData = {
+        name: req.body.name,
+        manager: req.body.manager
+      };
+  
+      if (req.file) {
+        teamData.logo = {
+          data: fs.readFileSync(req.file.path),
+          contentType: req.file.mimetype
+        };
+      }
+  
+      if (req.body._id) {
+        const existingTeam = await dao.read(req.body._id);
+        if (!existingTeam) {
+          return res.status(404).json({ error: 'Team not found for update' });
+        }
+  
+        if (!req.file) {
+          teamData.logo = existingTeam.logo;
+        }
+  
+        const updated = await dao.updateById(req.body._id, teamData);
+        return res.status(200).json(updated);
+      }
+  
+      const newTeam = await dao.create({
+        ...teamData,
+        players: [],
+        coach: "",
+        wins: 0,
+        ties: 0,
+        losses: 0,
+        schedule: []
+      });
+  
+      res.status(201).json(newTeam);
+    } catch (err) {
+      console.error('Error creating/updating team:', err);
+      res.status(500).json({ error: 'Failed to create or update team' });
+    }
+};
 
 
 exports.deleteOne = async function (req, res) {
