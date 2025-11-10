@@ -202,7 +202,6 @@ describe('UserController.createOrUpdate', () => {
     })
 
     
-    // Tests for addChild
     test('addChild returns 400 if parentId not provided', async () => {
         const reqNoParent = { params: {}, body: {} };
         await userController.addChild(reqNoParent, res);
@@ -213,7 +212,6 @@ describe('UserController.createOrUpdate', () => {
 
     test('addChild returns 400 if required child fields are missing', async () => {
         const reqMissingFields = { params: { parentId: 'parent123' }, body: {} };
-        // parent existence isn't checked because fields validation happens first
         await userController.addChild(reqMissingFields, res);
 
         expect(res.status).toHaveBeenCalledWith(400);
