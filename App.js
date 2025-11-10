@@ -60,7 +60,7 @@ const upload = multer({ storage });
 app.get("/teams", teamController.getAll);
 app.get("/teams/:id", teamController.getOne);
 app.get("/teams/name/:name", teamController.getByName);
-app.post("/teams", teamController.createOrUpdate);
+app.post("/teams", upload.single('logo'), teamController.createOrUpdate);
 app.delete("/teams/:id", teamController.deleteOne);
 app.delete("/teams", teamController.deleteAll);
 app.use('/uploads', express.static(path.join(__dirname, 'public_html', 'uploads')));
