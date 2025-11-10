@@ -3,6 +3,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const multer = require('multer');
 const fs = require('fs');
+
+const dao = require("./Docs/Baseball/Model/teamDao");
  
 const teamController = require("./Docs/Baseball/Controller/teamController");
 const userController = require("./Docs/Baseball/Controller/UserController");
@@ -56,6 +58,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+
 //  the API routes for team (connected to controller)
 app.get("/teams", teamController.getAll);
 app.get("/teams/:id", teamController.getOne);
@@ -63,7 +66,21 @@ app.get("/teams/name/:name", teamController.getByName);
 app.post("/teams", upload.single('logo'), teamController.createOrUpdate);
 app.delete("/teams/:id", teamController.deleteOne);
 app.delete("/teams", teamController.deleteAll);
-app.use('/uploads', express.static(path.join(__dirname, 'public_html', 'uploads')));
+//app.use('/uploads', express.static(path.join(__dirname, 'public_html', 'uploads')));
+app.get("/teams/:id/logo", async (req, res) => {
+    try {
+      const team = await dao.read(req.params.id);
+      if (team && team.logo && team.logo.data) {
+        res.contentType(team.logo.contentType);
+        res.send(team.logo.data);
+      } else {
+        res.status(404).send("Logo not found");
+      }
+    } catch (err) {
+      console.error("Error serving logo:", err);
+      res.status(500).send("Server error");
+    }
+});
 
 //User
 app.get("/users", userController.getAll);
