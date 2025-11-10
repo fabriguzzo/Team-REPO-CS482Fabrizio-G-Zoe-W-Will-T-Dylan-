@@ -23,9 +23,8 @@ exports.create = async function(newUser) {
 
 // Create a child user linked to a parent user (parentId should be an ObjectId/string)
 exports.createChild = async function(parentId, childData) {
-    // Ensure role for child is player unless explicitly provided
-    const data = Object.assign({}, childData);
-    if (!data.role) data.role = 'player';
+    // Always enforce role 'player' for children
+    const data = Object.assign({}, childData, { role: 'player' });
     data.parent = parentId;
 
     const child = new userModel(data);
@@ -41,6 +40,11 @@ exports.read = async function(id) {
 exports.readAll = async function() {
     const users = await userModel.find();
     return users;
+}
+
+exports.readByUsername = async function(username) {
+    const user = await userModel.findOne({ username });
+    return user;
 }
 
 exports.readByName = async function(userName) {
