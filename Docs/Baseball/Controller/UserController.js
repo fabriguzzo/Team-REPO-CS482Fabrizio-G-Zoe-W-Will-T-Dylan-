@@ -172,3 +172,4 @@ exports.addChild = async function (req, res) {
         res.status(500).json({ error: 'Failed to create child user' });
     }
 }
+
