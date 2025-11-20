@@ -33,6 +33,7 @@ exports.getOne = async function (req, res) {
 
 
 exports.createOrUpdate = async function (req, res) {
+    /** 
     try {
       const teamData = {
         name: req.body.name,
@@ -90,57 +91,51 @@ exports.createOrUpdate = async function (req, res) {
       console.error('Error creating/updating team:', err);
       res.status(500).json({ error: 'Failed to create or update team' });
     }
-  };
+};
+*/
+  try {
+    const teamData = req.body;
 
-
-exports.createOrUpdate = async function (req, res) {
-    try {
-      const teamData = {
-        name: req.body.name,
-        manager: req.body.manager
-      };
-  
-      if (req.file) {
-        teamData.logo = {
-          data: fs.readFileSync(req.file.path),
-          contentType: req.file.mimetype
-        };
+    // ✅ Parse players if sent as JSON string
+    if (typeof teamData.players !== 'undefined') {
+      try {
+        teamData.players = JSON.parse(teamData.players);
+      } catch (err) {
+        console.error('Invalid players JSON:', err);
+        teamData.players = [];
       }
-  
-      if (req.body._id) {
-        const existingTeam = await dao.read(req.body._id);
-        if (!existingTeam) {
-          return res.status(404).json({ error: 'Team not found for update' });
-        }
-
-        if (!req.file) {
-          teamData.logo = existingTeam.logo;
-        }
-
-        if (typeof teamData.players === 'undefined') {
-          teamData.players = existingTeam.players;
-        }
-
-        const updated = await dao.updateById(req.body._id, teamData);
-        return res.status(200).json(updated);
-      }
-
-      const newTeam = await dao.create({
-        ...teamData,
-        players: Array.isArray(teamData.players) ? teamData.players : [],
-        coach: "",
-        wins: 0,
-        ties: 0,
-        losses: 0,
-        schedule: []
-      });
-
-      res.status(201).json(newTeam);
-    } catch (err) {
-      console.error('Error creating/updating team:', err);
-      res.status(500).json({ error: 'Failed to create or update team' });
     }
-  };
+
+    // ✅ Handle logo upload
+    if (req.file) {
+      teamData.logo = {
+        data: fs.readFileSync(req.file.path),
+        contentType: req.file.mimetype
+      };
+      fs.unlinkSync(req.file.path); // cleanup temp file
+    }
+
+    // ✅ Update existing team by ID
+    if (teamData._id) {
+      const updatedTeam = await dao.updateById(teamData._id, teamData);
+      if (!updatedTeam) {
+        return res.status(404).json({ error: 'Team not found for update' });
+      }
+      return res.status(200).json({ message: 'Team updated successfully', team: updatedTeam });
+    }
+
+    // ✅ Create new team
+    const newTeam = await dao.create(teamData);
+    return res.status(201).json({ message: 'Team created successfully', team: newTeam });
+
+  } catch (err) {
+    console.error('Error in createOrUpdate:', err);
+    res.status(500).json({ error: 'Server error while creating/updating team' });
+  }
+};
+
+
+
 
 
 exports.deleteOne = async function (req, res) {

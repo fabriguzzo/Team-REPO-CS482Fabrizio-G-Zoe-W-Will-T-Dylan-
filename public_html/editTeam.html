@@ -35,7 +35,8 @@
     }
 
     input[type="text"],
-    input[type="file"] {
+    input[type="file"],
+    select {
       width: 100%;
       padding: 8px;
       margin-bottom: 15px;
@@ -95,7 +96,9 @@
     <h3 style="color:black;">Players</h3>
     <div id="playerList" style="text-align:left; background:#fff; color:#000; padding:10px; border-radius:8px; max-height:220px; overflow:auto;"></div>
     <div style="display:flex; gap:8px; margin-top:8px;">
-      <input type="text" id="newPlayer" placeholder="Add player name" style="flex:1;">
+      <select id="childSelect" style="flex:1;">
+        <option value="">-- Select Child User --</option>
+      </select>
       <button type="button" id="addPlayerBtn">Add</button>
     </div>
 
@@ -103,7 +106,7 @@
   </form>
 
   <p id="message"></p>
-  <button class="back-btn" onclick="window.location.href='viewTeams'">← Back to Teams</button>
+  <button class="back-btn" onclick="window.location.href='teamView.html'">← Back to Teams</button>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -111,7 +114,6 @@
     const form = document.getElementById('editForm');
     const msg = document.getElementById('message');
     const playerListEl = document.getElementById('playerList');
-    const newPlayerInput = document.getElementById('newPlayer');
     const addPlayerBtn = document.getElementById('addPlayerBtn');
     let players = [];
 
@@ -131,6 +133,24 @@
         renderPlayers();
       } catch (err) {
         msg.textContent = 'Error fetching team data.';
+      }
+    }
+
+    async function loadChildUsers() {
+      try {
+        const res = await fetch('http://localhost:4000/users');
+        const users = await res.json();
+        const childSelect = document.getElementById('childSelect');
+        childSelect.innerHTML = '<option value="">-- Select Child User --</option>';
+
+        users.filter(u => u.role === 'child').forEach(u => {
+          const opt = document.createElement('option');
+          opt.value = u.username;
+          opt.textContent = u.username;
+          childSelect.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Error loading child users:', err);
       }
     }
 
@@ -166,10 +186,11 @@
     }
 
     addPlayerBtn.addEventListener('click', () => {
-      const val = newPlayerInput.value.trim();
+      const childSelect = document.getElementById('childSelect');
+      const val = childSelect.value;
       if (!val) return;
       players.push(val);
-      newPlayerInput.value = '';
+      childSelect.value = '';
       renderPlayers();
     });
 
@@ -207,7 +228,10 @@
       }
     });
 
-    window.onload = loadTeam;
+    window.onload = async () => {
+      await loadChildUsers();
+      await loadTeam();
+    };
   </script>
 </body>
 </html>
