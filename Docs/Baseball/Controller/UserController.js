@@ -126,6 +126,11 @@ exports.login = async function (req, res) {
         if (!user || user.password !== password) {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
+        
+        req.session.username = user.username;
+        req.session.name = user.name;
+        req.session.role = user.role;
+        
         const { password: _, ...safeUser } = user.toObject ? user.toObject() : user;
         return res.status(200).json({ message: 'Login successful', user: safeUser });
     } catch (err) {

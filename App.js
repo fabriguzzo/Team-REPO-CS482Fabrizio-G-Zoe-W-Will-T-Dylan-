@@ -3,18 +3,25 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const multer = require('multer');
 const fs = require('fs');
+const session = require("express-session");
 
 const dao = require("./Docs/Baseball/Model/teamDao");
  
 const teamController = require("./Docs/Baseball/Controller/teamController");
 const userController = require("./Docs/Baseball/Controller/UserController");
 const gameController = require('./Docs/Baseball/Controller/gameController.js');
+const chatController = require("./Docs/Baseball/Controller/chatController");
 
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+  secret: "yourSecretKey",
+  resave: false,
+  saveUninitialized: false,
+}));
 
 
 app.use(express.static(path.join(__dirname, "public_html")));
@@ -30,6 +37,7 @@ const deleteUserPath = path.join(__dirname, "public_html", "deleteUser.html");
 const viewUserPath = path.join(__dirname, "public_html", "userView.html");
 const viewGamesPath = path.join(__dirname, "public_html", "viewGames.html");
 const updateUserPath = path.join(__dirname, "public_html", "updateUser.html");
+const chatPath = path.join(__dirname, "public_html", "chat.html" );
 
 
 app.get("/", (req, res) => res.sendFile(testPath));
@@ -45,6 +53,7 @@ app.get("/deleteUser", (req, res) => res.sendFile(deleteUserPath));
 app.get("/viewUsers", (req, res) => res.sendFile(viewUserPath));
 app.get("/viewGames", (req, res) => res.sendFile(viewGamesPath));
 app.get("/updateUser", (req, res) => res.sendFile(updateUserPath));
+app.get("/chatRoom", (req, res) => res.sendFile(chatPath));
 
 //create a folder to store logos for teams
 const uploadDir = path.join(__dirname, 'public_html', 'uploads');
@@ -108,5 +117,8 @@ app.put('/game/:id/score', gameController.updateScore);
 app.put('/game/:id/finish', gameController.finishGame);
 app.delete('/game/:id', gameController.deleteOne);
 app.delete('/game', gameController.deleteAll);
+
+//chat
+app.get("/api/chat", chatController.getMessages);
 
 exports.app = app;
