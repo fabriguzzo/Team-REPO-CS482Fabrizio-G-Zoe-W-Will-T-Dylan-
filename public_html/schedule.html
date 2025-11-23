@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Schedule</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+        header {
+            background: #a64b00;
+            color: white;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .top-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: background 0.2s, transform 0.2s;
+        }
+        .top-nav a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        .top-nav a.active {
+            background: rgba(255, 255, 255, 0.35);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+        .top-nav a.auth-link {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .top-nav a.auth-link.accent {
+            background: #ff8c00;
+            border-color: #ff8c00;
+        }
+        .schedule-wrapper {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+            gap: 24px;
+            padding: 30px;
+        }
+        .calendar-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 26px rgba(0,0,0,0.1);
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 12px;
+        }
+        #monthHeader {
+            font-size: 26px;
+            font-weight: 700;
+            color: #a64b00;
+        }
+        .calendar-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .calendar-controls button {
+            border: none;
+            background: #ff8c00;
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .calendar-controls button:hover {
+            transform: translateY(-1px);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        th {
+            color: #777;
+            padding-bottom: 10px;
+        }
+        td {
+            height: 70px;
+            border-radius: 12px;
+            transition: 0.2s;
+            position: relative;
+        }
+        td:hover {
+            background: #fff3e0;
+            cursor: pointer;
+        }
+        .today {
+            background: #74c69d;
+            color: white;
+            font-weight: bold;
+        }
+        .day-cell .game-dot {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #ff8c00;
+        }
+        .schedule-info {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 26px rgba(0,0,0,0.1);
+        }
+        .schedule-info h2 {
+            margin-top: 0;
+            color: #a64b00;
+        }
+        .schedule-info ul {
+            padding-left: 20px;
+            line-height: 1.7;
+            color: #555;
+        }
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .overlay.active { display: flex; }
+        .modal {
+            background: #fff;
+            width: 420px;
+            max-width: 92vw;
+            border-radius: 12px;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+            padding: 18px 16px;
+        }
+        .modal-header { font-weight: 700; margin-bottom: 10px; display:flex; justify-content: space-between; align-items:center; }
+        .modal-close { border: none; background: transparent; font-size: 22px; cursor: pointer; line-height: 1; }
+        .game-list { max-height: 50vh; overflow: auto; margin-top: 6px; }
+        .game-item { padding: 10px; border: 1px solid #eee; border-radius: 8px; margin: 8px 0; background: #fffaf5; }
+        .game-item .status { font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Baseball League</div>
+        <nav class="top-nav">
+            <a href="/viewGames">Games</a>
+            <a href="/viewTeams">Teams</a>
+            <a href="/schedule" class="active">Schedule</a>
+            <a href="/login" class="auth-link">Login</a>
+            <a href="/signup" class="auth-link accent">Sign Up</a>
+            <a href="/guest" class="auth-link">Guest</a>
+        </nav>
+    </header>
+
+    <main class="schedule-wrapper">
+        <section class="calendar-card">
+            <div class="calendar-header">
+                <div class="calendar-controls">
+                    <button id="prevMonth" aria-label="Previous Month">&larr;</button>
+                    <button id="nextMonth" aria-label="Next Month">&rarr;</button>
+                </div>
+                <div id="monthHeader"></div>
+            </div>
+            <table id="calendarTable"></table>
+        </section>
+
+        <aside class="schedule-info">
+            <h2>Schedule Tips</h2>
+            <ul>
+                <li>Orange dots show days with scheduled games.</li>
+                <li>Click any date to open game details.</li>
+                <li>Use the arrows to browse past or future months.</li>
+                <li>Game data is loaded directly from the `/game` endpoint.</li>
+            </ul>
+        </aside>
+    </main>
+
+    <script>
+        const table = document.getElementById("calendarTable");
+        const header = document.getElementById("monthHeader");
+        const prevBtn = document.getElementById("prevMonth");
+        const nextBtn = document.getElementById("nextMonth");
+
+        const today = new Date();
+        let month = today.getMonth();
+        let year = today.getFullYear();
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const gamesByDate = {};
+
+        function toKey(y, m, d) {
+            const mm = String(m + 1).padStart(2, "0");
+            const dd = String(d).padStart(2, "0");
+            return `${y}-${mm}-${dd}`;
+        }
+
+        function renderCalendar(m, y) {
+            header.textContent = `${months[m]} ${y}`;
+            const firstDay = new Date(y, m, 1).getDay();
+            const daysInMonth = new Date(y, m + 1, 0).getDate();
+
+            let html = "<tr>";
+            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            days.forEach(day => html += `<th>${day}</th>`);
+            html += "</tr><tr>";
+
+            let day = 1;
+            for (let i = 0; i < firstDay; i++) html += "<td></td>";
+
+            for (let i = firstDay; i < 7 && day <= daysInMonth; i++) {
+                const isToday = day === today.getDate() && m === today.getMonth() && y === today.getFullYear();
+                html += `<td class="day-cell ${isToday ? 'today' : ''}" data-date="${toKey(y, m, day)}">${day}</td>`;
+                day++;
+            }
+            html += "</tr>";
+
+            while (day <= daysInMonth) {
+                html += "<tr>";
+                for (let i = 0; i < 7 && day <= daysInMonth; i++) {
+                    const isToday = day === today.getDate() && m === today.getMonth() && y === today.getFullYear();
+                    html += `<td class="day-cell ${isToday ? 'today' : ''}" data-date="${toKey(y, m, day)}">${day}</td>`;
+                    day++;
+                }
+                html += "</tr>";
+            }
+
+            table.innerHTML = html;
+            bindDayCells();
+        }
+
+        function bindDayCells() {
+            document.querySelectorAll("td.day-cell").forEach(td => {
+                const key = td.getAttribute("data-date");
+                if (gamesByDate[key] && gamesByDate[key].length) {
+                    const dot = document.createElement("span");
+                    dot.className = "game-dot";
+                    td.appendChild(dot);
+                }
+                td.addEventListener("click", () => openDayModal(key));
+            });
+        }
+
+        function dateKeyFromISO(iso) {
+            if (!iso) return null;
+            const dt = new Date(iso);
+            return toKey(dt.getFullYear(), dt.getMonth(), dt.getDate());
+        }
+
+        async function loadGames() {
+            try {
+                const res = await fetch("/game");
+                const data = await res.json();
+                if (!res.ok || !Array.isArray(data)) return;
+                data.forEach(g => {
+                    const key = dateKeyFromISO(g.dateCreated);
+                    if (!key) return;
+                    if (!gamesByDate[key]) gamesByDate[key] = [];
+                    gamesByDate[key].push(g);
+                });
+                renderCalendar(month, year);
+            } catch (e) {
+                console.warn("Failed to load games", e);
+            }
+        }
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = `
+      <div class="modal">
+        <div class="modal-header">
+          <span id="modalDate">Day</span>
+          <button class="modal-close" aria-label="Close">×</button>
+        </div>
+        <div class="game-list" id="gameList"></div>
+      </div>`;
+        document.body.appendChild(overlay);
+
+        function openDayModal(key) {
+            const list = document.getElementById("gameList");
+            const dateEl = document.getElementById("modalDate");
+            const pretty = new Date(key).toDateString();
+            dateEl.textContent = pretty;
+            list.innerHTML = "";
+            const items = gamesByDate[key] || [];
+            if (items.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "game-item";
+                empty.textContent = "No games on this day.";
+                list.appendChild(empty);
+            } else {
+                items.forEach(g => {
+                    const item = document.createElement("div");
+                    item.className = "game-item";
+                    const status = g.status || "unknown";
+                    const score = (typeof g.scoreA === "number" && typeof g.scoreB === "number") ? ` (${g.scoreA}-${g.scoreB})` : "";
+                    item.innerHTML = `<div><strong>${g.teamA || 'Team A'}</strong> vs <strong>${g.teamB || 'Team B'}</strong>${score}</div><div class="status">Status: ${status}</div>`;
+                    list.appendChild(item);
+                });
+            }
+            overlay.classList.add("active");
+        }
+
+        function closeModal() {
+            overlay.classList.remove("active");
+        }
+
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay || e.target.classList.contains("modal-close")) {
+                closeModal();
+            }
+        });
+
+        prevBtn.addEventListener("click", () => {
+            month--;
+            if (month < 0) {
+                month = 11;
+                year--;
+            }
+            renderCalendar(month, year);
+        });
+
+        nextBtn.addEventListener("click", () => {
+            month++;
+            if (month > 11) {
+                month = 0;
+                year++;
+            }
+            renderCalendar(month, year);
+        });
+
+        renderCalendar(month, year);
+        loadGames();
+    </script>
+</body>
+</html>

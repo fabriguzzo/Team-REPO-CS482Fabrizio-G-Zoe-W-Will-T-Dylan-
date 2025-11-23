@@ -14,9 +14,41 @@
         header {
             background: #a64b00;
             color: white;
-            padding: 20px;
-            text-align: center;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo {
             font-size: 32px;
+            font-weight: 700;
+        }
+        .top-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: background 0.2s, transform 0.2s;
+        }
+        .top-nav a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        .top-nav a.auth-link {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .top-nav a.auth-link.accent {
+            background: #ff8c00;
+            border-color: #ff8c00;
         }
         .container {
             display: grid;
@@ -43,6 +75,38 @@
         .nav-btn:hover {
             background: #a64b00;
             transform: scale(1.05);
+        }
+
+        .hero-panel {
+            background: white;
+            padding: 35px;
+            border-radius: 18px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.12);
+        }
+        .hero-panel h2 {
+            margin: 0 0 10px;
+            font-size: 34px;
+            color: #a64b00;
+        }
+        .hero-panel p {
+            font-size: 18px;
+            color: #444;
+            line-height: 1.6;
+        }
+        .hero-panel .cta {
+            margin-top: 25px;
+            display: inline-block;
+            background: #ff8c00;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 26px;
+            border-radius: 999px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .hero-panel .cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.2);
         }
 
         .calendar {
@@ -150,7 +214,17 @@
     </style>
 </head>
 <body>
-<header>Baseball League</header>
+    <header>
+        <div class="logo">Baseball League</div>
+        <nav class="top-nav">
+            <a href="/viewGames">Games</a>
+            <a href="/viewTeams">Teams</a>
+            <a href="/schedule">Schedule</a>
+            <a href="/login" class="auth-link">Login</a>
+            <a href="/signup" class="auth-link accent">Sign Up</a>
+            <a href="/guest" class="auth-link">Guest</a>
+        </nav>
+    </header>
 
 <div id="mainContent" class="container">
     <div class="side-buttons">
@@ -161,15 +235,16 @@
 
     </div>
 
-    <div class="calendar">
-        <div id="monthHeader"></div>
-        <table id="calendarTable"></table>
-    </div>
+        <div class="hero-panel">
+            <h2>Welcome to the League Hub</h2>
+            <p>Track standings, manage your teams, and stay connected with every update. Need the full slate of upcoming games? Head to the schedule page to browse the calendar and tap into live details.</p>
+            <a class="cta" href="/schedule">Go to Schedule</a>
+        </div>
 
     <div class="right-panel">
         <div class="login-box">
-                <h3>Login</h3>
-                <a href="/login">Sign In</a>
+            <h3>Login</h3>
+            <a href="/login">Login</a>
                 <a href="/signup">Sign Up</a>
                 <a href="/guest" class="guest-btn">Guest User</a>
             </div>
@@ -182,136 +257,6 @@
     <div class="feed-item">User posted a video/picture</div>
     <div class="feed-item">User posted a video/picture</div>
 </div>
-
-<script>
-    const table = document.getElementById("calendarTable");
-    const header = document.getElementById("monthHeader");
-
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
-    const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-
-    header.textContent = `${monthNames[month]} ${year}`;
-    function toKey(y, m, d) {
-      const mm = String(m + 1).padStart(2, '0');
-      const dd = String(d).padStart(2, '0');
-      return `${y}-${mm}-${dd}`;
-    }
-
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    let html = `<tr>
-        <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
-    </tr><tr>`;
-
-    for (let i = 0; i < firstDay; i++) html += "<td></td>";
-
-    let day = 1;
-    for (let i = firstDay; i < 7; i++) {
-        const isToday = day === today.getDate();
-        const dateKey = toKey(year, month, day);
-        html += `<td class="day-cell ${isToday ? 'today' : ''}" data-date="${dateKey}">${day}</td>`;
-        day++;
-    }
-    html += "</tr>";
-
-    while (day <= daysInMonth) {
-        html += "<tr>";
-        for (let i = 0; i < 7 && day <= daysInMonth; i++) {
-            const isToday = day === today.getDate();
-            const dateKey = toKey(year, month, day);
-            html += `<td class="day-cell ${isToday ? 'today' : ''}" data-date="${dateKey}">${day}</td>`;
-            day++;
-        }
-        html += "</tr>";
-    }
-
-    table.innerHTML = html;
-
-    // Map games by YYYY-MM-DD
-    const gamesByDate = {};
-    function dateKeyFromISO(iso) {
-      if (!iso) return null;
-      const dt = new Date(iso);
-      return toKey(dt.getFullYear(), dt.getMonth(), dt.getDate());
-    }
-    async function loadGamesAndBind() {
-      try {
-        const res = await fetch('/game');
-        const data = await res.json();
-        if (!res.ok || !Array.isArray(data)) return;
-        data.forEach(g => {
-          const key = dateKeyFromISO(g.dateCreated);
-          if (!key) return;
-          if (!gamesByDate[key]) gamesByDate[key] = [];
-          gamesByDate[key].push(g);
-        });
-        // Mark cells and bind clicks
-        document.querySelectorAll('td.day-cell').forEach(td => {
-          const key = td.getAttribute('data-date');
-          if (gamesByDate[key] && gamesByDate[key].length) {
-            const dot = document.createElement('span');
-            dot.className = 'game-dot';
-            td.appendChild(dot);
-          }
-          td.addEventListener('click', () => openDayModal(key));
-        });
-      } catch (e) {
-        console.warn('Failed to load games', e);
-      }
-    }
-    // Overlay modal
-    const overlay = document.createElement('div');
-    overlay.className = 'overlay';
-    overlay.innerHTML = `
-      <div class="modal">
-        <div class="modal-header">
-          <span id="modalDate">Day</span>
-          <button class="modal-close" aria-label="Close">×</button>
-        </div>
-        <div class="game-list" id="gameList"></div>
-      </div>`;
-    document.body.appendChild(overlay);
-    function openDayModal(key) {
-      const main = document.getElementById('mainContent');
-      const list = document.getElementById('gameList');
-      const dateEl = document.getElementById('modalDate');
-      const pretty = new Date(key).toDateString();
-      dateEl.textContent = pretty;
-      list.innerHTML = '';
-      const items = gamesByDate[key] || [];
-      if (items.length === 0) {
-        const empty = document.createElement('div');
-        empty.className = 'game-item';
-        empty.textContent = 'No games on this day.';
-        list.appendChild(empty);
-      } else {
-        items.forEach(g => {
-          const item = document.createElement('div');
-          item.className = 'game-item';
-          const status = g.status || 'unknown';
-          const score = (typeof g.scoreA === 'number' && typeof g.scoreB === 'number') ? ` (${g.scoreA}-${g.scoreB})` : '';
-          item.innerHTML = `<div><strong>${g.teamA || 'Team A'}</strong> vs <strong>${g.teamB || 'Team B'}</strong>${score}</div><div class="status">Status: ${status}</div>`;
-          list.appendChild(item);
-        });
-      }
-      overlay.classList.add('active');
-      if (main) main.classList.add('blurred');
-    }
-    function closeModal() {
-      const main = document.getElementById('mainContent');
-      overlay.classList.remove('active');
-      if (main) main.classList.remove('blurred');
-    }
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay || e.target.classList.contains('modal-close')) {
-        closeModal();
-      }
-    });
-    loadGamesAndBind();
-</script>
 
 <script>
   (function renderAuthBox(){
@@ -342,3 +287,4 @@
 
 </body>
 </html>
+
