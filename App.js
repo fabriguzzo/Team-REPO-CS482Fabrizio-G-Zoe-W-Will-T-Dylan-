@@ -12,19 +12,18 @@ const userController = require("./Docs/Baseball/Controller/UserController");
 const gameController = require('./Docs/Baseball/Controller/gameController.js');
 const chatController = require("./Docs/Baseball/Controller/chatController");
 
-
 const app = express();
+const sessionM = session({
+    secret: "yourSecretKey",
+    resave: false,
+    saveUninitialized: false
+});
+
+app.use(sessionM);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
-
-const sessionM = session({
-  secret: "yourSecretKey",
-  resave: false,
-  saveUninitialized: false,
-});
-app.use(sessionM);
-
 app.use(express.static(path.join(__dirname, "public_html")));
 
 const testPath = path.join(__dirname, "public_html", "test.html");
