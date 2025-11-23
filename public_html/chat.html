@@ -1,36 +1,231 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Team Chat</title>
+    <title>Games Dashboard</title>
+    <style>
+        .top-bar {
+            width: 100%;
+            background: #111;
+            border-bottom: 3px solid #FF6A00;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .top-bar button {
+            padding: 10px 20px;
+            background: #FF6A00;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            color: black;
+            font-size: 16px;
+        }
+
+        .top-bar button:hover {
+            background: #ff8030;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: white;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .games-panel {
+            width: 55%;
+            overflow-y: scroll;
+            padding: 20px;
+            background: #111;
+            box-sizing: border-box;
+        }
+
+        .section-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #FF6A00;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+
+        .game-card {
+            background: #222;
+            border: 2px solid #FF6A00;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .game-card:hover {
+            transform: scale(1.02);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .label {
+            color: #FF6A00;
+            font-weight: bold;
+        }
+
+        .chat-panel {
+            width: 45%;
+            border-left: 3px solid #FF6A00;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+            padding: 20px;
+            background: #000;
+        }
+
+        #chat-feed {
+            flex-grow: 1;
+            border: 2px solid #FF6A00;
+            padding: 10px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            background: #111;
+            border-radius: 10px;
+        }
+
+        #msg {
+            width: 75%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #FF6A00;
+            background: #222;
+            color: white;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #FF6A00;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            color: black;
+        }
+
+        button:hover {
+            background: #ff8030;
+        }
+    </style>
 </head>
 <body>
 
-<h2>Team Chat</h2>
-
-<div id="chat-feed"
-     style="border:1px solid #ccc;height:300px;overflow-y:scroll;padding:10px;">
+    <div class="top-bar">
+    <button onclick="goHome()">Home</button>
 </div>
 
-<input id="msg" placeholder="Type a message">
-<button onclick="sendMessage()">Send</button>
+<div class="container">
 
+    <div class="games-panel">
+
+        <div class="section-title">LIVE GAMES</div>
+        <div id="live-games"></div>
+
+        <div class="section-title">FINISHED GAMES</div>
+        <div id="finished-games"></div>
+
+    </div>
+
+    <div class="chat-panel">
+        <h2 style="color:#FF6A00; margin-top:0;">Team Chat</h2>
+
+        <div id="chat-feed"></div>
+
+        <div>
+            <input id="msg" placeholder="Type a message">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+
+        <button style="margin-top:15px;" onclick="logout()">Logout</button>
+    </div>
+
+</div>
 <script src="/socket.io/socket.io.js"></script>
+
 <script>
+
+function goHome() {
+    window.location.href = "/index.html";
+}
+
+
+async function loadGames() {
+    try {
+        const res = await fetch("/game");
+        const games = await res.json();
+
+        const live = document.getElementById("live-games");
+        const finished = document.getElementById("finished-games");
+
+        live.innerHTML = "";
+        finished.innerHTML = "";
+
+        games.forEach(g => {
+            const card = document.createElement("div");
+            card.className = "game-card";
+
+            const created = g.dateCreated 
+                ? new Date(g.dateCreated).toLocaleString()
+                : "N/A";
+
+            const finishedAt = g.dateFinished
+                ? new Date(g.dateFinished).toLocaleString()
+                : "";
+
+            card.innerHTML = `
+                <div><span class="label">Game ID:</span> ${g._id}</div>
+                <div><span class="label">Teams:</span> ${g.teamA} vs ${g.teamB}</div>
+                <div><span class="label">Score:</span> ${g.scoreA} - ${g.scoreB}</div>
+                <div><span class="label">Status:</span> ${g.status}</div>
+                ${g.result ? `<div><span class="label">Result:</span> ${g.result}</div>` : ""}
+                <div><span class="label">Created:</span> ${created}</div>
+                ${finishedAt ? `<div><span class="label">Finished:</span> ${finishedAt}</div>` : ""}
+            `;
+
+            if (g.status === "finished") {
+                finished.appendChild(card);
+            } else {
+                live.appendChild(card);
+            }
+        });
+
+    } catch (err) {
+        console.error("Error loading games:", err);
+    }
+}
+
+loadGames();
+//Auto Refresh
+setInterval(loadGames, 5000);
+
+
+//Chat Funstions
 const socket = io();
 
-//Load messages
 async function loadMessages() {
     const res = await fetch("/api/chat");
     const data = await res.json();
     const feed = document.getElementById("chat-feed");
 
+    feed.innerHTML = "";
     data.forEach(m => {
         feed.innerHTML += `<p><strong>${m.user}:</strong> ${m.text}</p>`;
     });
 }
 loadMessages();
 
-//Send messages
 function sendMessage() {
     const text = document.getElementById("msg").value.trim();
     if (!text) return;
@@ -38,12 +233,17 @@ function sendMessage() {
     document.getElementById("msg").value = "";
 }
 
-//Receive messages
 socket.on("chat message", (msg) => {
     const feed = document.getElementById("chat-feed");
     feed.innerHTML += `<p><strong>${msg.user}:</strong> ${msg.text}</p>`;
     feed.scrollTop = feed.scrollHeight;
 });
+
+async function logout() {
+    await fetch("/logout", { method: "POST" });
+    alert("Logged out");
+    window.location.reload();
+}
 </script>
 
 </body>
