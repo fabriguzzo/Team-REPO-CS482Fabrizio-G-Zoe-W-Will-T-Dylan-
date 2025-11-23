@@ -6,17 +6,9 @@ const ExpressApp = require("./App.js");
 const http = require("http");
 const { Server } = require("socket.io");
 const chatDao = require("./Docs/Baseball/Model/chatDao");
-const session = require("express-session");
 
 
-const sessionM = session({
-  secret: "yourSecretKey",
-  resave: false,
-  saveUninitialized: false
-});
-
-//Attaching session to Exp App
-ExpressApp.app.use(sessionM);
+const sessionM = ExpressApp.sessionM;
 dbConnect.connect();
 
 //creating http from exp
