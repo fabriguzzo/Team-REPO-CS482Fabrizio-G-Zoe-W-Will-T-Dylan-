@@ -3,127 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <title>Game History Management</title>
+  <link rel="stylesheet" href="/css/site.css" />
   <style>
-    body {
-      font-family: 'Poppins', Arial, sans-serif;
-      background: #c95d0a;
-      color: #fff;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-
-    h1 {
-      background-color: #000;
-      color: #f37805;
-      padding: 20px 0;
-      margin: 0 0 30px 0;
-      font-size: 2em;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    .container {
-      max-width: 700px;
+    .history-card {
+      max-width: 720px;
       margin: 0 auto;
-      background: #111;
-      border-radius: 12px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.08);
       padding: 30px;
     }
-
     select {
-      width: 80%;
-      padding: 10px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      border: 1px solid #333;
-      background: #222;
-      color: #fff;
-      font-size: 1em;
-      transition: border-color 0.2s ease;
+      width: 100%;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      margin-bottom: 18px;
     }
-
-    select:focus {
-      border-color: #f37805;
-      outline: none;
-    }
-
     .buttons {
-      margin-bottom: 25px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
     }
-
-    button {
-      background: #f37805;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 20px;
-      margin: 5px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.1s ease;
-    }
-
-    button:hover {
-      background: #d86f13;
-      transform: scale(1.05);
-    }
-
     .game-details {
-      margin-top: 20px;
-      background: #222;
-      border-radius: 10px;
-      padding: 15px;
-      text-align: left;
       display: none;
+      background: #fffaf5;
+      border-radius: 14px;
+      padding: 16px;
+      border: 1px solid #f0e6dd;
     }
-
-    .game-details p {
-      margin: 8px 0;
-      color: #ddd;
-    }
-
     .highlight {
-      color: #f37805;
-      font-weight: bold;
+      color: var(--accent-dark);
+      font-weight: 600;
     }
-
     #message {
-      margin-top: 15px;
-      color: #000;
-      font-weight: bold;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>Game History</h1>
-  <div class="container">
-    <div class="buttons">
-      <button onclick="resetGames()">Reset All Games</button>
-      <button onclick="loadGames()">Reload List</button>
-    </div>
+  <header class="site-header">
+    <div class="logo"><a href="/">Baseball League</a></div>
+    <nav class="top-nav">
+      <a href="/viewGames">Games</a>
+      <a href="/viewTeams">Teams</a>
+      <a href="/schedule">Schedule</a>
+      <a href="/login" class="auth-link">Login</a>
+      <a href="/signup" class="auth-link accent">Sign Up</a>
+      <a href="/guest" class="auth-link">Guest</a>
+    </nav>
+  </header>
 
-    <select id="gameDropdown" onchange="showGameDetails()">
-      <option value="">-- Select a Game --</option>
-    </select>
+  <main class="page-shell">
+    <section class="history-card">
+      <h1>Game History</h1>
+      <p class="muted">Review every completed or in-progress matchup, reset stats, or delete individual records.</p>
 
-    <div class="game-details" id="gameDetails">
-      <p><span class="highlight">Game ID:</span> <span id="detailId"></span></p>
-      <p><span class="highlight">Teams:</span> <span id="detailTeams"></span></p>
-      <p><span class="highlight">Score:</span> <span id="detailScore"></span></p>
-      <p><span class="highlight">Status:</span> <span id="detailStatus"></span></p>
-      <p><span class="highlight">Result:</span> <span id="detailResult"></span></p>
-      <p><span class="highlight">Created:</span> <span id="detailCreated"></span></p>
-      <p><span class="highlight">Finished:</span> <span id="detailFinished"></span></p>
-      <button onclick="deleteGame()">Delete This Game</button>
-    </div>
+      <div class="buttons">
+        <button class="btn" type="button" onclick="resetGames()" style="background:#d9534f;">Reset All Games</button>
+        <button class="btn" type="button" onclick="loadGames()">Reload List</button>
+        <a class="btn" href="/addGame">Update Game</a>
+      </div>
 
-    <p id="message"></p>
-  </div>
+      <select id="gameDropdown" onchange="showGameDetails()">
+        <option value="">-- Select a Game --</option>
+      </select>
+
+      <div class="game-details" id="gameDetails">
+        <p><span class="highlight">Game ID:</span> <span id="detailId"></span></p>
+        <p><span class="highlight">Teams:</span> <span id="detailTeams"></span></p>
+        <p><span class="highlight">Score:</span> <span id="detailScore"></span></p>
+        <p><span class="highlight">Status:</span> <span id="detailStatus"></span></p>
+        <p><span class="highlight">Result:</span> <span id="detailResult"></span></p>
+        <p><span class="highlight">Created:</span> <span id="detailCreated"></span></p>
+        <p><span class="highlight">Finished:</span> <span id="detailFinished"></span></p>
+        <button class="btn" type="button" onclick="deleteGame()" style="background:#dc3545;">Delete This Game</button>
+      </div>
+
+      <p id="message"></p>
+    </section>
+  </main>
 
   <script>
-    const BASE_URL = "http://localhost:4000/game";
+    const BASE_URL = 'http://localhost:4000/game';
     let games = [];
 
     async function loadGames() {
@@ -139,6 +104,7 @@
         const data = await response.json();
 
         if (!response.ok) {
+          msg.style.color = 'red';
           msg.textContent = `Error: ${data.error || 'Failed to load games'}`;
           return;
         }
@@ -149,13 +115,14 @@
           return;
         }
 
-        data.forEach(g => {
+        data.forEach((g) => {
           const option = document.createElement('option');
           option.value = g._id;
           option.textContent = `${g.teamA} vs ${g.teamB} (${g.status})`;
           dropdown.appendChild(option);
         });
       } catch (err) {
+        msg.style.color = 'red';
         msg.textContent = 'Error connecting to server.';
         console.error(err);
       }
@@ -172,7 +139,7 @@
         return;
       }
 
-      const game = games.find(g => g._id === id);
+      const game = games.find((g) => g._id === id);
       if (!game) {
         msg.textContent = 'Game not found in cache.';
         return;
@@ -204,12 +171,15 @@
         const data = await response.json();
 
         if (response.ok) {
+          msg.style.color = 'green';
           msg.textContent = 'Game deleted successfully.';
           loadGames();
         } else {
+          msg.style.color = 'red';
           msg.textContent = `Error: ${data.error || 'Failed to delete game'}`;
         }
       } catch (err) {
+        msg.style.color = 'red';
         msg.textContent = 'Error connecting to server.';
         console.error(err);
       }
@@ -217,27 +187,28 @@
 
     async function resetGames() {
       const msg = document.getElementById('message');
-      //"2FA" Make sure Admin is aware of current state
-      if (!confirm('Are you sure you want to delete ALL games History? This cannot be undone.')) return;
+      if (!confirm('Are you sure you want to delete ALL games history? This cannot be undone.')) return;
 
       try {
         const response = await fetch(BASE_URL, { method: 'DELETE' });
         const data = await response.json();
 
         if (response.ok) {
+          msg.style.color = 'green';
           msg.textContent = 'All game history has been reset.';
           loadGames();
         } else {
+          msg.style.color = 'red';
           msg.textContent = `Error: ${data.error || 'Failed to delete all games'}`;
         }
       } catch (err) {
+        msg.style.color = 'red';
         msg.textContent = 'Error connecting to server.';
         console.error(err);
       }
     }
-    
+
     window.onload = loadGames;
   </script>
 </body>
 </html>
-

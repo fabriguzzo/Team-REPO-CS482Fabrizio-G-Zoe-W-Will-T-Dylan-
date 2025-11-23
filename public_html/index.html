@@ -8,31 +8,10 @@
     <style>
         .container {
             display: grid;
-            grid-template-columns: 200px 1fr 250px;
+            grid-template-columns: minmax(0, 1fr) 250px;
             gap: 20px;
             padding: 20px;
         }
-        .side-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .nav-btn {
-            display: block;
-            padding: 15px;
-            background: #ff8c00;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 10px;
-            font-size: 20px;
-            transition: 0.2s;
-        }
-        .nav-btn:hover {
-            background: #a64b00;
-            transform: scale(1.05);
-        }
-
         .hero-panel {
             background: white;
             padding: 35px;
@@ -183,14 +162,6 @@
     </header>
 
 <div id="mainContent" class="container">
-    <div class="side-buttons">
-        <a href="/viewGames" class="nav-btn">Games</a>
-        <a href="/addGame" class="nav-btn">Update Game</a>
-        <a href="/viewTeams" class="nav-btn">Teams</a>
-        <a href="/addTeam" class="nav-btn">Add team</a>
-
-    </div>
-
         <div class="hero-panel">
             <h2>Welcome to the League Hub</h2>
             <p>Track standings, manage your teams, and stay connected with every update. Need the full slate of upcoming games? Head to the schedule page to browse the calendar and tap into live details.</p>

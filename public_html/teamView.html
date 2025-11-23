@@ -3,105 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <title>All Teams</title>
+  <link rel="stylesheet" href="/css/site.css" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #080707;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-
-    h1 {
-      background-color: orange;
-      color: black;
-      padding: 15px 0;
-      margin-bottom: 20px;
-    }
-
     #teamsContainer {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
     }
-
     .team-card {
-      background: orange;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 250px;
-      padding: 20px;
-      text-align: center;
-      transition: transform 0.2s ease;
+      background: #fffaf5;
+      border-radius: 16px;
+      padding: 18px;
+      border: 1px solid #f0e6dd;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
     }
-
-    .team-card:hover {
-      transform: translateY(-4px);
-    }
-
     .team-card img {
-      width: 100px;
-      height: 100px;
+      width: 110px;
+      height: 110px;
       object-fit: cover;
       border-radius: 50%;
-      margin-bottom: 10px;
-      border: 2px solid #ccc;
+      border: 3px solid var(--accent);
     }
-
-    .team-name {
-      font-size: 18px;
-      font-weight: bold;
-      color: #333;
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: center;
     }
-
-    .team-manager {
-      font-size: 14px;
-      color: #666;
-    }
-
-    .edit-btn {
-      margin-top: 15px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 16px;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .edit-btn:hover {
-      background: #0069d9;
-    }
-
     #message {
-      margin-top: 20px;
-      color: red;
-      font-weight: bold;
-    }
-
-    button#reloadBtn {
-      margin-top: 20px;
-      background: yellow;
-      color: black;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
-
-    button#reloadBtn:hover {
-      background: orange;
+      font-weight: 600;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <h1>Team List</h1>
-  <button id="reloadBtn" onclick="loadTeams()">Reload Teams</button>
-  <div id="teamsContainer"></div>
-  <p id="message"></p>
+  <header class="site-header">
+    <div class="logo"><a href="/">Baseball League</a></div>
+    <nav class="top-nav">
+      <a href="/viewGames">Games</a>
+      <a href="/viewTeams">Teams</a>
+      <a href="/schedule">Schedule</a>
+      <a href="/login" class="auth-link">Login</a>
+      <a href="/signup" class="auth-link accent">Sign Up</a>
+      <a href="/guest" class="auth-link">Guest</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="card">
+      <div class="toolbar" style="justify-content: space-between;">
+        <div>
+          <h1>Team List</h1>
+          <p class="muted">Browse every registered team, update rosters, or remove outdated entries.</p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" id="reloadBtn" type="button" onclick="loadTeams()">Reload Teams</button>
+          <a class="btn" href="/addTeam">Add Team</a>
+        </div>
+      </div>
+      <div id="teamsContainer"></div>
+      <p id="message"></p>
+    </section>
+  </main>
 
   <script>
     async function loadTeams() {
@@ -109,57 +76,57 @@
       const msg = document.getElementById('message');
       container.innerHTML = '';
       msg.textContent = '';
-  
+
       try {
         const response = await fetch('http://localhost:4000/teams');
         const data = await response.json();
-  
+
         if (!response.ok) {
+          msg.style.color = 'red';
           msg.textContent = `Error: ${data.error || 'Failed to load teams'}`;
           return;
         }
-  
+
         if (data.length === 0) {
           msg.textContent = 'No teams found.';
           return;
         }
-  
-        data.forEach(team => {
+
+        data.forEach((team) => {
           const card = document.createElement('div');
           card.className = 'team-card';
-  
+
           const logo = document.createElement('img');
-          //logo.src = team.logo || 'https://via.placeholder.com/100?text=Team';
           logo.src = `http://localhost:4000/teams/${team._id}/logo`;
           logo.onerror = () => {
             logo.src = 'https://via.placeholder.com/100?text=Team';
           };
           card.appendChild(logo);
-  
+
           const name = document.createElement('div');
           name.className = 'team-name';
           name.textContent = team.name;
           card.appendChild(name);
-  
+
           const manager = document.createElement('div');
           manager.className = 'team-manager';
           manager.textContent = `Manager: ${team.manager || 'N/A'}`;
           card.appendChild(manager);
-  
-          
+
+          const actions = document.createElement('div');
+          actions.className = 'card-actions';
+
           const editBtn = document.createElement('button');
-          editBtn.className = 'edit-btn';
+          editBtn.className = 'btn';
           editBtn.textContent = 'Edit Team';
           editBtn.onclick = () => {
             window.location.href = `editTeam.html?id=${team._id}`;
           };
-          card.appendChild(editBtn);
-  
-          
+          actions.appendChild(editBtn);
+
           const deleteBtn = document.createElement('button');
-          deleteBtn.className = 'edit-btn';
+          deleteBtn.className = 'btn';
           deleteBtn.style.background = '#dc3545';
-          deleteBtn.style.marginLeft = '10px';
           deleteBtn.textContent = 'Delete';
           deleteBtn.onclick = async () => {
             if (confirm(`Are you sure you want to delete "${team.name}"?`)) {
@@ -168,7 +135,7 @@
                   method: 'DELETE'
                 });
                 const result = await res.json();
-  
+
                 if (res.ok) {
                   alert('Team deleted successfully!');
                   loadTeams();
@@ -181,11 +148,13 @@
               }
             }
           };
-          card.appendChild(deleteBtn);
-  
+          actions.appendChild(deleteBtn);
+
+          card.appendChild(actions);
           container.appendChild(card);
         });
       } catch (err) {
+        msg.style.color = 'red';
         msg.textContent = 'Error connecting to server.';
         console.error(err);
       }
