@@ -12,4 +12,8 @@ module.exports = {
     createMessage: (data) => ChatMessage.create(data),
     getRecentMessages: () =>
         ChatMessage.find().sort({ timestamp: 1 }).limit(50),
+    deleteMessage: (id) =>
+        ChatMessage.findByIdAndDelete(id),
+    deleteAllMessages: () =>
+        ChatMessage.deleteMany({})
 };
