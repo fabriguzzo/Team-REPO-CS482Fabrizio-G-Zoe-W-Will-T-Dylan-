@@ -3,110 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <title>Edit Team</title>
+  <link rel="stylesheet" href="/css/site.css" />
   <style>
-    body {
-      background-color: black;
-      color: white;
-      font-family: Arial, sans-serif;
+    #playerList {
+      text-align: left;
+      background: #fff7f0;
+      color: #222;
+      padding: 12px;
+      border-radius: 12px;
+      max-height: 240px;
+      overflow: auto;
+      border: 1px solid #f0e3d6;
+    }
+    #message {
+      font-weight: 600;
       text-align: center;
     }
-
-    h1 {
-      background-color: orange;
-      color: black;
-      padding: 15px;
-      margin: 0;
+    .player-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
     }
-
-    form {
-      background-color: orange;
-      width: 400px;
-      margin: 30px auto;
-      padding: 20px;
-      border-radius: 10px;
-    }
-
-    label {
-      display: block;
-      text-align: left;
-      margin-bottom: 5px;
-      color: black;
-      font-weight: bold;
-    }
-
-    input[type="text"],
-    input[type="file"],
-    select {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 15px;
-      border: none;
-      border-radius: 5px;
-    }
-
-    button {
-      background-color: #ffb300;
-      color: black;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
+    .pill-btn {
+      border: 1px solid var(--accent-dark);
+      background: transparent;
+      border-radius: 999px;
+      padding: 6px 14px;
       cursor: pointer;
-      margin-top: 10px;
     }
-
-    button:hover {
-      background-color: #a06e0b;
+    .pill-btn:hover {
+      background: #ffe3c7;
     }
-
-    #message {
-      color: white;
-      margin-top: 15px;
-      font-weight: bold;
+    .roster-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
     }
-
-    .back-btn {
-      background-color: #ffb300;
-      color: black;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-
-    .back-btn:hover {
-      background-color: #a06e0b;
+    .roster-actions select {
+      flex: 1;
+      border-radius: 12px;
+      padding: 10px 12px;
+      border: 1px solid #d7d7d7;
     }
   </style>
 </head>
 <body>
-  <h1>Edit Team</h1>
+  <header class="site-header">
+    <div class="logo"><a href="/">Baseball League</a></div>
+    <nav class="top-nav">
+      <a href="/viewGames">Games</a>
+      <a href="/viewTeams">Teams</a>
+      <a href="/schedule">Schedule</a>
+      <a href="/login" class="auth-link">Login</a>
+      <a href="/signup" class="auth-link accent">Sign Up</a>
+      <a href="/guest" class="auth-link">Guest</a>
+    </nav>
+  </header>
 
-  <form id="editForm" enctype="multipart/form-data">
-    <label for="name">Team Name</label>
-    <input type="text" id="name" name="name" required>
+  <main class="page-shell">
+    <section class="card form-card">
+      <h1>Edit Team</h1>
+      <p class="muted">Update a roster, upload a fresh logo, or add youth accounts to keep everyone synced.</p>
+      <form id="editForm" class="form-grid" enctype="multipart/form-data">
+        <label for="name">Team Name</label>
+        <input type="text" id="name" name="name" required>
 
-    <label for="manager">Manager</label>
-    <input type="text" id="manager" name="manager">
+        <label for="manager">Manager</label>
+        <input type="text" id="manager" name="manager">
 
-    <label for="logo">Upload New Logo</label>
-    <input type="file" id="logo" name="logo" accept="image/*">
+        <label for="logo">Upload New Logo</label>
+        <input type="file" id="logo" name="logo" accept="image/*">
 
-    <hr>
-    <h3 style="color:black;">Players</h3>
-    <div id="playerList" style="text-align:left; background:#fff; color:#000; padding:10px; border-radius:8px; max-height:220px; overflow:auto;"></div>
-    <div style="display:flex; gap:8px; margin-top:8px;">
-      <select id="childSelect" style="flex:1;">
-        <option value="">-- Select Child User --</option>
-      </select>
-      <button type="button" id="addPlayerBtn">Add</button>
-    </div>
+        <h3>Players</h3>
+        <div id="playerList"></div>
+        <div class="roster-actions">
+          <select id="childSelect">
+            <option value="">-- Select Child User --</option>
+          </select>
+          <button type="button" class="btn" id="addPlayerBtn">Add</button>
+        </div>
 
-    <button type="submit">Save Changes</button>
-  </form>
+        <button type="submit" class="btn">Save Changes</button>
+      </form>
 
-  <p id="message"></p>
-  <button class="back-btn" onclick="window.location.href='teamView.html'">← Back to Teams</button>
+      <p id="message"></p>
+      <button class="btn" type="button" onclick="window.location.href='teamView.html'">Back to Teams</button>
+    </section>
+  </main>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -154,31 +138,28 @@
       }
     }
 
-    function renderPlayers(){
+    function renderPlayers() {
       playerListEl.innerHTML = '';
       if (!players.length) {
         const empty = document.createElement('div');
         empty.textContent = 'No players yet.';
-        empty.style.color = '#333';
+        empty.className = 'muted';
         playerListEl.appendChild(empty);
         return;
       }
       players.forEach((p, idx) => {
         const row = document.createElement('div');
-        row.style.display = 'flex';
-        row.style.alignItems = 'center';
-        row.style.justifyContent = 'space-between';
-        row.style.padding = '6px 0';
+        row.className = 'player-row';
         const name = document.createElement('span');
         name.textContent = p;
         const rm = document.createElement('button');
         rm.type = 'button';
         rm.textContent = 'Remove';
-        rm.style.background = '#fff';
-        rm.style.border = '1px solid #a06e0b';
-        rm.style.borderRadius = '6px';
-        rm.style.cursor = 'pointer';
-        rm.addEventListener('click', () => { players.splice(idx,1); renderPlayers(); });
+        rm.className = 'pill-btn';
+        rm.addEventListener('click', () => {
+          players.splice(idx, 1);
+          renderPlayers();
+        });
         row.appendChild(name);
         row.appendChild(rm);
         playerListEl.appendChild(row);

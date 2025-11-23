@@ -2,36 +2,55 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sign In</title>
-  <style>
-    body { font-family: Arial; background: #f2f2f2; text-align: center; margin: 0; }
-    h1 { background: #007bff; color: #fff; padding: 16px 0; margin: 0 0 24px 0; }
-    form { background: #fff; width: 340px; margin: 30px auto; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: left; }
-    label { display: block; font-weight: bold; margin: 8px 0 4px; }
-    input { width: 95%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
-    button { width: 100%; margin-top: 14px; background: #007bff; color: #fff; border: none; border-radius: 8px; padding: 10px; cursor: pointer; }
-    button:hover { background: #0069d9; }
-    #message { margin-top: 12px; font-weight: bold; }
-    .hint { margin-top: 10px; font-size: 13px; color: #444; text-align: center; }
-  </style>
+  <title>Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-store" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  </head>
+  <link rel="stylesheet" href="/css/site.css" />
+  <style>
+    .hint {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+    }
+    #message {
+      text-align: center;
+      font-weight: 600;
+    }
+  </style>
+</head>
 <body>
-  <h1>Sign In</h1>
-  <form id="loginForm">
-    <label for="username">Username</label>
-    <input type="text" id="username" required />
+  <header class="site-header">
+    <div class="logo"><a href="/">Baseball League</a></div>
+    <nav class="top-nav">
+      <a href="/viewGames">Games</a>
+      <a href="/viewTeams">Teams</a>
+      <a href="/schedule">Schedule</a>
+      <a href="/login" class="auth-link active">Login</a>
+      <a href="/signup" class="auth-link accent">Sign Up</a>
+      <a href="/guest" class="auth-link">Guest</a>
+    </nav>
+  </header>
 
-    <label for="password">Password</label>
-    <input type="password" id="password" required />
+  <main class="page-shell">
+    <section class="card form-card">
+      <h1>Login</h1>
+      <p class="muted">Sign in to manage your teams, games, and dashboard access.</p>
+      <form id="loginForm" class="form-grid">
+        <label for="username">Username</label>
+        <input type="text" id="username" required />
 
-    <button type="submit">Sign In</button>
-  </form>
-  <div class="hint">Don't have an account? <a href="/signup">Sign up</a>.</div>
-  <p id="message"></p>
+        <label for="password">Password</label>
+        <input type="password" id="password" required />
+
+        <button type="submit" class="btn">Login</button>
+      </form>
+      <div class="hint">Don't have an account? <a href="/signup">Sign up</a>.</div>
+      <p id="message"></p>
+    </section>
+  </main>
 
   <script>
     document.getElementById('loginForm').addEventListener('submit', async (e) => {

@@ -4,52 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Baseball League</title>
+    <link rel="stylesheet" href="/css/site.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f5f5f5;
-        }
-        header {
-            background: #a64b00;
-            color: white;
-            padding: 20px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-        }
-        .logo {
-            font-size: 32px;
-            font-weight: 700;
-        }
-        .top-nav {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .top-nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 10px 18px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            transition: background 0.2s, transform 0.2s;
-        }
-        .top-nav a:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
-        }
-        .top-nav a.auth-link {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        .top-nav a.auth-link.accent {
-            background: #ff8c00;
-            border-color: #ff8c00;
-        }
         .container {
             display: grid;
             grid-template-columns: 200px 1fr 250px;
@@ -214,8 +170,8 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">Baseball League</div>
+    <header class="site-header">
+        <div class="logo"><a href="/">Baseball League</a></div>
         <nav class="top-nav">
             <a href="/viewGames">Games</a>
             <a href="/viewTeams">Teams</a>
