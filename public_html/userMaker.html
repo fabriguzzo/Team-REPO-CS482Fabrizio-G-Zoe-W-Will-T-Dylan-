@@ -3,67 +3,97 @@
 <head>
   <meta charset="UTF-8" />
   <title>Add User</title>
+  <link rel="stylesheet" href="/css/site.css" />
   <style>
-    body { font-family: Arial; background: #fff4e5; text-align: center; margin: 0; }
-    h1 { background: #ff8c00; color: #fff; margin: 0; padding: 16px 0; }
-    form { background: #fff; padding: 20px; margin: 40px auto; width: 320px; border-radius: 12px; box-shadow: 0 6px 16px rgba(255,140,0,0.25); }
-    input, button { width: 92%; margin: 10px 0; padding: 10px; border-radius: 8px; border: 1px solid #ffa64d; }
-    input:focus { outline: none; border-color: #ff8c00; box-shadow: 0 0 0 3px rgba(255,140,0,0.15); }
-    button { background: #ff8c00; color: #fff; border: none; cursor: pointer; font-weight: 600; }
-    button:hover { background: #a64b00; }
+    #message {
+      font-weight: 600;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <h1>Add a User</h1>
-  <form id="userForm">
-    <input type="text" id="username" placeholder="Username" required /><br />
-    <input type="password" id="password" placeholder="Password" required /><br />
-    <input type="email" id="email" placeholder="Email" required /><br />
-    <input type="number" id="age" placeholder="Age" min="0" required /><br />
-    <button type="submit">Add User</button>
-  </form>
-  <p id="message"></p>
+  <header class="site-header">
+    <div class="logo"><a href="/">Baseball League</a></div>
+    <nav class="top-nav">
+      <a href="/viewGames">Games</a>
+      <a href="/viewTeams">Teams</a>
+      <a href="/schedule">Schedule</a>
+      <a href="/login" class="auth-link">Login</a>
+      <a href="/signup" class="auth-link accent">Sign Up</a>
+      <a href="/guest" class="auth-link">Guest</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="card form-card">
+      <h1>Add a User</h1>
+      <p class="muted">Create fully privileged staff accounts.              </p>
+      <form id="userForm" class="form-grid">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Username" required />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Password" required />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Email" required />
+
+        <label for="age">Age</label>
+        <input type="number" id="age" placeholder="Age" min="0" required />
+
+        <button type="submit" class="btn">Add User</button>
+      </form>
+      <p id="message"></p>
+    </section>
+  </main>
 
   <script>
-    document.getElementById("userForm").addEventListener("submit", async (e) => {
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const ageVal = parseInt(document.getElementById("age").value, 10);
+      const ageVal = parseInt(document.getElementById('age').value, 10);
+      const msg = document.getElementById('message');
       if (Number.isNaN(ageVal)) {
-        document.getElementById("message").textContent = "Error: Age is required to sign up";
+        msg.style.color = 'red';
+        msg.textContent = 'Error: Age is required to sign up';
         return;
       }
       if (ageVal < 18) {
-        document.getElementById("message").textContent = "Error: Cannot sign up as minor; must be under a parent";
+        msg.style.color = 'red';
+        msg.textContent = 'Error: Cannot sign up as minor; must be under a parent';
         return;
       }
       const user = {
-        username: document.getElementById("username").value.trim(),
-        password: document.getElementById("password").value,
-        email: document.getElementById("email").value.trim(),
+        username: document.getElementById('username').value.trim(),
+        password: document.getElementById('password').value,
+        email: document.getElementById('email').value.trim(),
         age: ageVal
       };
 
-      const response = await fetch("http://localhost:4000/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('http://localhost:4000/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(user)
       });
 
       const data = await response.json();
-      const msg = document.getElementById("message");
 
       if (response.ok) {
-        msg.style.color = "green";
-        msg.textContent = "User added successfully! Redirecting...";
+        msg.style.color = 'green';
+        msg.textContent = 'User added successfully! Redirecting...';
         try {
           const safeUser = data && data.user ? { ...data.user } : null;
           if (safeUser && 'password' in safeUser) delete safeUser.password;
           if (safeUser) localStorage.setItem('currentUser', JSON.stringify(safeUser));
-        } catch (e) { console.warn('Unable to store user in localStorage', e); }
-        document.getElementById("userForm").reset();
-        setTimeout(() => { window.location.href = "/"; }, 800);
+        } catch (err) {
+          console.warn('Unable to store user in localStorage', err);
+        }
+        document.getElementById('userForm').reset();
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 800);
       } else {
-        msg.textContent = `Error: ${data.error || "Failed to add user"}`;
+        msg.style.color = 'red';
+        msg.textContent = `Error: ${data.error || 'Failed to add user'}`;
       }
     });
   </script>

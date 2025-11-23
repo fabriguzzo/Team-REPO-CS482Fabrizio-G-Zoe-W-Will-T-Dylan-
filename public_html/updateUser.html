@@ -3,111 +3,79 @@
 <head>
   <meta charset="UTF-8" />
   <title>Update Users</title>
+  <link rel="stylesheet" href="/css/site.css" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-
-    h1 {
-      background-color: #007bff;
-      color: white;
-      padding: 15px 0;
-      margin-bottom: 20px;
-    }
-
     #usersContainer {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
     }
-
     .user-card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 280px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
       padding: 20px;
-      text-align: center;
-      position: relative;
-      transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
     }
-
-    .user-card:hover {
-      transform: translateY(-4px);
-    }
-
     .user-card img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
+      width: 90px;
+      height: 90px;
       border-radius: 50%;
-      margin-bottom: 10px;
-      border: 2px solid #ccc;
+      object-fit: cover;
+      border: 3px solid var(--accent);
     }
-
-    .user-name {
-      font-size: 18px;
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 5px;
+    .user-input,
+    .user-card select {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid #d8d8d8;
+      padding: 8px 12px;
     }
-
-    .user-input {
-      width: 90%;
-      margin: 5px 0;
-      padding: 6px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-
     .update-btn {
-      background: #28a745;
-      color: white;
+      width: 100%;
       border: none;
-      border-radius: 8px;
-      padding: 8px 15px;
-      cursor: pointer;
-      transition: background 0.2s;
-      margin-top: 8px;
-    }
-
-    .update-btn:hover {
-      background: #218838;
-    }
-
-    button#reload {
-      margin-bottom: 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 20px;
+      border-radius: 999px;
+      padding: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
       cursor: pointer;
     }
-
-    button#reload:hover {
-      background: #0069d9;
-    }
-
     #message {
-      margin-top: 20px;
-      color: red;
-      font-weight: bold;
+      font-weight: 600;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <h1>Update Users</h1>
-  <button id="reload" onclick="loadUsers()">Reload Users</button>
-  <div id="usersContainer"></div>
-  <p id="message"></p>
+  <header class="site-header">
+    <div class="logo"><a href="/">Baseball League</a></div>
+    <nav class="top-nav">
+      <a href="/viewGames">Games</a>
+      <a href="/viewTeams">Teams</a>
+      <a href="/schedule">Schedule</a>
+      <a href="/login" class="auth-link">Login</a>
+      <a href="/signup" class="auth-link accent">Sign Up</a>
+      <a href="/guest" class="auth-link">Guest</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="card">
+      <div class="toolbar" style="justify-content: space-between;">
+        <div>
+          <h1>Update Users</h1>
+          <p class="muted">Adjust contact details or permissions for any account.</p>
+        </div>
+        <button class="btn" id="reload" type="button" onclick="loadUsers()">Reload Users</button>
+      </div>
+      <div id="usersContainer"></div>
+      <p id="message"></p>
+    </section>
+  </main>
 
   <script>
     async function loadUsers() {
@@ -121,6 +89,7 @@
         const data = await response.json();
 
         if (!response.ok) {
+          msg.style.color = 'red';
           msg.textContent = `Error: ${data.error || 'Failed to load users'}`;
           return;
         }
@@ -130,7 +99,7 @@
           return;
         }
 
-        data.forEach(user => {
+        data.forEach((user) => {
           const card = document.createElement('div');
           card.className = 'user-card';
 
@@ -143,7 +112,6 @@
           name.textContent = user.username;
           card.appendChild(name);
 
-          // Editable fields
           const emailInput = document.createElement('input');
           emailInput.className = 'user-input';
           emailInput.value = user.email || '';
@@ -158,7 +126,7 @@
 
           const roleSelect = document.createElement('select');
           roleSelect.className = 'user-input';
-          ['coach','manager','admin','player','parent'].forEach(r => {
+          ['coach', 'manager', 'admin', 'player', 'parent'].forEach((r) => {
             const option = document.createElement('option');
             option.value = r;
             option.text = r.charAt(0).toUpperCase() + r.slice(1);
@@ -167,7 +135,6 @@
           });
           card.appendChild(roleSelect);
 
-          // Update button
           const updateBtn = document.createElement('button');
           updateBtn.className = 'update-btn';
           updateBtn.textContent = 'Update User';
@@ -180,8 +147,8 @@
 
           container.appendChild(card);
         });
-
       } catch (err) {
+        msg.style.color = 'red';
         msg.textContent = 'Error connecting to server.';
         console.error(err);
       }
@@ -215,7 +182,6 @@
       }
     }
 
-    // Load users on page load
     window.onload = loadUsers;
   </script>
 </body>

@@ -3,61 +3,76 @@
 <head>
   <meta charset="UTF-8" />
   <title>Add Team</title>
+  <link rel="stylesheet" href="/css/site.css" />
   <style>
-    body { font-family: Arial; background: #080101; text-align: center; }
-    h1 {
-      background-color: orange;
-      color: black;
-      padding: 15px;
-      margin: 0;
+    #message {
+      font-weight: 600;
+      text-align: center;
     }
-    form { background:  orange; padding: 20px; margin: 50px auto; width: 300px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    input, button { width: 90%; margin: 10px 0; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
-    button { background: yellow; color: rgb(6, 5, 5); border: none; cursor: pointer; }
-    button:hover { background: #a06e0b; }
   </style>
 </head>
 <body>
-  <h1>Add a Team</h1>
-  <form id="teamForm" enctype="multipart/form-data">
-    <input type="text" id="name" name="name" placeholder="Team Name" required /><br />
-    <input type="text" id="manager" name="manager" placeholder="Manager" /><br />
-    <label for="logo">Upload Logo:</label><br />
-    <input type="file" id="logo" name="logo" accept="image/*" /><br />
-    <button type="submit">Add Team</button>
-  </form>
-  
-  <p id="message"></p>
-  
+  <header class="site-header">
+    <div class="logo"><a href="/">Baseball League</a></div>
+    <nav class="top-nav">
+      <a href="/viewGames">Games</a>
+      <a href="/viewTeams">Teams</a>
+      <a href="/schedule">Schedule</a>
+      <a href="/login" class="auth-link">Login</a>
+      <a href="/signup" class="auth-link accent">Sign Up</a>
+      <a href="/guest" class="auth-link">Guest</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="card form-card">
+      <h1>Add a Team</h1>
+      <p class="muted">Spin up a roster quickly with a name, manager, and optional logo.</p>
+      <form id="teamForm" class="form-grid" enctype="multipart/form-data">
+        <label for="name">Team Name</label>
+        <input type="text" id="name" name="name" placeholder="Team Name" required />
+
+        <label for="manager">Manager</label>
+        <input type="text" id="manager" name="manager" placeholder="Manager" />
+
+        <label for="logo">Upload Logo</label>
+        <input type="file" id="logo" name="logo" accept="image/*" />
+
+        <button type="submit" class="btn">Add Team</button>
+      </form>
+      <p id="message"></p>
+    </section>
+  </main>
+
   <script>
-  document.getElementById("teamForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-  
-    const formData = new FormData();
-    formData.append("name", document.getElementById("name").value);
-    formData.append("manager", document.getElementById("manager").value);
-    const logoFile = document.getElementById("logo").files[0];
-    if (logoFile) {
-      formData.append("logo", logoFile);
-    }
-  
-    const response = await fetch("http://localhost:4000/teams", {
-      method: "POST",
-      body: formData
+    document.getElementById('teamForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.append('name', document.getElementById('name').value);
+      formData.append('manager', document.getElementById('manager').value);
+      const logoFile = document.getElementById('logo').files[0];
+      if (logoFile) {
+        formData.append('logo', logoFile);
+      }
+
+      const response = await fetch('http://localhost:4000/teams', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      const msg = document.getElementById('message');
+
+      if (response.ok) {
+        msg.style.color = 'green';
+        msg.textContent = 'Team added successfully!';
+        document.getElementById('teamForm').reset();
+      } else {
+        msg.style.color = 'red';
+        msg.textContent = `Error: ${data.error || 'Failed to add team'}`;
+      }
     });
-  
-    const data = await response.json();
-    const msg = document.getElementById("message");
-  
-    if (response.ok) {
-      msg.style.color = "green";
-      msg.textContent = "Team added successfully!";
-      document.getElementById("teamForm").reset();
-    } else {
-      msg.style.color = "red";
-      msg.textContent = `Error: ${data.error || "Failed to add team"}`;
-    }
-  });
   </script>
 </body>
 </html>

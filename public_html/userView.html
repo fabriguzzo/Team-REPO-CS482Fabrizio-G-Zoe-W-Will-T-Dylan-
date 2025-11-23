@@ -3,96 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <title>All Users</title>
+  <link rel="stylesheet" href="/css/site.css" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-
-    h1 {
-      background-color: #007bff;
-      color: white;
-      padding: 15px 0;
-      margin-bottom: 20px;
-    }
-
     #usersContainer {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
     }
-
     .user-card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 250px;
-      padding: 20px;
-      text-align: center;
-      transition: transform 0.2s ease;
+      background: #fff;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.08);
     }
-
-    .user-card:hover {
-      transform: translateY(-4px);
-    }
-
-    .user-card img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 50%;
-      margin-bottom: 10px;
-      border: 2px solid #ccc;
-    }
-
     .user-name {
       font-size: 18px;
-      font-weight: bold;
-      color: #333;
+      font-weight: 700;
+      color: var(--accent-dark);
     }
-
-    .user-email {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 6px;
-    }
-
-    .user-role {
-      font-size: 14px;
-      color: #444;
-    }
-
     #message {
-      margin-top: 20px;
-      color: red;
-      font-weight: bold;
-    }
-
-    button {
-      margin-top: 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #0069d9;
+      font-weight: 600;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <h1>User List</h1>
-  <button onclick="loadUsers()">Reload Users</button>
-  <div id="usersContainer"></div>
-  <p id="message"></p>
+  <header class="site-header">
+    <div class="logo"><a href="/">Baseball League</a></div>
+    <nav class="top-nav">
+      <a href="/viewGames">Games</a>
+      <a href="/viewTeams">Teams</a>
+      <a href="/schedule">Schedule</a>
+      <a href="/login" class="auth-link">Login</a>
+      <a href="/signup" class="auth-link accent">Sign Up</a>
+      <a href="/guest" class="auth-link">Guest</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="card">
+      <div class="toolbar" style="justify-content: space-between;">
+        <div>
+          <h1>User List</h1>
+          <p class="muted">Snapshot of everyone in the league.</p>
+        </div>
+        <button class="btn" type="button" onclick="loadUsers()">Reload Users</button>
+      </div>
+      <div id="usersContainer"></div>
+      <p id="message"></p>
+    </section>
+  </main>
 
   <script>
     async function loadUsers() {
@@ -106,6 +66,7 @@
         const data = await response.json();
 
         if (!response.ok) {
+          msg.style.color = 'red';
           msg.textContent = `Error: ${data.error || 'Failed to load users'}`;
           return;
         }
@@ -115,7 +76,7 @@
           return;
         }
 
-        data.forEach(user => {
+        data.forEach((user) => {
           const card = document.createElement('div');
           card.className = 'user-card';
 
@@ -137,11 +98,11 @@
           container.appendChild(card);
         });
       } catch (err) {
+        msg.style.color = 'red';
         msg.textContent = 'Error connecting to server.';
         console.error(err);
       }
     }
-    // Auto-load users on page load
     window.onload = loadUsers;
   </script>
 </body>
