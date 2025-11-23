@@ -3,29 +3,6 @@
 <head>
     <title>Games Dashboard</title>
     <style>
-        .top-bar {
-            width: 100%;
-            background: #111;
-            border-bottom: 3px solid #FF6A00;
-            padding: 10px 0;
-            text-align: center;
-        }
-
-        .top-bar button {
-            padding: 10px 20px;
-            background: #FF6A00;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            color: black;
-            font-size: 16px;
-        }
-
-        .top-bar button:hover {
-            background: #ff8030;
-        }
-
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -96,6 +73,22 @@
             border-radius: 10px;
         }
 
+        .chat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background: red;
+            border: none;
+            padding: 3px 7px;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+
         #msg {
             width: 75%;
             padding: 10px;
@@ -118,27 +111,35 @@
         button:hover {
             background: #ff8030;
         }
+
+        #top-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+            gap: 15px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-    <button onclick="goHome()">Home</button>
-</div>
-
 <div class="container">
 
     <div class="games-panel">
-
         <div class="section-title">LIVE GAMES</div>
         <div id="live-games"></div>
 
         <div class="section-title">FINISHED GAMES</div>
         <div id="finished-games"></div>
-
+        
     </div>
 
     <div class="chat-panel">
+
+        <div id="top-buttons">
+            <button onclick="window.location.href='index.html'">Home</button>
+            <button onclick="clearChat()">Clear Chat</button>
+        </div>
+
         <h2 style="color:#FF6A00; margin-top:0;">Team Chat</h2>
 
         <div id="chat-feed"></div>
@@ -152,14 +153,10 @@
     </div>
 
 </div>
+
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
-
-function goHome() {
-    window.location.href = "/index.html";
-}
-
 
 async function loadGames() {
     try {
@@ -176,13 +173,8 @@ async function loadGames() {
             const card = document.createElement("div");
             card.className = "game-card";
 
-            const created = g.dateCreated 
-                ? new Date(g.dateCreated).toLocaleString()
-                : "N/A";
-
-            const finishedAt = g.dateFinished
-                ? new Date(g.dateFinished).toLocaleString()
-                : "";
+            const created = g.dateCreated ? new Date(g.dateCreated).toLocaleString() : "N/A";
+            const finishedAt = g.dateFinished ? new Date(g.dateFinished).toLocaleString() : "";
 
             card.innerHTML = `
                 <div><span class="label">Game ID:</span> ${g._id}</div>
@@ -194,11 +186,8 @@ async function loadGames() {
                 ${finishedAt ? `<div><span class="label">Finished:</span> ${finishedAt}</div>` : ""}
             `;
 
-            if (g.status === "finished") {
-                finished.appendChild(card);
-            } else {
-                live.appendChild(card);
-            }
+            if (g.status === "finished") finished.appendChild(card);
+            else live.appendChild(card);
         });
 
     } catch (err) {
@@ -216,12 +205,21 @@ const socket = io();
 
 async function loadMessages() {
     const res = await fetch("/api/chat");
-    const data = await res.json();
+    const messages = await res.json();
     const feed = document.getElementById("chat-feed");
 
     feed.innerHTML = "";
-    data.forEach(m => {
-        feed.innerHTML += `<p><strong>${m.user}:</strong> ${m.text}</p>`;
+
+    messages.forEach(m => {
+        const row = document.createElement("div");
+        row.className = "chat-row";
+
+        row.innerHTML = `
+            <p><strong>${m.user}:</strong> ${m.text}</p>
+            <button class="delete-btn" onclick="deleteMessage('${m._id}')">X</button>
+        `;
+
+        feed.appendChild(row);
     });
 }
 loadMessages();
@@ -229,21 +227,33 @@ loadMessages();
 function sendMessage() {
     const text = document.getElementById("msg").value.trim();
     if (!text) return;
+
     socket.emit("chat message", text);
     document.getElementById("msg").value = "";
 }
-
+// refresh after new msg
 socket.on("chat message", (msg) => {
-    const feed = document.getElementById("chat-feed");
-    feed.innerHTML += `<p><strong>${msg.user}:</strong> ${msg.text}</p>`;
-    feed.scrollTop = feed.scrollHeight;
+    loadMessages(); 
 });
+
+async function deleteMessage(id) {
+    await fetch(`/api/chat/${id}`, { method: "DELETE" });
+    loadMessages();
+}
+
+async function clearChat() {
+    if (!confirm("Delete ALL chat messages?")) return;
+
+    await fetch("/api/chat", { method: "DELETE" });
+    loadMessages();
+}
 
 async function logout() {
     await fetch("/logout", { method: "POST" });
     alert("Logged out");
     window.location.reload();
 }
+
 </script>
 
 </body>
