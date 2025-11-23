@@ -123,6 +123,8 @@ app.delete('/game', gameController.deleteAll);
 
 //chat
 app.get("/api/chat", chatController.getMessages);
+app.delete("/api/chat/:id", chatController.deleteMessage);
+app.delete("/api/chat", chatController.deleteAllMessages);
 
 exports.sessionM = sessionM;
 exports.app = app;
