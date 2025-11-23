@@ -139,6 +139,19 @@ exports.login = async function (req, res) {
     }
 }
 
+exports.logout = function (req, res) {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error("Logout error:", err);
+            return res.status(500).json({ error: "Failed to logout" });
+        }
+        res.clearCookie("connect.sid"); 
+        res.json({ message: "Logout successful" });
+    });
+};
+
+
+
 exports.addChild = async function (req, res) {
     try {
         const parentId = req.params.parentId || req.body.parentId;

@@ -17,12 +17,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session({
+
+const sessionM = session({
   secret: "yourSecretKey",
   resave: false,
   saveUninitialized: false,
-}));
-
+});
+app.use(sessionM);
 
 app.use(express.static(path.join(__dirname, "public_html")));
 
@@ -107,6 +108,7 @@ app.delete("/users/:id", userController.deleteOne);
 app.delete("/users", userController.deleteAll);
 app.post('/users/:parentId/children', userController.addChild);
 app.put("/users/:username", userController.createOrUpdate);
+app.post("/logout", userController.logout);
 
 
 //Game
@@ -121,4 +123,5 @@ app.delete('/game', gameController.deleteAll);
 //chat
 app.get("/api/chat", chatController.getMessages);
 
+exports.sessionM = sessionM;
 exports.app = app;
