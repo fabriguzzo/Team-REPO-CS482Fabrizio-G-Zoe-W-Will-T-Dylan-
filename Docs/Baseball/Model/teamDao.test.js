@@ -4,7 +4,7 @@ require("dotenv").config();
 
 beforeAll(async () => {
 
-    await dbConnect.connect(test);
+    await dbConnect.connect();
 
 });
 
