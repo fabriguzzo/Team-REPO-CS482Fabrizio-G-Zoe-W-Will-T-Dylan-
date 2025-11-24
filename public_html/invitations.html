@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>My Invitations</title>
+  <style>
+    body { font-family: Arial; background:#f5f5f5; padding:20px; }
+    .invite { background:#fff; padding:12px; margin:10px 0; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+    button { margin-left:10px; }
+  </style>
+</head>
+<body>
+  <h1>Invitations</h1>
+  <div id="inviteList"></div>
+
+  <script>
+    async function loadInvites() {
+      let user = null;
+      try { user = JSON.parse(localStorage.getItem('currentUser') || 'null'); } catch (_) {}
+      if (!user || !user._id) {
+        document.getElementById('inviteList').textContent = "You must be signed in.";
+        return;
+      }
+
+      try {
+        const res = await fetch(`/invitations/user/${user._id}`);
+        const invites = await res.json();
+        const list = document.getElementById('inviteList');
+        list.innerHTML = "";
+
+        if (!Array.isArray(invites) || invites.length === 0) {
+          list.textContent = "No invitations.";
+          return;
+        }
+
+        invites.forEach(invite => {
+          const div = document.createElement("div");
+          div.className = "invite";
+          div.innerHTML = `
+            <strong>Team:</strong> ${invite.team?.name || invite.team} <br>
+            <strong>Role:</strong> ${invite.role} <br>
+            <strong>Status:</strong> ${invite.status}
+          `;
+
+          if (invite.status === "pending") {
+            const acceptBtn = document.createElement("button");
+            acceptBtn.textContent = "Accept";
+            acceptBtn.onclick = async () => {
+              await fetch(`/invitations/${invite._id}/accept`, { method: "PUT" });
+              loadInvites();
+            };
+
+            const declineBtn = document.createElement("button");
+            declineBtn.textContent = "Decline";
+            declineBtn.onclick = async () => {
+              await fetch(`/invitations/${invite._id}/decline`, { method: "PUT" });
+              loadInvites();
+            };
+
+            div.appendChild(acceptBtn);
+            div.appendChild(declineBtn);
+          }
+
+          // ✅ Delete button for all invitations
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "Delete";
+          deleteBtn.onclick = async () => {
+            try {
+              const res = await fetch(`/invitations/${invite._id}`, { method: "DELETE" });
+              const data = await res.json();
+              if (res.ok) {
+                alert("Invitation deleted");
+                loadInvites();
+              } else {
+                alert(data.error || "Failed to delete invitation");
+              }
+            } catch (err) {
+              alert("Error deleting invitation");
+            }
+          };
+          div.appendChild(deleteBtn);
+
+          list.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Error loading invites:", err);
+      }
+    }
+
+    loadInvites();
+  </script>
+</body>
+</html>
