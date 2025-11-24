@@ -52,6 +52,21 @@
     </section>
   </main>
 
+  <div id="accessOverlay" class="access-overlay" aria-hidden="true">
+    <div class="access-modal" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
+      <button class="close-btn" type="button" aria-label="Close" data-close>&times;</button>
+      <h3 id="accessTitle">Sign in to continue</h3>
+      <p class="auth-message">Access to <strong data-tab-label>this tab</strong> requires signing in or choosing guest access.</p>
+      <div class="auth-actions">
+        <button class="primary" type="button" data-action="login">Log In</button>
+        <button class="outline" type="button" data-action="signup">Sign Up</button>
+        <button class="secondary" type="button" data-action="guest">Continue as Guest</button>
+      </div>
+      <p class="auth-note">Guests can only access the Games tab.</p>
+      <div class="auth-error" role="alert"></div>
+    </div>
+  </div>
+
   <script>
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -90,6 +105,143 @@
         msg.textContent = 'Network error: ' + err.message;
       }
     });
+  </script>
+  <script>
+    (function initAccessGate(){
+      const overlay = document.getElementById('accessOverlay');
+      if (!overlay) return;
+
+      let labelEl = overlay.querySelector('[data-tab-label]');
+      const messageEl = overlay.querySelector('.auth-message');
+      const defaultMessage = messageEl ? messageEl.innerHTML : '';
+      const errorEl = overlay.querySelector('.auth-error');
+      const guestNote = overlay.querySelector('.auth-note');
+      const defaultNote = guestNote ? guestNote.textContent : '';
+      const closeBtn = overlay.querySelector('[data-close]');
+      const loginBtn = overlay.querySelector('[data-action="login"]');
+      const signupBtn = overlay.querySelector('[data-action="signup"]');
+      const guestBtn = overlay.querySelector('[data-action="guest"]');
+
+      let pendingHref = '';
+      let pendingLabel = '';
+      let overlayGuestBlocked = false;
+
+      function safeUser(){
+        try { return JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+        catch (_) { return null; }
+      }
+
+      function isLoggedIn(){
+        const user = safeUser();
+        const signedIn = !!(user && user.username);
+        if (signedIn) {
+          try { localStorage.removeItem('guestMode'); } catch (_) {}
+        }
+        return signedIn;
+      }
+
+      function isGuestMode(){
+        try { return localStorage.getItem('guestMode') === 'games-only'; }
+        catch (_) { return false; }
+      }
+
+      function allowedForGuest(href){
+        if (!href) return false;
+        try {
+          const path = new URL(href, window.location.origin).pathname.toLowerCase();
+          const clean = path.replace(/\/+$/, '');
+          return clean === '/viewgames' || clean === '/viewgames.html' || clean === '/games';
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function setLabel(value){
+        if (labelEl) labelEl.textContent = value || 'this tab';
+      }
+
+      function openOverlay(options = {}){
+        overlayGuestBlocked = !!options.guestBlocked;
+        overlay.classList.add('active');
+
+        if (overlayGuestBlocked) {
+          if (messageEl) {
+            const target = pendingLabel || 'this tab';
+            messageEl.innerHTML = `You are browsing as <strong>Guest</strong>. Log in or sign up to access <strong>${target}</strong>.`;
+          }
+          if (guestBtn) guestBtn.style.display = 'none';
+          if (guestNote) guestNote.textContent = 'Guests can only open the Games tab. Please sign in for full access.';
+        } else {
+          if (messageEl) {
+            messageEl.innerHTML = defaultMessage;
+            labelEl = overlay.querySelector('[data-tab-label]');
+          }
+          if (guestBtn) guestBtn.style.display = '';
+          if (guestNote) guestNote.textContent = defaultNote;
+          setLabel(pendingLabel || 'this tab');
+        }
+
+        if (errorEl) errorEl.textContent = '';
+      }
+
+      function closeOverlay(){
+        overlay.classList.remove('active');
+        if (errorEl) errorEl.textContent = '';
+        pendingHref = '';
+        overlayGuestBlocked = false;
+      }
+
+      function attachHandlers(links){
+        links.forEach(link => {
+          link.addEventListener('click', evt => {
+            const href = link.getAttribute('href') || link.href;
+            if (!href) return;
+            if (href.startsWith('#')) return;
+            if (isLoggedIn()) return;
+            const guestBlocked = isGuestMode() && !allowedForGuest(href);
+            if (isGuestMode() && !guestBlocked) return;
+            evt.preventDefault();
+            pendingHref = href;
+            pendingLabel = link.textContent.trim();
+            openOverlay({ guestBlocked });
+          });
+        });
+      }
+
+      const navLinks = Array.from(document.querySelectorAll('.top-nav a:not(.auth-link)'));
+      const flaggedLinks = Array.from(document.querySelectorAll('[data-requires-auth="true"]'));
+      const uniqueLinks = [...new Set([...navLinks, ...flaggedLinks])];
+      if (!uniqueLinks.length) return;
+
+      attachHandlers(uniqueLinks);
+
+      if (closeBtn) closeBtn.addEventListener('click', closeOverlay);
+      overlay.addEventListener('click', evt => {
+        if (evt.target === overlay) closeOverlay();
+      });
+
+      document.addEventListener('keydown', evt => {
+        if (evt.key === 'Escape' && overlay.classList.contains('active')) closeOverlay();
+      });
+
+      if (loginBtn) loginBtn.addEventListener('click', () => { window.location.href = '/login'; });
+      if (signupBtn) signupBtn.addEventListener('click', () => { window.location.href = '/signup'; });
+      if (guestBtn) {
+        guestBtn.addEventListener('click', () => {
+          if (overlayGuestBlocked) {
+            if (errorEl) errorEl.textContent = 'Guest access is limited to the Games tab.';
+            return;
+          }
+          if (allowedForGuest(pendingHref)) {
+            try { localStorage.setItem('guestMode', 'games-only'); } catch (_) {}
+            window.location.href = pendingHref;
+            closeOverlay();
+          } else if (errorEl) {
+            errorEl.textContent = 'Guest access is limited to the Games tab.';
+          }
+        });
+      }
+    })();
   </script>
 </body>
 </html>
