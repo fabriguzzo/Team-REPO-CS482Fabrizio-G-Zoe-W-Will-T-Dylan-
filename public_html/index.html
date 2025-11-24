@@ -17,6 +17,7 @@
             padding: 35px;
             border-radius: 18px;
             box-shadow: 0 0 15px rgba(0,0,0,0.12);
+            transition: margin-right 0.3s ease, max-width 0.3s ease;
         }
         .hero-panel h2 {
             margin: 0 0 10px;
@@ -161,6 +162,21 @@
             background: rgba(0,0,0,0.06);
             color: #a64b00;
         }
+        body.has-account-pill .hero-panel {
+            margin-right: 280px;
+            max-width: calc(100% - 320px);
+        }
+        @media (max-width: 960px) {
+            body.has-account-pill .hero-panel {
+                margin-right: 0;
+                max-width: 100%;
+            }
+            .account-pill {
+                position: static;
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -219,6 +235,7 @@
     function removeBadge(){
       const existing = document.getElementById('accountBadge');
       if (existing) existing.remove();
+      document.body.classList.remove('has-account-pill');
     }
     function ensureBadge(){
       let badge = document.getElementById('accountBadge');
@@ -228,6 +245,7 @@
         badge.className = 'account-pill';
         document.body.appendChild(badge);
       }
+      document.body.classList.add('has-account-pill');
       return badge;
     }
 
