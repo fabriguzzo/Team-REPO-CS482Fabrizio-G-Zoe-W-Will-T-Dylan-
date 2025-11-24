@@ -2,6 +2,7 @@ const dao = require("../Model/invitationDao");
 const teamDao = require("../Model/teamDao");
 const userDao = require("../Model/UserDao");
 
+
 exports.getByRecipient = async function(req, res) {
   try {
     const userId = req.params.userId;
