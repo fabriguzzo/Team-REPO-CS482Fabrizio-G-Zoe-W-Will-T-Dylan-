@@ -27,16 +27,29 @@
       border-radius: 50%;
       border: 3px solid var(--accent);
     }
+    .team-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .team-manager {
+      font-size: 0.9rem;
+      color: #666;
+    }
     .card-actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       width: 100%;
       justify-content: center;
+      margin-top: 8px;
     }
     #message {
       font-weight: 600;
       text-align: center;
+      margin-top: 10px;
+    }
+    .btn-danger {
+      background: #dc3545;
     }
   </style>
 </head>
@@ -58,7 +71,9 @@
       <div class="toolbar" style="justify-content: space-between;">
         <div>
           <h1>Team List</h1>
-          <p class="muted">Browse every registered team, update rosters, or remove outdated entries.</p>
+          <p class="muted">
+            Browse every registered team. Edit or delete teams you manage, or all teams if you’re an admin.
+          </p>
         </div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn" id="reloadBtn" type="button" onclick="loadTeams()">Reload Teams</button>
@@ -71,6 +86,13 @@
   </main>
 
   <script>
+    let currentUser = null;
+    try {
+      currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    } catch (_) {
+      currentUser = null;
+    }
+
     async function loadTeams() {
       const container = document.getElementById('teamsContainer');
       const msg = document.getElementById('message');
@@ -96,6 +118,7 @@
           const card = document.createElement('div');
           card.className = 'team-card';
 
+          // Logo
           const logo = document.createElement('img');
           logo.src = `http://localhost:4000/teams/${team._id}/logo`;
           logo.onerror = () => {
@@ -103,62 +126,85 @@
           };
           card.appendChild(logo);
 
+          // Name
           const name = document.createElement('div');
           name.className = 'team-name';
           name.textContent = team.name;
           card.appendChild(name);
 
+          // Manager
           const manager = document.createElement('div');
           manager.className = 'team-manager';
           manager.textContent = `Manager: ${team.manager || 'N/A'}`;
           card.appendChild(manager);
 
+          // Actions (edit/delete) – only if logged in & allowed
           const actions = document.createElement('div');
           actions.className = 'card-actions';
 
-          const editBtn = document.createElement('button');
-          editBtn.className = 'btn';
-          editBtn.textContent = 'Edit Team';
-          editBtn.onclick = () => {
-            window.location.href = `editTeam.html?id=${team._id}`;
-          };
-          actions.appendChild(editBtn);
+          const userCanEdit = !!(
+            currentUser &&
+            (currentUser.role === 'admin' || team.manager === currentUser.username)
+          );
 
-          const deleteBtn = document.createElement('button');
-          deleteBtn.className = 'btn';
-          deleteBtn.style.background = '#dc3545';
-          deleteBtn.textContent = 'Delete';
-          deleteBtn.onclick = async () => {
-            if (confirm(`Are you sure you want to delete "${team.name}"?`)) {
-              try {
-                const res = await fetch(`http://localhost:4000/teams/${team._id}`, {
-                  method: 'DELETE'
-                });
-                const result = await res.json();
+          if (userCanEdit) {
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn';
+            editBtn.textContent = 'Edit Team';
+            editBtn.onclick = () => {
+              window.location.href = `editTeam.html?id=${team._id}`;
+            };
+            actions.appendChild(editBtn);
 
-                if (res.ok) {
-                  alert('Team deleted successfully!');
-                  loadTeams();
-                } else {
-                  alert(result.error || 'Failed to delete team.');
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-danger';
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.onclick = async () => {
+              if (confirm(`Are you sure you want to delete "${team.name}"?`)) {
+                try {
+                  const res = await fetch(`http://localhost:4000/teams/${team._id}`, {
+                    method: 'DELETE'
+                  });
+                  const result = await res.json();
+
+                  if (res.ok) {
+                    alert('Team deleted successfully!');
+                    loadTeams();
+                  } else {
+                    alert(result.error || 'Failed to delete team.');
+                  }
+                } catch (err) {
+                  alert('Error connecting to server.');
+                  console.error(err);
                 }
-              } catch (err) {
-                alert('Error connecting to server.');
-                console.error(err);
               }
-            }
-          };
-          actions.appendChild(deleteBtn);
+            };
+            actions.appendChild(deleteBtn);
+          }
 
-          card.appendChild(actions);
+          // If user is not logged in, we just don't add actions at all.
+          // They can still view the teams.
+
+          if (actions.children.length > 0) {
+            card.appendChild(actions);
+          }
+
           container.appendChild(card);
         });
+
+        // If not logged in, show gentle note (but allow viewing)
+        if (!currentUser) {
+          msg.style.color = '#555';
+          msg.textContent = 'You are viewing teams as a guest. Log in to manage your teams.';
+        }
+
       } catch (err) {
         msg.style.color = 'red';
         msg.textContent = 'Error connecting to server.';
         console.error(err);
       }
     }
+
     window.onload = loadTeams;
   </script>
 </body>
