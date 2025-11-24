@@ -42,6 +42,23 @@
       text-align: center;
       margin-top: 20px;
     }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .filter-group label {
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      color: #666;
+    }
+    .filter-group select {
+      width: auto;
+      margin-bottom: 0;
+      min-width: 200px;
+    }
   </style>
 </head>
 <body>
@@ -68,6 +85,16 @@
         <a class="btn" href="/addGame">Update Game</a>
       </div>
 
+      <div class="filter-group">
+        <label for="typeFilter">Match Type</label>
+        <select id="typeFilter">
+          <option value="">All Types</option>
+          <option value="normal">Normal</option>
+          <option value="playoff">Playoff</option>
+          <option value="final">Final</option>
+        </select>
+      </div>
+
       <select id="gameDropdown" onchange="showGameDetails()">
         <option value="">-- Select a Game --</option>
       </select>
@@ -75,6 +102,7 @@
       <div class="game-details" id="gameDetails">
         <p><span class="highlight">Game ID:</span> <span id="detailId"></span></p>
         <p><span class="highlight">Teams:</span> <span id="detailTeams"></span></p>
+        <p><span class="highlight">Match Type:</span> <span id="detailMatchType"></span></p>
         <p><span class="highlight">Score:</span> <span id="detailScore"></span></p>
         <p><span class="highlight">Status:</span> <span id="detailStatus"></span></p>
         <p><span class="highlight">Result:</span> <span id="detailResult"></span></p>
@@ -115,7 +143,10 @@
       details.style.display = 'none';
 
       try {
-        const response = await fetch(BASE_URL);
+        const typeFilter = document.getElementById('typeFilter');
+        const typeValue = typeFilter ? typeFilter.value : '';
+        const url = typeValue ? `${BASE_URL}?type=${typeValue}` : BASE_URL;
+        const response = await fetch(url);
         const data = await response.json();
 
         if (!response.ok) {
@@ -126,14 +157,15 @@
 
         games = data;
         if (data.length === 0) {
-          msg.textContent = 'No games found.';
+          msg.textContent = typeValue ? 'No games found for the selected match type.' : 'No games found.';
           return;
         }
 
         data.forEach((g) => {
           const option = document.createElement('option');
           option.value = g._id;
-          option.textContent = `${g.teamA} vs ${g.teamB} (${g.status})`;
+          const typeLabel = formatMatchType(g.matchType);
+          option.textContent = `${g.teamA} vs ${g.teamB} (${g.status}) • ${typeLabel}`;
           dropdown.appendChild(option);
         });
       } catch (err) {
@@ -162,13 +194,33 @@
 
       document.getElementById('detailId').textContent = game._id;
       document.getElementById('detailTeams').textContent = `${game.teamA} vs ${game.teamB}`;
+      const matchType = (game.matchType || 'normal').toLowerCase();
       document.getElementById('detailScore').textContent = `${game.scoreA} - ${game.scoreB}`;
       document.getElementById('detailStatus').textContent = game.status;
       document.getElementById('detailResult').textContent = game.result || 'N/A';
       document.getElementById('detailCreated').textContent = new Date(game.dateCreated).toLocaleString();
       document.getElementById('detailFinished').textContent = game.dateFinished ? new Date(game.dateFinished).toLocaleString() : 'Not finished';
+      const badge = renderMatchTypeBadge(matchType);
+      document.getElementById('detailMatchType').innerHTML = badge;
 
       details.style.display = 'block';
+    }
+
+    function formatMatchType(type) {
+      switch ((type || 'normal').toLowerCase()) {
+        case 'playoff':
+          return 'Playoff';
+        case 'final':
+          return 'Final';
+        default:
+          return 'Normal';
+      }
+    }
+
+    function renderMatchTypeBadge(type) {
+      const normalized = (type || 'normal').toLowerCase();
+      const label = formatMatchType(normalized);
+      return `<span class="match-pill ${normalized}">${label}</span>`;
     }
 
     async function deleteGame() {
@@ -222,6 +274,9 @@
         console.error(err);
       }
     }
+
+    const typeFilter = document.getElementById('typeFilter');
+    if (typeFilter) typeFilter.addEventListener('change', loadGames);
 
     window.onload = loadGames;
   </script>

@@ -44,6 +44,12 @@
         <h2>Create New Game</h2>
         <input type="text" id="teamA" placeholder="Team A Name" required />
         <input type="text" id="teamB" placeholder="Team B Name" required />
+        <label for="matchType">Match Type</label>
+        <select id="matchType">
+          <option value="normal">Normal</option>
+          <option value="playoff">Playoff</option>
+          <option value="final">Final</option>
+        </select>
         <button type="submit" class="btn">Create Game</button>
       </form>
 
@@ -54,8 +60,15 @@
         </select>
         <input type="number" id="scoreA" placeholder="Score A" />
         <input type="number" id="scoreB" placeholder="Score B" />
+        <label for="manageMatchType">Match Type</label>
+        <select id="manageMatchType">
+          <option value="normal">Normal</option>
+          <option value="playoff">Playoff</option>
+          <option value="final">Final</option>
+        </select>
         <button type="button" class="btn" onclick="updateScore()">Update Score</button>
         <button type="button" class="btn" onclick="finishGame()">Finish Game</button>
+        <button type="button" class="btn" onclick="updateMatchType()">Update Match Type</button>
       </form>
     </div>
 
@@ -70,7 +83,8 @@
       e.preventDefault();
       const game = {
         teamA: document.getElementById('teamA').value,
-        teamB: document.getElementById('teamB').value
+        teamB: document.getElementById('teamB').value,
+        matchType: document.getElementById('matchType').value
       };
 
       const response = await fetch(BASE_URL, {
@@ -119,7 +133,7 @@
         games.forEach((g) => {
           const opt = document.createElement('option');
           opt.value = g._id;
-          opt.textContent = `${g.teamA} vs ${g.teamB} (${g.scoreA}-${g.scoreB})`;
+          opt.textContent = `${g.teamA} vs ${g.teamB} (${g.scoreA}-${g.scoreB}) - ${formatMatchType(g.matchType)}`;
           dropdown.appendChild(opt);
         });
       } catch (err) {
@@ -203,7 +217,65 @@
       }
     }
 
+    async function updateMatchType() {
+      const id = document.getElementById('gameDropdown').value;
+      const msg = document.getElementById('message');
+      if (!id) {
+        msg.textContent = 'Select a game to update.';
+        return;
+      }
+      const matchType = document.getElementById('manageMatchType').value;
+      try {
+        const response = await fetch(`${BASE_URL}/${id}/type`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matchType })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          msg.style.color = 'green';
+          msg.textContent = `Match updated to ${formatMatchType(data.matchType)}.`;
+          loadGames();
+        } else {
+          msg.style.color = 'red';
+          msg.textContent = `Error: ${data.error || 'Failed to update match type'}`;
+        }
+      } catch (err) {
+        msg.style.color = 'red';
+        msg.textContent = 'Error connecting to server.';
+        console.error(err);
+      }
+    }
+
     window.onload = loadGames;
   </script>
 </body>
 </html>
+    document.getElementById('gameDropdown').addEventListener('change', populateManageFields);
+
+    function populateManageFields() {
+      const id = document.getElementById('gameDropdown').value;
+      const matchSelect = document.getElementById('manageMatchType');
+      if (!id) {
+        matchSelect.value = 'normal';
+        document.getElementById('scoreA').value = '';
+        document.getElementById('scoreB').value = '';
+        return;
+      }
+      const game = games.find((g) => g._id === id);
+      if (!game) return;
+      matchSelect.value = game.matchType || 'normal';
+      document.getElementById('scoreA').value = game.scoreA ?? '';
+      document.getElementById('scoreB').value = game.scoreB ?? '';
+    }
+
+    function formatMatchType(type) {
+      switch ((type || 'normal').toLowerCase()) {
+        case 'playoff':
+          return 'Playoff';
+        case 'final':
+          return 'Final';
+        default:
+          return 'Normal';
+      }
+    }

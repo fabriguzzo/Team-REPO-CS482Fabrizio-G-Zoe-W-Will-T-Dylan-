@@ -120,6 +120,14 @@
         .game-list { max-height: 50vh; overflow: auto; margin-top: 6px; }
         .game-item { padding: 10px; border: 1px solid #eee; border-radius: 8px; margin: 8px 0; background: #fffaf5; }
         .game-item .status { font-size: 12px; color: #666; }
+        .game-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
@@ -226,6 +234,22 @@
             return toKey(dt.getFullYear(), dt.getMonth(), dt.getDate());
         }
 
+        function formatMatchType(type) {
+            switch ((type || 'normal').toLowerCase()) {
+                case 'playoff':
+                    return 'Playoff';
+                case 'final':
+                    return 'Final';
+                default:
+                    return 'Normal';
+            }
+        }
+
+        function renderMatchTypeBadge(type) {
+            const normalized = (type || 'normal').toLowerCase();
+            return `<span class="match-pill ${normalized}">${formatMatchType(normalized)}</span>`;
+        }
+
         async function loadGames() {
             try {
                 const res = await fetch("/game");
@@ -273,7 +297,14 @@
                     item.className = "game-item";
                     const status = g.status || "unknown";
                     const score = (typeof g.scoreA === "number" && typeof g.scoreB === "number") ? ` (${g.scoreA}-${g.scoreB})` : "";
-                    item.innerHTML = `<div><strong>${g.teamA || 'Team A'}</strong> vs <strong>${g.teamB || 'Team B'}</strong>${score}</div><div class="status">Status: ${status}</div>`;
+                    const pill = renderMatchTypeBadge(g.matchType);
+                    item.innerHTML = `
+                        <div class="game-meta-row">
+                            ${pill}
+                            <span class="status">Status: ${status}</span>
+                        </div>
+                        <div><strong>${g.teamA || 'Team A'}</strong> vs <strong>${g.teamB || 'Team B'}</strong>${score}</div>
+                    `;
                     list.appendChild(item);
                 });
             }
