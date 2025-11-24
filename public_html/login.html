@@ -69,6 +69,12 @@
         if (res.ok) {
           try {
             localStorage.setItem('currentUser', JSON.stringify(data.user));
+            const role = (data.user && data.user.role) ? String(data.user.role).toLowerCase() : '';
+            if (role !== 'child') {
+              localStorage.setItem('addChildPromptPending', 'true');
+            } else {
+              localStorage.removeItem('addChildPromptPending');
+            }
           } catch (e) {
             console.warn('Unable to persist user in localStorage', e);
           }

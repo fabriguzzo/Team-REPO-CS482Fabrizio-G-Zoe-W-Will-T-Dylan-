@@ -116,6 +116,7 @@
             <a href="/schedule">Schedule</a>
             <a href="/viewRatings" class="auth-link">Ratings</a>
             <a href="/admin" class="admin-link">Admin</a>
+            <a href="/addChild" class="auth-link" id="addChildNav" style="display:none;">Add Child</a>
             <a href="/login" class="auth-link">Login</a>
             <a href="/signup" class="auth-link accent">Sign Up</a>
         </nav>
@@ -135,6 +136,20 @@
         <div class="feed-item">User posted a video/picture</div>
         <div class="feed-item">User posted a video/picture</div>
     </div>
+
+<div id="childPromptOverlay" class="access-overlay" aria-hidden="true">
+    <div class="access-modal" role="dialog" aria-modal="true" aria-labelledby="childPromptTitle">
+        <button class="close-btn" type="button" aria-label="Close add child prompt" data-close-child>&times;</button>
+        <h3 id="childPromptTitle">Add Your Child</h3>
+        <p class="auth-message">Signed in as <strong data-parent-name>an adult</strong>? Add a child account now so they can join rosters.</p>
+        <div class="auth-actions">
+            <button class="primary" type="button" data-action="start-child">Add a Child</button>
+            <button class="secondary" type="button" data-action="skip-child">Maybe later</button>
+        </div>
+        <p class="auth-note">Reminder: you are responsible for your child's behavior; please reinforce good sportsmanship.</p>
+        <div class="auth-error" role="alert"></div>
+    </div>
+</div>
 
     <div id="accessOverlay" class="access-overlay" aria-hidden="true">
         <div class="access-modal" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
@@ -212,7 +227,69 @@
       try { localStorage.removeItem('guestMode'); } catch (_) {}
       location.reload();
     });
-})();
+  })();
+
+  (function initChildPrompt(){
+    const overlay = document.getElementById('childPromptOverlay');
+    const addChildLink = document.getElementById('addChildNav');
+    if (!overlay && !addChildLink) return;
+
+    const nameEl = overlay ? overlay.querySelector('[data-parent-name]') : null;
+    const addBtn = overlay ? overlay.querySelector('[data-action="start-child"]') : null;
+    const skipBtn = overlay ? overlay.querySelector('[data-action="skip-child"]') : null;
+    const closeBtn = overlay ? overlay.querySelector('[data-close-child]') : null;
+    const errorEl = overlay ? overlay.querySelector('.auth-error') : null;
+
+    function safeUser(){
+      try { return JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+      catch (_) { return null; }
+    }
+    function isAdult(u){
+      const role = (u && u.role) ? String(u.role).toLowerCase() : '';
+      return !!(u && u.username && role !== 'child');
+    }
+    function markHandled(){
+      try { localStorage.removeItem('addChildPromptPending'); }
+      catch (_) {}
+    }
+    function shouldShow(){
+      const u = safeUser();
+      return isAdult(u) && localStorage.getItem('addChildPromptPending') === 'true';
+    }
+    function closePrompt(){
+      if (overlay) overlay.classList.remove('active');
+      if (errorEl) errorEl.textContent = '';
+      markHandled();
+    }
+    function toggleNavLink(){
+      const u = safeUser();
+      if (addChildLink) addChildLink.style.display = isAdult(u) ? '' : 'none';
+    }
+
+    if (shouldShow() && overlay) {
+      const u = safeUser();
+      if (nameEl && u && u.username) nameEl.textContent = u.username;
+      overlay.classList.add('active');
+    }
+
+    if (addBtn) addBtn.addEventListener('click', () => {
+      markHandled();
+      window.location.href = '/addChild';
+    });
+    if (skipBtn) skipBtn.addEventListener('click', closePrompt);
+    if (closeBtn) closeBtn.addEventListener('click', closePrompt);
+    if (overlay) {
+      overlay.addEventListener('click', evt => {
+        if (evt.target === overlay) closePrompt();
+      });
+    }
+    document.addEventListener('keydown', evt => {
+      if (evt.key === 'Escape' && overlay && overlay.classList.contains('active')) closePrompt();
+    });
+
+    toggleNavLink();
+    window.addEventListener('storage', toggleNavLink);
+  })();
 
 // Access Gate
 (function initAccessGate(){

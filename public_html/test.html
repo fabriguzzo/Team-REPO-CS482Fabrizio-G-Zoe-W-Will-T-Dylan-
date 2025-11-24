@@ -18,6 +18,7 @@
       <a href="/viewGames">Games</a>
       <a href="/viewTeams">Teams</a>
       <a href="/schedule">Schedule</a>
+      <a href="/addChild" class="auth-link" id="addChildNav" style="display:none;">Add Child</a>
       <a href="/login" class="auth-link">Login</a>
       <a href="/signup" class="auth-link accent">Sign Up</a>
       <a href="/guest" class="auth-link">Guest</a>
@@ -47,6 +48,20 @@
       <p id="message"></p>
     </section>
   </main>
+
+  <div id="childPromptOverlay" class="access-overlay" aria-hidden="true">
+    <div class="access-modal" role="dialog" aria-modal="true" aria-labelledby="childPromptTitle">
+      <button class="close-btn" type="button" aria-label="Close add child prompt" data-close-child>&times;</button>
+      <h3 id="childPromptTitle">Add Your Child</h3>
+      <p class="auth-message">Signed in as <strong data-parent-name>an adult</strong>? Add a child account now so they can join rosters.</p>
+      <div class="auth-actions">
+        <button class="primary" type="button" data-action="start-child">Add a Child</button>
+        <button class="secondary" type="button" data-action="skip-child">Maybe later</button>
+      </div>
+      <p class="auth-note">Reminder: you are responsible for your child's behavior; please reinforce good sportsmanship.</p>
+      <div class="auth-error" role="alert"></div>
+    </div>
+  </div>
 
   <script>
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
@@ -83,6 +98,74 @@
         console.error(err);
       }
     });
+  </script>
+  <script>
+    (function initChildPrompt(){
+      const overlay = document.getElementById('childPromptOverlay');
+      const addChildLink = document.getElementById('addChildNav');
+      if (!overlay) return;
+
+      const nameEl = overlay.querySelector('[data-parent-name]');
+      const addBtn = overlay.querySelector('[data-action="start-child"]');
+      const skipBtn = overlay.querySelector('[data-action="skip-child"]');
+      const closeBtn = overlay.querySelector('[data-close-child]');
+      const errorEl = overlay.querySelector('.auth-error');
+
+      function safeUser(){
+        try { return JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+        catch (_) { return null; }
+      }
+
+      function isAdult(u){
+        const role = (u && u.role) ? String(u.role).toLowerCase() : '';
+        return !!(u && u.username && role !== 'child');
+      }
+
+      function markHandled(){
+        try { localStorage.removeItem('addChildPromptPending'); }
+        catch (_) {}
+      }
+
+      function shouldShow(){
+        const user = safeUser();
+        if (!isAdult(user)) return false;
+        return localStorage.getItem('addChildPromptPending') === 'true';
+      }
+
+      function closePrompt(){
+        overlay.classList.remove('active');
+        if (errorEl) errorEl.textContent = '';
+        markHandled();
+      }
+
+      function toggleNavLink(){
+        if (!addChildLink) return;
+        const user = safeUser();
+        addChildLink.style.display = isAdult(user) ? '' : 'none';
+      }
+
+      if (shouldShow()) {
+        const user = safeUser();
+        if (nameEl && user && user.username) nameEl.textContent = user.username;
+        overlay.classList.add('active');
+      }
+
+      if (addBtn) addBtn.addEventListener('click', () => {
+        markHandled();
+        window.location.href = '/addChild';
+      });
+      if (skipBtn) skipBtn.addEventListener('click', closePrompt);
+      if (closeBtn) closeBtn.addEventListener('click', closePrompt);
+      overlay.addEventListener('click', evt => {
+        if (evt.target === overlay) closePrompt();
+      });
+      document.addEventListener('keydown', evt => {
+        if (evt.key === 'Escape' && overlay.classList.contains('active')) closePrompt();
+      });
+
+      toggleNavLink();
+      window.addEventListener('storage', toggleNavLink);
+    })();
   </script>
 </body>
 </html>
