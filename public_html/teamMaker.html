@@ -28,32 +28,66 @@
     <section class="card form-card">
       <h1>Add a Team</h1>
       <p class="muted">Spin up a roster quickly with a name, manager, and optional logo.</p>
+      
       <form id="teamForm" class="form-grid" enctype="multipart/form-data">
+        
         <label for="name">Team Name</label>
         <input type="text" id="name" name="name" placeholder="Team Name" required />
 
+        <!-- Manager (locked, uneditable) -->
         <label for="manager">Manager</label>
-        <input type="text" id="manager" name="manager" placeholder="Manager" />
+        <input 
+          type="text" 
+          id="manager" 
+          name="manager_display" 
+          placeholder="Manager" 
+          readonly 
+          style="background:#eee; cursor:not-allowed;"
+        />
+        <!-- Hidden field actually sent -->
+        <input type="hidden" id="managerHidden" name="manager" />
 
         <label for="logo">Upload Logo</label>
         <input type="file" id="logo" name="logo" accept="image/*" />
 
         <button type="submit" class="btn">Add Team</button>
       </form>
+
       <p id="message"></p>
     </section>
   </main>
 
   <script>
+    // Load current user
+    let user = null;
+    try { 
+      user = JSON.parse(localStorage.getItem('currentUser') || 'null'); 
+    } catch (_) {}
+
+    // If signed in, set manager field (locked)
+    if (user && user.username) {
+      document.getElementById("manager").value = user.username;
+      document.getElementById("managerHidden").value = user.username;
+    }
+
     document.getElementById('teamForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      // User must be signed in
+      if (!user || !user._id) {
+        const msg = document.getElementById("message");
+        msg.style.color = "red";
+        msg.textContent = "You must be signed in.";
+        return;
+      }
+
       const formData = new FormData();
       formData.append('name', document.getElementById('name').value);
-      formData.append('manager', document.getElementById('manager').value);
-      const logoFile = document.getElementById('logo').files[0];
+      formData.append('manager', document.getElementById('managerHidden').value);
+
+      const logoFile = document.getElementById("logo").files[0];
       if (logoFile) {
-        formData.append('logo', logoFile);
+        formData.append("logo", logoFile);
       }
 
       const response = await fetch('http://localhost:4000/teams', {
