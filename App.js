@@ -122,6 +122,7 @@ app.get('/game', gameController.getAll);
 app.get('/game/:id', gameController.getOne);
 app.put('/game/:id/score', gameController.updateScore);
 app.put('/game/:id/finish', gameController.finishGame);
+app.put('/game/:id/type', gameController.updateMatchType);
 app.delete('/game/:id', gameController.deleteOne);
 app.delete('/game', gameController.deleteAll);
 

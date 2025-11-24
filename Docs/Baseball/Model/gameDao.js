@@ -1,11 +1,14 @@
 const mongoose = require('mongoose');
 
+const MATCH_TYPES = ['normal', 'playoff', 'final'];
+
 const gameSchema = new mongoose.Schema({
     teamA: { type: String, required: true },
     teamB: { type: String, required: true },
     scoreA: { type: Number, default: 0 },
     scoreB: { type: Number, default: 0 },
     status: { type: String, enum: ['in-progress', 'finished'], default: 'in-progress' },
+    matchType: { type: String, enum: MATCH_TYPES, default: 'normal' },
     result: { type: String },
     dateCreated: { type: Date, default: Date.now },
     dateFinished: { type: Date }
@@ -29,8 +32,8 @@ exports.read = async function(id) {
 };
 
 //Game History
-exports.readAll = async function() {
-    let games = await gameModel.find();
+exports.readAll = async function(filter = {}) {
+    let games = await gameModel.find(filter);
     return games;
 };
 

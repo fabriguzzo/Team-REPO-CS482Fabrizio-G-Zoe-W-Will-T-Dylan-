@@ -1,15 +1,25 @@
 const dao = require('../Model/gameDao.js');
 
+const MATCH_TYPES = ['normal', 'playoff', 'final'];
+
+function normalizeMatchType(value) {
+    if (typeof value !== 'string') return null;
+    const normalized = value.trim().toLowerCase();
+    return MATCH_TYPES.includes(normalized) ? normalized : null;
+}
+
 //New game
 exports.create = async function (req, res) {
     try {
+        const submittedType = normalizeMatchType(req.body.matchType);
         const gameData = {
             teamA: req.body.teamA,
             teamB: req.body.teamB,
             scoreA: req.body.scoreA || 0,
             scoreB: req.body.scoreB || 0,
             status: 'in-progress',
-            dateCreated: new Date()
+            dateCreated: new Date(),
+            matchType: submittedType || 'normal'
         };
 
         const newGame = await dao.create(gameData);
@@ -23,7 +33,16 @@ exports.create = async function (req, res) {
 //Games History
 exports.getAll = async function (req, res) {
     try {
-        const games = await dao.readAll();
+        const filter = {};
+        if (typeof req.query.type !== 'undefined') {
+            const requestedType = normalizeMatchType(req.query.type);
+            if (!requestedType) {
+                return res.status(400).json({ error: 'Invalid match type filter' });
+            }
+            filter.matchType = requestedType;
+        }
+
+        const games = await dao.readAll(filter);
         res.status(200).json(games);
     } catch (err) {
         console.error('Error fetching games:', err);
@@ -106,6 +125,27 @@ exports.finishGame = async function (req, res) {
     } catch (err) {
         console.error('Error finishing game:', err);
         res.status(500).json({ error: 'Failed to finish game' });
+    }
+};
+
+//Update match type
+exports.updateMatchType = async function (req, res) {
+    try {
+        const id = req.params.id;
+        const type = normalizeMatchType(req.body.matchType);
+        if (!type) {
+            return res.status(400).json({ error: 'Invalid match type' });
+        }
+
+        const updatedGame = await dao.update(id, { matchType: type });
+        if (!updatedGame) {
+            return res.status(404).json({ error: 'Game not found' });
+        }
+
+        res.status(200).json(updatedGame);
+    } catch (err) {
+        console.error('Error updating match type:', err);
+        res.status(500).json({ error: 'Failed to update match type' });
     }
 };
 
