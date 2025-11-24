@@ -42,8 +42,18 @@
     <div class="manager-grid">
       <form id="createGameForm" class="card form-grid">
         <h2>Create New Game</h2>
-        <input type="text" id="teamA" placeholder="Team A Name" required />
-        <input type="text" id="teamB" placeholder="Team B Name" required />
+        <!--<input type="text" id="teamA" placeholder="Team A Name" required />
+        <input type="text" id="teamB" placeholder="Team B Name" required />-->
+        <label for="teamASelect">Team A</label>
+        <select id="teamASelect" required>
+        <option value="">-- Select Team A --</option>
+        </select>
+
+        <label for="teamBSelect">Team B</label>
+        <select id="teamBSelect" required>
+          <option value="">-- Select Team B --</option>
+        </select>
+
         <label for="matchType">Match Type</label>
         <select id="matchType">
           <option value="normal">Normal</option>
@@ -79,11 +89,45 @@
     const BASE_URL = 'http://localhost:4000/game';
     let games = [];
 
+    async function loadTeams() {
+      try {
+        const response = await fetch("http://localhost:4000/teams");
+        const teams = await response.json();
+
+        const teamASelect = document.getElementById("teamASelect");
+        const teamBSelect = document.getElementById("teamBSelect");
+
+        teamASelect.innerHTML = `<option value="">-- Select Team A --</option>`;
+        teamBSelect.innerHTML = `<option value="">-- Select Team B --</option>`;
+
+        teams.forEach(t => {
+          const optA = document.createElement("option");
+          optA.value = t.name;
+          optA.textContent = t.name;
+
+        const optB = document.createElement("option");
+        optB.value = t.name;
+        optB.textContent = t.name;
+
+        teamASelect.appendChild(optA);
+        teamBSelect.appendChild(optB);
+      });
+
+    } catch (err) {
+      console.error("Failed to load teams:", err);
+      document.getElementById("message").textContent = "Error loading teams.";
+   }
+  }
+
+    // Load teams at startup
+    document.addEventListener("DOMContentLoaded", loadTeams);
+
+
     document.getElementById('createGameForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const game = {
-        teamA: document.getElementById('teamA').value,
-        teamB: document.getElementById('teamB').value,
+        teamA: document.getElementById('teamASelect').value,
+        teamB: document.getElementById('teamBSelect').value,
         matchType: document.getElementById('matchType').value
       };
 
@@ -248,9 +292,6 @@
     }
 
     window.onload = loadGames;
-  </script>
-</body>
-</html>
     document.getElementById('gameDropdown').addEventListener('change', populateManageFields);
 
     function populateManageFields() {
@@ -279,3 +320,7 @@
           return 'Normal';
       }
     }
+  </script>
+</body>
+</html>
+    
