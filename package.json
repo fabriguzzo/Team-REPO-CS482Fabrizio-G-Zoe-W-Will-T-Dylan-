@@ -4,9 +4,9 @@
   "description": "",
   "main": "Server.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand",
     "test:coverage": "jest --coverage",
-    "coverage": "jest --coverage",
+    "coverage": "jest --runInBand --coverage",
     "start": "node server.js"
   },
   "repository": {
