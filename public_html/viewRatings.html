@@ -40,10 +40,13 @@
 <header class="site-header">
   <div class="logo"><a href="/">Baseball League</a></div>
   <nav class="top-nav">
-    <a href="/ratings" class="auth-link">Add a Rating</a>
+    <a href="/ratings" class="auth-link" data-requires-auth="true">Add a Rating</a>
     <a href="/viewGames">Games</a>
     <a href="/viewTeams">Teams</a>
     <a href="/schedule">Schedule</a>
+    <a href="/viewRatings" class="auth-link" data-requires-auth="true">Ratings</a>
+    <a href="/login" class="auth-link">Login</a>
+    <a href="/signup" class="auth-link accent">Sign Up</a>
   </nav>
 </header>
 
@@ -60,6 +63,27 @@
 </main>
 
 <script>
+  function safeUser(){
+    try { return JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+    catch (_) { return null; }
+  }
+
+  function isGuestMode(){
+    try { return localStorage.getItem('guestMode') === 'games-only'; }
+    catch (_) { return false; }
+  }
+
+  function requireAuth(){
+    const user = safeUser();
+    const guest = isGuestMode();
+    if (!user || !user.username || guest) {
+      alert('Please sign in to view ratings.');
+      window.location.href = '/login';
+      return false;
+    }
+    return true;
+  }
+
   async function loadRatings() {
     const container = document.getElementById("ratingsContainer");
     const msg = document.getElementById("message");
@@ -106,7 +130,11 @@
     }
   }
 
-  window.onload = loadRatings;
+  window.onload = function(){
+    if (requireAuth()) {
+      loadRatings();
+    }
+  };
 </script>
 
 </body>

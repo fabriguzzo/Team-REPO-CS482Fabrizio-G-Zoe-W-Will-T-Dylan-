@@ -60,7 +60,7 @@
         }
         .home-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
             gap: 20px;
             padding: 0 20px 40px;
         }
@@ -135,6 +135,42 @@
             color: #777;
             padding: 8px 0;
         }
+        .games-card {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .games-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            color: var(--accent-dark);
+        }
+        .games-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px;
+        }
+        .game-card {
+            background: #fffaf5;
+            border: 1px solid #f0e3d6;
+            border-radius: 12px;
+            padding: 12px 14px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.05);
+        }
+        .game-card .label {
+            font-weight: 700;
+            color: var(--accent-dark);
+        }
+        .game-meta {
+            color: #555;
+            margin: 4px 0;
+        }
+        .games-empty {
+            color: #777;
+            font-style: italic;
+        }
         .account-pill {
             position: fixed;
             top: 110px;
@@ -188,10 +224,9 @@
         <div class="logo"><a href="/">Baseball League</a></div>
         <nav class="top-nav">
             <a href="/viewGames">Games</a>
-            <a href="#chatCard">Live Chat</a>
             <a href="/viewTeams">Teams</a>
             <a href="/schedule">Schedule</a>
-            <a href="/viewRatings" class="auth-link">Ratings</a>
+            <a href="/viewRatings" class="auth-link" data-requires-auth="true">Ratings</a>
             <a href="/admin" class="admin-link">Admin</a>
             <a href="/addChild" class="auth-link" id="addChildNav" style="display:none;">Add Child</a>
             <a href="/login" class="auth-link">Login</a>
@@ -208,11 +243,20 @@
     </div>
 
     <div class="home-grid">
-        <section class="card feed">
-            <h2>Feed</h2>
-            <div class="feed-item">User posted a video/picture</div>
-            <div class="feed-item">User posted a video/picture</div>
-            <div class="feed-item">User posted a video/picture</div>
+        <section class="card games-card" id="gamesCard">
+            <div class="toolbar" style="justify-content: space-between;">
+              <h2 class="games-section-title" style="margin:0;">Live &amp; Finished Games</h2>
+              <button class="btn" type="button" id="refreshGamesBtn">Refresh</button>
+            </div>
+            <div>
+              <h3 class="games-section-title" style="font-size:18px;">Live Games</h3>
+              <div id="liveGames" class="games-list"></div>
+            </div>
+            <div>
+              <h3 class="games-section-title" style="font-size:18px;">Finished Games</h3>
+              <div id="finishedGames" class="games-list"></div>
+            </div>
+            <p class="muted" id="gamesStatus"></p>
         </section>
 
         <section class="card chat-card" id="chatCard">
@@ -266,6 +310,67 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
+(function initGamesPanel(){
+    const liveEl = document.getElementById('liveGames');
+    const finishedEl = document.getElementById('finishedGames');
+    const statusEl = document.getElementById('gamesStatus');
+    const refreshBtn = document.getElementById('refreshGamesBtn');
+    if (!liveEl || !finishedEl) return;
+
+    function renderSection(target, items, emptyText){
+        target.innerHTML = '';
+        if (!items.length) {
+            const empty = document.createElement('div');
+            empty.className = 'games-empty';
+            empty.textContent = emptyText;
+            target.appendChild(empty);
+            return;
+        }
+        items.forEach(g => {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            const created = g.dateCreated ? new Date(g.dateCreated).toLocaleString() : 'N/A';
+            const finished = g.dateFinished ? new Date(g.dateFinished).toLocaleString() : '';
+            card.innerHTML = `
+              <div class="game-meta"><span class="label">Teams:</span> ${g.teamA} vs ${g.teamB}</div>
+              <div class="game-meta"><span class="label">Score:</span> ${g.scoreA} - ${g.scoreB}</div>
+              <div class="game-meta"><span class="label">Status:</span> ${g.status || 'unknown'}</div>
+              ${g.result ? `<div class="game-meta"><span class="label">Result:</span> ${g.result}</div>` : ''}
+              <div class="game-meta"><span class="label">Created:</span> ${created}</div>
+              ${finished ? `<div class="game-meta"><span class="label">Finished:</span> ${finished}</div>` : ''}
+            `;
+            target.appendChild(card);
+        });
+    }
+
+    async function loadGames(){
+        if (statusEl) statusEl.textContent = 'Loading games...';
+        try {
+            const res = await fetch('/game');
+            const data = await res.json();
+            if (!res.ok || !Array.isArray(data)) {
+                throw new Error(data.error || 'Failed to load games');
+            }
+            const live = [];
+            const finished = [];
+            data.forEach(g => {
+                if ((g.status || '').toLowerCase() === 'finished') finished.push(g);
+                else live.push(g);
+            });
+            renderSection(liveEl, live, 'No live games right now.');
+            renderSection(finishedEl, finished, 'No finished games yet.');
+            if (statusEl) statusEl.textContent = '';
+        } catch (err) {
+            console.error('Games load error', err);
+            if (statusEl) statusEl.textContent = 'Unable to load games.';
+        }
+    }
+
+    if (refreshBtn) refreshBtn.addEventListener('click', loadGames);
+    loadGames();
+    setInterval(loadGames, 5000);
+})();
+
 (function initLiveChat(){
     const feedEl = document.getElementById('chatFeed');
     const inputEl = document.getElementById('chatMessage');
