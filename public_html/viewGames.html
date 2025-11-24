@@ -457,6 +457,7 @@
           link.addEventListener('click', evt => {
             const href = link.getAttribute('href') || link.href;
             if (!href) return;
+            if (href.startsWith('#')) return;
             if (isLoggedIn()) return;
             const guestBlocked = isGuestMode() && !allowedForGuest(href);
             if (isGuestMode() && !guestBlocked) return;
@@ -500,6 +501,12 @@
             errorEl.textContent = 'Guest access is limited to the Games tab.';
           }
         });
+      }
+
+      if (!isLoggedIn() && !isGuestMode()) {
+        pendingHref = window.location.href;
+        pendingLabel = 'Games';
+        openOverlay({ guestBlocked: true });
       }
     })();
   </script>
