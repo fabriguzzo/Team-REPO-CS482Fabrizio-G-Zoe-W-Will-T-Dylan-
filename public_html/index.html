@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="/css/site.css">
     <style>
         .container {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) 250px;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
             padding: 20px;
         }
@@ -117,22 +117,6 @@
         .game-item .status { font-size: 12px; color: #666; }
         .blurred { filter: blur(3px); }
 
-        .right-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .login-box a {
-            display: block;
-            padding: 10px;
-            background: #ffa64d;
-            color: white;
-            text-decoration: none;
-            text-align: center;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-
         .feed {
             margin-top: 30px;
             background: white;
@@ -146,6 +130,37 @@
             border-radius: 8px;
             margin-bottom: 15px;
         }
+        .account-pill {
+            position: fixed;
+            top: 110px;
+            right: 30px;
+            background: white;
+            border-radius: 18px;
+            padding: 18px 22px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            width: 240px;
+            z-index: 1500;
+        }
+        .account-pill h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #a64b00;
+        }
+        .account-pill button {
+            margin-top: 12px;
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 12px;
+            cursor: pointer;
+            font-weight: 600;
+            background: #ff8c00;
+            color: #fff;
+        }
+        .account-pill button.secondary {
+            background: rgba(0,0,0,0.06);
+            color: #a64b00;
+        }
     </style>
 </head>
 <body>
@@ -158,7 +173,6 @@
             <a href="/viewRatings" class="auth-link">Ratings</a>
             <a href="/login" class="auth-link">Login</a>
             <a href="/signup" class="auth-link accent">Sign Up</a>
-            <a href="/guest" class="auth-link">Guest</a>
         </nav>
     </header>
 
@@ -168,15 +182,6 @@
             <p>Track standings, manage your teams, and stay connected with every update. Need the full slate of upcoming games? Head to the schedule page to browse the calendar and tap into live details.</p>
             <a class="cta" href="/schedule" data-requires-auth="true">Go to Schedule</a>
         </div>
-
-    <div class="right-panel">
-        <div class="login-box">
-            <h3>Login</h3>
-            <a href="/login">Login</a>
-                <a href="/signup">Sign Up</a>
-                <a href="/guest" class="guest-btn">Guest User</a>
-            </div>
-    </div>
 </div>
 
 <div class="feed">
@@ -202,21 +207,43 @@
 </div>
 
 <script>
-  (function renderAuthBox(){
-    const box = document.querySelector('.login-box');
-    if (!box) return;
-    let user = null;
-    try { user = JSON.parse(localStorage.getItem('currentUser') || 'null'); } catch (_) {}
+  (function renderAccountBadge(){
+    function parseUser(){
+      try { return JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+      catch (_) { return null; }
+    }
     function inGuestMode(){
       try { return localStorage.getItem('guestMode') === 'games-only'; }
       catch (_) { return false; }
     }
+    function removeBadge(){
+      const existing = document.getElementById('accountBadge');
+      if (existing) existing.remove();
+    }
+    function ensureBadge(){
+      let badge = document.getElementById('accountBadge');
+      if (!badge) {
+        badge = document.createElement('div');
+        badge.id = 'accountBadge';
+        badge.className = 'account-pill';
+        document.body.appendChild(badge);
+      }
+      return badge;
+    }
 
-    if ((!user || !user.username) && inGuestMode()) {
-      box.innerHTML = `
+    const user = parseUser();
+    const guest = (!user || !user.username) && inGuestMode();
+    if (!guest && (!user || !user.username)) {
+      removeBadge();
+      return;
+    }
+
+    const badge = ensureBadge();
+    if (guest) {
+      badge.innerHTML = `
         <h3>Guest Access</h3>
         <div>Signed in as <strong>Guest</strong></div>
-        <button id="exitGuestBtn" style="margin-top:10px;">Exit Guest Mode</button>
+        <button class="secondary" id="exitGuestBtn">Exit Guest Mode</button>
       `;
       const exitBtn = document.getElementById('exitGuestBtn');
       if (exitBtn) exitBtn.addEventListener('click', function(){
@@ -226,22 +253,16 @@
       return;
     }
 
-    if (!user || !user.username) return; // leave default links for signed-out users
-
     const role = user.role ? ` (Role: ${user.role})` : '';
-    const addChildLink = `<a href="/addChild">Add Child</a>`;
-    const signOutBtn = `<button id="signOutBtn" style="margin-top:10px;">Sign Out</button>`;
-
-    box.innerHTML = `
+    badge.innerHTML = `
       <h3>Account</h3>
       <div>Signed in as <strong>${user.username}</strong>${role}</div>
-      ${addChildLink}
-      ${signOutBtn}
+      <button id="signOutBtn">Sign Out</button>
     `;
-
     const btn = document.getElementById('signOutBtn');
     if (btn) btn.addEventListener('click', function(){
       try { localStorage.removeItem('currentUser'); } catch (_) {}
+      try { localStorage.removeItem('guestMode'); } catch (_) {}
       location.reload();
     });
   })();
