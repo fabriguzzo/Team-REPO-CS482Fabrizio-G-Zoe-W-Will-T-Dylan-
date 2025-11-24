@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Ratings</title>
+  <link rel="stylesheet" href="/css/site.css" />
+
+  <style>
+    #ratingsContainer {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+    .rating-row {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+    }
+    .rating-row:last-child {
+      border-bottom: none;
+    }
+    .username {
+      font-weight: 600;
+    }
+    #message {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo"><a href="/">Baseball League</a></div>
+  <nav class="top-nav">
+    <a href="/viewGames">Games</a>
+    <a href="/viewTeams">Teams</a>
+    <a href="/schedule">Schedule</a>
+    <a href="/ratings" class="auth-link accent">Ratings</a>
+  </nav>
+</header>
+
+<main class="page-shell">
+  <section class="card">
+
+    <h1>User Ratings</h1>
+    <p class="muted">Ratings for all coaches and managers</p>
+
+    <div id="ratingsContainer"></div>
+    <p id="message"></p>
+
+  </section>
+</main>
+
+<script>
+  async function loadRatings() {
+    const container = document.getElementById("ratingsContainer");
+    const msg = document.getElementById("message");
+    container.innerHTML = "";
+    msg.textContent = "";
+
+    try {
+      const response = await fetch("http://localhost:4000/users");
+      const data = await response.json();
+
+      if (!response.ok) {
+        msg.style.color = "red";
+        msg.textContent = data.error || "Failed to load users.";
+        return;
+      }
+
+      const ratedUsers = data.filter(u => 
+        u.role === "coach" || u.role === "manager"
+      );
+
+      if (ratedUsers.length === 0) {
+        msg.textContent = "No rated users found.";
+        return;
+      }
+
+      ratedUsers.forEach(user => {
+        const avg = user.rating ?? "No rating";
+
+        const row = document.createElement("div");
+        row.className = "rating-row";
+
+        row.innerHTML = `
+          <span class="username">${user.username} (${user.role})</span>
+          <span class="rating">${avg}</span>
+        `;
+
+        container.appendChild(row);
+      });
+
+    } catch (err) {
+      console.error("Error loading ratings:", err);
+      msg.style.color = "red";
+      msg.textContent = "Unable to connect to server.";
+    }
+  }
+
+  window.onload = loadRatings;
+</script>
+
+</body>
+</html>

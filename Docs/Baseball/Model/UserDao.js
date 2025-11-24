@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
     phone: {type : String, required: false},
     permission: {type : Number, required: false},
     name: {type : String, required: false},
+    rating: {type : Number, required: false},
     role: {type : String, enum: ["coach", "manager", "admin", "player", "child"], default : "player", required: false},
     team: {type : mongoose.Schema.Types.ObjectId, ref: "Team", required: false},
     parent: {type: mongoose.Schema.Types.ObjectId, ref: "User", required: false},

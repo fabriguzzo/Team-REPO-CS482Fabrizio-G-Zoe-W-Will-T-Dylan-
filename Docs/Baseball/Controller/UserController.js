@@ -39,6 +39,12 @@ exports.createOrUpdate = async function (req, res) {
     const existingUser = await dao.readByUsername(username);
 
     if (existingUser) {
+      const updatedData = { ...req.body }; //Get data from body 
+
+      if (updatedData.rating != undefined) {
+        updatedData.rating = Number(updatedData.rating); // Ensure rating is a number
+      }
+
       // Perform update
       const updatedUser = await dao.updateByUsername(username, req.body);
       return res.status(200).json({

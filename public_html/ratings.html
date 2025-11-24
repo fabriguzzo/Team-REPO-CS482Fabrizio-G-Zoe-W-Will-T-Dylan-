@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Update Coaches and Managers</title>
+  <link rel="stylesheet" href="/css/site.css" />
+  <style>
+    #usersContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+    .user-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .user-card img {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent);
+    }
+    .user-input,
+    .user-card select {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid #d8d8d8;
+      padding: 8px 12px;
+    }
+    .update-btn {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #message {
+      font-weight: 600;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo"><a href="/">Baseball League</a></div>
+    <nav class="top-nav">
+      <a href="/viewGames">Games</a>
+      <a href="/viewTeams">Teams</a>
+      <a href="/schedule">Schedule</a>
+      <a href="/login" class="auth-link">Login</a>
+      <a href="/signup" class="auth-link accent">Sign Up</a>
+      <a href="/guest" class="auth-link">Guest</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="card">
+      <div class="toolbar" style="justify-content: space-between;">
+        <div>
+          <h1>Update Coaches and Managers</h1>
+          <p class="muted">Adjust ratings for coaches and managers.</p>
+        </div>
+        <button class="btn" id="reload" type="button" onclick="loadUsers()">Reload Users</button>
+      </div>
+      <div id="usersContainer"></div>
+      <p id="message"></p>
+    </section>
+  </main>
+
+  <script>
+    async function loadUsers() {
+      const container = document.getElementById('usersContainer');
+      const msg = document.getElementById('message');
+      container.innerHTML = '';
+      msg.textContent = '';
+
+      try {
+        const response = await fetch('http://localhost:4000/users');
+        const data = await response.json();
+
+        if (!response.ok) {
+          msg.style.color = 'red';
+          msg.textContent = `Error: ${data.error || 'Failed to load users'}`;
+          return;
+        }
+
+        const filteredUsers = data.filter(user => user.role === 'coach' || user.role === 'manager');
+
+        if (filteredUsers.length === 0) {
+          msg.textContent = 'No coaches or managers found.';
+          return;
+        }
+
+        filteredUsers.forEach((user) => {
+          const card = document.createElement('div');
+          card.className = 'user-card';
+
+          const avatar = document.createElement('img');
+          avatar.src = user.avatar || 'https://via.placeholder.com/100?text=User';
+          card.appendChild(avatar);
+
+          const name = document.createElement('div');
+          name.className = 'user-name';
+          name.textContent = user.username;
+          card.appendChild(name);
+
+          const role = document.createElement('div');
+          role.className = 'user-role';
+          card.appendChild(role);
+
+          const ratingSelect = document.createElement('select');
+          ratingSelect.className = 'user-input';
+
+          // Reset option back to default, which is null. It will be displayed as "No Rating"
+          const noRatingOption = document.createElement('option');
+          noRatingOption.value = '0';
+          noRatingOption.text = 'No rating';
+          if (user.rating === null || user.rating === undefined) noRatingOption.selected = true;
+          ratingSelect.appendChild(noRatingOption);
+
+          // Options 1-5
+          for (let i = 1; i <= 5; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.text = i;
+            if (user.rating === i) option.selected = true;
+            ratingSelect.appendChild(option);
+          }
+
+          card.appendChild(ratingSelect);
+
+          const updateBtn = document.createElement('button');
+          updateBtn.className = 'update-btn';
+          updateBtn.textContent = 'Update Rating';
+          updateBtn.onclick = () => updateUser(user.username, {
+            rating: ratingSelect.value === '0' ? null : Number(ratingSelect.value)
+          });
+          card.appendChild(updateBtn);
+
+          container.appendChild(card);
+        });
+
+      } catch (err) {
+        msg.style.color = 'red';
+        msg.textContent = 'Error connecting to server.';
+        console.error(err);
+      }
+    }
+
+    async function updateUser(username, updateData) {
+      const msg = document.getElementById('message');
+      msg.textContent = '';
+
+      try {
+        const response = await fetch(`http://localhost:4000/users/${username}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          msg.style.color = 'green';
+          msg.textContent = data.message || `User "${username}" updated successfully!`;
+          loadUsers();
+        } else {
+          msg.style.color = 'red';
+          msg.textContent = `Error: ${data.error || 'Failed to update user'}`;
+        }
+      } catch (err) {
+        console.error('Error updating user:', err);
+        msg.style.color = 'red';
+        msg.textContent = 'Error: Unable to connect to server.';
+      }
+    }
+
+    window.onload = loadUsers;
+  </script>
+</body>
+</html>

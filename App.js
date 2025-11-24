@@ -39,6 +39,8 @@ const viewGamesPath = path.join(__dirname, "public_html", "viewGames.html");
 const updateUserPath = path.join(__dirname, "public_html", "updateUser.html");
 const chatPath = path.join(__dirname, "public_html", "chat.html" );
 const schedulePath = path.join(__dirname, "public_html", "schedule.html");
+const ratingsPath = path.join(__dirname, "public_html", "ratings.html");
+const viewRatingsPath = path.join(__dirname, "public_html", "viewRatings.html");
 
 
 app.get("/", (req, res) => res.sendFile(testPath));
@@ -56,6 +58,8 @@ app.get("/viewGames", (req, res) => res.sendFile(viewGamesPath));
 app.get("/updateUser", (req, res) => res.sendFile(updateUserPath));
 app.get("/chatRoom", (req, res) => res.sendFile(chatPath));
 app.get("/schedule", (req, res) => res.sendFile(schedulePath));
+app.get("/ratings", (req, res) => res.sendFile(ratingsPath));
+app.get("/viewRatings", (req, res) => res.sendFile(viewRatingsPath));
 
 //create a folder to store logos for teams
 const uploadDir = path.join(__dirname, 'public_html', 'uploads');
