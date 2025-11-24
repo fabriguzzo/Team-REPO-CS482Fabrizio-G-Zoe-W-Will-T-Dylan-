@@ -5,7 +5,12 @@
   <title>Edit Team</title>
   <link rel="stylesheet" href="/css/site.css" />
   <style>
-    #playerList {
+    #message {
+      font-weight: 600;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .list-box {
       text-align: left;
       background: #fff7f0;
       color: #222;
@@ -14,16 +19,14 @@
       max-height: 240px;
       overflow: auto;
       border: 1px solid #f0e3d6;
+      font-size: 0.9rem;
     }
-    #message {
-      font-weight: 600;
-      text-align: center;
-    }
-    .player-row {
+    .row {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       padding: 6px 0;
+      gap: 8px;
     }
     .pill-btn {
       border: 1px solid var(--accent-dark);
@@ -31,19 +34,26 @@
       border-radius: 999px;
       padding: 6px 14px;
       cursor: pointer;
+      font-size: 0.85rem;
     }
     .pill-btn:hover {
       background: #ffe3c7;
     }
-    .roster-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: flex-start;
     }
-    .roster-actions select {
+    .inline-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .inline-actions select {
       flex: 1;
-      border-radius: 12px;
-      padding: 10px 12px;
+      border-radius: 10px;
+      padding: 8px 10px;
       border: 1px solid #d7d7d7;
     }
   </style>
@@ -64,136 +74,311 @@
   <main class="page-shell">
     <section class="card form-card">
       <h1>Edit Team</h1>
-      <p class="muted">Update a roster, upload a fresh logo, or add youth accounts to keep everyone synced.</p>
+      <p class="muted">
+        Update your team’s name and logo, manage the roster, and send invitations to players, coaches, and managers.
+      </p>
+
       <form id="editForm" class="form-grid" enctype="multipart/form-data">
         <label for="name">Team Name</label>
         <input type="text" id="name" name="name" required>
 
-        <label for="manager">Manager</label>
-        <input type="text" id="manager" name="manager">
-
         <label for="logo">Upload New Logo</label>
         <input type="file" id="logo" name="logo" accept="image/*">
 
-        <h3>Players</h3>
-        <div id="playerList"></div>
-        <div class="roster-actions">
+        <h3>Roster & Invitations</h3>
+        <div class="two-col">
+          <div>
+            <h4>Current Team Players</h4>
+            <div id="currentPlayers" class="list-box"></div>
+          </div>
+          <div>
+            <h4>Pending Player Invitations</h4>
+            <div id="pendingPlayers" class="list-box"></div>
+          </div>
+        </div>
+
+        <div class="inline-actions">
           <select id="childSelect">
             <option value="">-- Select Child User --</option>
           </select>
-          <button type="button" class="btn" id="addPlayerBtn">Add</button>
+          <button type="button" class="btn" id="invitePlayerBtn">Send Player Invite</button>
         </div>
 
-        <button type="submit" class="btn">Save Changes</button>
+        <hr>
+
+        <h3>Coach</h3>
+        <div class="inline-actions">
+          <select id="coachSelect">
+            <option value="">-- Select Coach --</option>
+          </select>
+          <button type="button" class="btn" id="inviteCoachBtn">Send Coach Invite</button>
+        </div>
+        <div id="coachDisplay" class="list-box" style="margin-top:10px;"></div>
+
+        <hr>
+
+        <h3>Manager</h3>
+        <div class="inline-actions">
+          <select id="managerSelect">
+            <option value="">-- Select New Manager --</option>
+          </select>
+          <button type="button" class="btn" id="inviteManagerBtn">Send Manager Invite</button>
+        </div>
+        <div id="managerDisplay" class="list-box" style="margin-top:10px;"></div>
+
+        <button type="submit" class="btn">Save Name & Logo</button>
       </form>
 
       <p id="message"></p>
-      <button class="btn" type="button" onclick="window.location.href='teamView.html'">Back to Teams</button>
+      <button class="btn" type="button" onclick="window.location.href='teamView.html'">
+        Back to Teams
+      </button>
     </section>
   </main>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const teamId = params.get('id');
-    const form = document.getElementById('editForm');
     const msg = document.getElementById('message');
-    const playerListEl = document.getElementById('playerList');
-    const addPlayerBtn = document.getElementById('addPlayerBtn');
-    let players = [];
+    const editForm = document.getElementById('editForm');
 
     async function loadTeam() {
       try {
         const res = await fetch(`http://localhost:4000/teams/${teamId}`);
-        const data = await res.json();
-
+        const team = await res.json();
         if (!res.ok) {
-          msg.textContent = data.error || 'Failed to load team.';
+          msg.style.color = 'red';
+          msg.textContent = team.error || 'Failed to load team.';
           return;
         }
 
-        document.getElementById('name').value = data.name || '';
-        document.getElementById('manager').value = data.manager || '';
-        players = Array.isArray(data.players) ? data.players.slice() : [];
-        renderPlayers();
+        document.getElementById('name').value = team.name || '';
+        renderCoachDisplay(team);
+        renderManagerDisplay(team);
+        renderPlayers(team);
       } catch (err) {
+        console.error(err);
+        msg.style.color = 'red';
         msg.textContent = 'Error fetching team data.';
       }
     }
 
-    async function loadChildUsers() {
+    function renderCoachDisplay(team) {
+      const coachBox = document.getElementById('coachDisplay');
+      coachBox.innerHTML = `<div class="row">Coach: ${team.coach || 'None'}</div>`;
+    }
+
+    function renderManagerDisplay(team) {
+      const managerBox = document.getElementById('managerDisplay');
+      managerBox.innerHTML = `<div class="row">Manager: ${team.manager || 'None'}</div>`;
+    }
+
+    function renderPlayers(team) {
+      const currentBox = document.getElementById('currentPlayers');
+      currentBox.innerHTML = "";
+
+      if (!team.players || team.players.length === 0) {
+        currentBox.innerHTML = "<p class='muted'>No players on team yet.</p>";
+      } else {
+        team.players.forEach(username => {
+          const row = document.createElement("div");
+          row.className = "row";
+
+          const nameSpan = document.createElement("span");
+          nameSpan.textContent = username;
+
+          const removeBtn = document.createElement("button");
+          removeBtn.textContent = "Remove";
+          removeBtn.className = "pill-btn";
+          removeBtn.onclick = async () => {
+            try {
+              const updatedPlayers = team.players.filter(p => p !== username);
+              const res = await fetch('http://localhost:4000/teams', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  _id: teamId,
+                  name: document.getElementById('name').value,
+                  players: updatedPlayers,
+                  coach: team.coach || "",
+                  manager: team.manager || ""
+                })
+              });
+              const data = await res.json();
+              if (res.ok) {
+                msg.style.color = 'green';
+                msg.textContent = `Removed ${username} from team.`;
+                await loadTeam();
+              } else {
+                alert(data.error || "Failed to update team.");
+              }
+            } catch (err) {
+              console.error(err);
+              alert("Error updating team.");
+            }
+          };
+
+          row.appendChild(nameSpan);
+          row.appendChild(removeBtn);
+          currentBox.appendChild(row);
+        });
+      }
+    }
+
+    async function loadPendingPlayers() {
+      try {
+        const res = await fetch(`http://localhost:4000/invitations/team/${teamId}`);
+        const invites = await res.json();
+        const pendingBox = document.getElementById('pendingPlayers');
+        pendingBox.innerHTML = "";
+
+        if (!res.ok) {
+          pendingBox.innerHTML = "<p class='muted'>Failed to load invitations.</p>";
+          return;
+        }
+
+        const pendingPlayers = invites.filter(
+          inv => inv.status === "pending" && inv.role === "player"
+        );
+
+        if (pendingPlayers.length === 0) {
+          pendingBox.innerHTML = "<p class='muted'>No pending player invitations.</p>";
+        } else {
+          pendingPlayers.forEach(inv => {
+            const row = document.createElement("div");
+            row.className = "row";
+            const userName = inv.recipient?.username || "Unknown user";
+
+            const labelSpan = document.createElement("span");
+            labelSpan.textContent = `${userName} (pending)`;
+
+            const delBtn = document.createElement("button");
+            delBtn.textContent = "Delete Invite";
+            delBtn.className = "pill-btn";
+            delBtn.onclick = async () => {
+              try {
+                const delRes = await fetch(`http://localhost:4000/invitations/${inv._id}`, {
+                  method: "DELETE"
+                });
+                const data = await delRes.json();
+                if (delRes.ok) {
+                  alert(`Invite for ${userName} deleted.`);
+                  loadPendingPlayers();
+                } else {
+                  alert(data.error || "Failed to delete invite.");
+                }
+              } catch (err) {
+                console.error(err);
+                alert("Error deleting invite.");
+              }
+            };
+
+            row.appendChild(labelSpan);
+            row.appendChild(delBtn);
+            pendingBox.appendChild(row);
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        const pendingBox = document.getElementById('pendingPlayers');
+        pendingBox.innerHTML = "<p class='muted'>Error loading invitations.</p>";
+      }
+    }
+
+    async function loadUsers() {
       try {
         const res = await fetch('http://localhost:4000/users');
         const users = await res.json();
-        const childSelect = document.getElementById('childSelect');
-        childSelect.innerHTML = '<option value="">-- Select Child User --</option>';
+        if (!res.ok) {
+          console.error('Failed to load users.');
+          return;
+        }
 
-        users.filter(u => u.role === 'child').forEach(u => {
+        const childSelect = document.getElementById('childSelect');
+        const coachSelect = document.getElementById('coachSelect');
+        const managerSelect = document.getElementById('managerSelect');
+
+        childSelect.innerHTML = '<option value="">-- Select Child User --</option>';
+        coachSelect.innerHTML = '<option value="">-- Select Coach --</option>';
+        managerSelect.innerHTML = '<option value="">-- Select New Manager --</option>';
+
+        users.forEach(u => {
           const opt = document.createElement('option');
-          opt.value = u.username;
+          opt.value = u._id;
           opt.textContent = u.username;
-          childSelect.appendChild(opt);
+
+          if (u.role === 'child') {
+            childSelect.appendChild(opt);
+          } else if (u.role === 'coach') {
+            coachSelect.appendChild(opt);
+          } else if (u.role === 'manager') {
+            managerSelect.appendChild(opt);
+          }
         });
       } catch (err) {
-        console.error('Error loading child users:', err);
+        console.error('Error loading users:', err);
       }
     }
 
-    function renderPlayers() {
-      playerListEl.innerHTML = '';
-      if (!players.length) {
-        const empty = document.createElement('div');
-        empty.textContent = 'No players yet.';
-        empty.className = 'muted';
-        playerListEl.appendChild(empty);
-        return;
-      }
-      players.forEach((p, idx) => {
-        const row = document.createElement('div');
-        row.className = 'player-row';
-        const name = document.createElement('span');
-        name.textContent = p;
-        const rm = document.createElement('button');
-        rm.type = 'button';
-        rm.textContent = 'Remove';
-        rm.className = 'pill-btn';
-        rm.addEventListener('click', () => {
-          players.splice(idx, 1);
-          renderPlayers();
+    async function sendInvitation(recipientId, role) {
+      try {
+        const res = await fetch('http://localhost:4000/invitations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ recipient: recipientId, team: teamId, role })
         });
-        row.appendChild(name);
-        row.appendChild(rm);
-        playerListEl.appendChild(row);
-      });
+        const data = await res.json();
+        if (res.ok) {
+          msg.style.color = 'green';
+          msg.textContent = `Invitation sent to ${role} successfully!`;
+          if (role === 'player') {
+            loadPendingPlayers();
+          } else {
+            loadTeam();
+          }
+        } else {
+          msg.style.color = 'red';
+          msg.textContent = data.error || 'Failed to send invitation.';
+        }
+      } catch (err) {
+        console.error(err);
+        msg.style.color = 'red';
+        msg.textContent = 'Error sending invitation.';
+      }
     }
 
-    addPlayerBtn.addEventListener('click', () => {
-      const childSelect = document.getElementById('childSelect');
-      const val = childSelect.value;
-      if (!val) return;
-      players.push(val);
-      childSelect.value = '';
-      renderPlayers();
+    document.getElementById('invitePlayerBtn').addEventListener('click', () => {
+      const val = document.getElementById('childSelect').value;
+      if (val) sendInvitation(val, 'player');
     });
 
-    form.addEventListener('submit', async (e) => {
+    document.getElementById('inviteCoachBtn').addEventListener('click', () => {
+      const val = document.getElementById('coachSelect').value;
+      if (val) sendInvitation(val, 'coach');
+    });
+
+    document.getElementById('inviteManagerBtn').addEventListener('click', () => {
+      const val = document.getElementById('managerSelect').value;
+      if (val) sendInvitation(val, 'manager');
+    });
+
+    editForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      msg.textContent = '';
+      msg.style.color = '';
+      msg.textContent = 'Saving team info...';
 
       const formData = new FormData();
       formData.append('_id', teamId);
-      formData.append('name', form.name.value.trim());
-      formData.append('manager', form.manager.value.trim());
-      if (form.logo.files[0]) {
-        formData.append('logo', form.logo.files[0]);
+      formData.append('name', e.target.name.value.trim());
+      if (e.target.logo.files[0]) {
+        formData.append('logo', e.target.logo.files[0]);
       }
-      formData.append('players', JSON.stringify(players));
 
       try {
         const res = await fetch('http://localhost:4000/teams', {
           method: 'POST',
           body: formData
         });
-
         const data = await res.json();
         if (res.ok) {
           msg.style.color = 'green';
@@ -204,15 +389,23 @@
           msg.textContent = data.error || 'Failed to update team.';
         }
       } catch (err) {
+        console.error(err);
         msg.style.color = 'red';
         msg.textContent = 'Error connecting to server.';
       }
     });
 
     window.onload = async () => {
-      await loadChildUsers();
+      if (!teamId) {
+        msg.style.color = 'red';
+        msg.textContent = 'No team selected.';
+        return;
+      }
       await loadTeam();
+      await loadUsers();
+      await loadPendingPlayers();
     };
   </script>
 </body>
 </html>
+
