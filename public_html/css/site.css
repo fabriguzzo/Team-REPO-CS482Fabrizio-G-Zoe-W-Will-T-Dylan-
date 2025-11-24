@@ -207,3 +207,82 @@ button.btn:hover {
     padding: 24px 16px 60px;
   }
 }
+
+.access-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+.access-overlay.active {
+  display: flex;
+}
+.access-modal {
+  background: #fff;
+  width: min(420px, 92vw);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.22);
+  position: relative;
+}
+.access-modal h3 {
+  margin-top: 0;
+  color: #a64b00;
+}
+.access-modal .auth-message {
+  color: #454545;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.access-modal .auth-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.access-modal button {
+  border: none;
+  border-radius: 999px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.access-modal button.primary {
+  background: #ff8c00;
+  color: #fff;
+}
+.access-modal button.outline {
+  background: transparent;
+  border: 2px solid #ff8c00;
+  color: #ff8c00;
+}
+.access-modal button.secondary {
+  background: rgba(0, 0, 0, 0.04);
+  color: #a64b00;
+}
+.access-modal .close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border: none;
+  background: transparent;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  color: #999;
+}
+.auth-note {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 8px;
+}
+.auth-error {
+  min-height: 18px;
+  color: #c62828;
+  font-weight: 600;
+}
