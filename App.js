@@ -41,6 +41,7 @@ const chatPath = path.join(__dirname, "public_html", "chat.html" );
 const schedulePath = path.join(__dirname, "public_html", "schedule.html");
 const ratingsPath = path.join(__dirname, "public_html", "ratings.html");
 const viewRatingsPath = path.join(__dirname, "public_html", "viewRatings.html");
+const adminPath = path.join(__dirname, "public_html", "admin.html");
 
 
 app.get("/", (req, res) => res.sendFile(testPath));
@@ -60,6 +61,7 @@ app.get("/chatRoom", (req, res) => res.sendFile(chatPath));
 app.get("/schedule", (req, res) => res.sendFile(schedulePath));
 app.get("/ratings", (req, res) => res.sendFile(ratingsPath));
 app.get("/viewRatings", (req, res) => res.sendFile(viewRatingsPath));
+app.get("/admin", (req, res) => res.sendFile(adminPath));
 
 //create a folder to store logos for teams
 const uploadDir = path.join(__dirname, 'public_html', 'uploads');
@@ -106,7 +108,7 @@ app.get("/teams/:id/logo", async (req, res) => {
 //User
 app.get("/users", userController.getAll);
 app.get("/users/:id", userController.getOneUser);
-app.get("/users/name/:name", userController.getByName);
+app.get("/users/name/:name", userController.getByName); 
 app.post("/users", userController.createOrUpdate);
 app.post('/login', userController.login);
 app.delete("/users/:id", userController.deleteOne);

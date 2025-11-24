@@ -45,79 +45,6 @@
             box-shadow: 0 8px 18px rgba(0,0,0,0.2);
         }
 
-        .calendar {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.12);
-        }
-        #monthHeader {
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: center;
-        }
-        th {
-            color: #555;
-            padding-bottom: 10px;
-        }
-        td {
-            height: 55px;
-            border-radius: 10px;
-            transition: 0.15s;
-        }
-        td:hover {
-            background: #d8f3dc;
-            cursor: pointer;
-        }
-        .today {
-            background: #74c69d;
-            color: white;
-            font-weight: bold;
-            border-radius: 50%;
-        }
-
-        .day-cell { position: relative; }
-        .day-cell .game-dot {
-            position: absolute;
-            bottom: 6px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 8px;
-            height: 8px;
-            background: #ff8c00;
-            border-radius: 50%;
-        }
-        .overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .overlay.active { display: flex; }
-        .modal {
-            background: #fff;
-            width: 420px;
-            max-width: 92vw;
-            border-radius: 12px;
-            box-shadow: 0 10px 28px rgba(0,0,0,0.25);
-            padding: 18px 16px;
-        }
-        .modal-header { font-weight: 700; margin-bottom: 10px; display:flex; justify-content: space-between; align-items:center; }
-        .modal-close { border: none; background: transparent; font-size: 22px; cursor: pointer; line-height: 1; }
-        .game-list { max-height: 50vh; overflow: auto; margin-top: 6px; }
-        .game-item { padding: 10px; border: 1px solid #eee; border-radius: 8px; margin: 8px 0; background: #fffaf5; }
-        .game-item .status { font-size: 12px; color: #666; }
-        .blurred { filter: blur(3px); }
-
         .feed {
             margin-top: 30px;
             background: white;
@@ -187,43 +114,44 @@
             <a href="/viewTeams">Teams</a>
             <a href="/schedule">Schedule</a>
             <a href="/viewRatings" class="auth-link">Ratings</a>
+            <a href="/admin" class="admin-link">Admin</a>
             <a href="/login" class="auth-link">Login</a>
             <a href="/signup" class="auth-link accent">Sign Up</a>
         </nav>
     </header>
 
-<div id="mainContent" class="container">
+    <div id="mainContent" class="container">
         <div class="hero-panel">
             <h2>Welcome to the League Hub</h2>
             <p>Track standings, manage your teams, and stay connected with every update. Need the full slate of upcoming games? Head to the schedule page to browse the calendar and tap into live details.</p>
             <a class="cta" href="/schedule" data-requires-auth="true">Go to Schedule</a>
         </div>
-</div>
-
-<div class="feed">
-    <h2>Feed</h2>
-    <div class="feed-item">User posted a video/picture</div>
-    <div class="feed-item">User posted a video/picture</div>
-    <div class="feed-item">User posted a video/picture</div>
-</div>
-
-<div id="accessOverlay" class="access-overlay" aria-hidden="true">
-    <div class="access-modal" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
-        <button class="close-btn" type="button" aria-label="Close" data-close>&times;</button>
-        <h3 id="accessTitle">Sign in to continue</h3>
-        <p class="auth-message">Access to <strong data-tab-label>this tab</strong> requires signing in or choosing guest access.</p>
-        <div class="auth-actions">
-            <button class="primary" type="button" data-action="login">Log In</button>
-            <button class="outline" type="button" data-action="signup">Sign Up</button>
-            <button class="secondary" type="button" data-action="guest">Continue as Guest</button>
-        </div>
-        <p class="auth-note">Guests can only access the Games tab.</p>
-        <div class="auth-error" role="alert"></div>
     </div>
-</div>
+
+    <div class="feed">
+        <h2>Feed</h2>
+        <div class="feed-item">User posted a video/picture</div>
+        <div class="feed-item">User posted a video/picture</div>
+        <div class="feed-item">User posted a video/picture</div>
+    </div>
+
+    <div id="accessOverlay" class="access-overlay" aria-hidden="true">
+        <div class="access-modal" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
+            <button class="close-btn" type="button" aria-label="Close" data-close>&times;</button>
+            <h3 id="accessTitle">Sign in to continue</h3>
+            <p class="auth-message">Access to <strong data-tab-label>this tab</strong> requires signing in or choosing guest access.</p>
+            <div class="auth-actions">
+                <button class="primary" type="button" data-action="login">Log In</button>
+                <button class="outline" type="button" data-action="signup">Sign Up</button>
+                <button class="secondary" type="button" data-action="guest">Continue as Guest</button>
+            </div>
+            <p class="auth-note">Guests can only access the Games tab.</p>
+            <div class="auth-error" role="alert"></div>
+        </div>
+    </div>
 
 <script>
-  (function renderAccountBadge(){
+(function renderAccountBadge(){
     function parseUser(){
       try { return JSON.parse(localStorage.getItem('currentUser') || 'null'); }
       catch (_) { return null; }
@@ -283,9 +211,10 @@
       try { localStorage.removeItem('guestMode'); } catch (_) {}
       location.reload();
     });
-  })();
+})();
 
-  (function initAccessGate(){
+// Access Gate
+(function initAccessGate(){
     const overlay = document.getElementById('accessOverlay');
     if (!overlay) return;
 
@@ -307,10 +236,6 @@
     function safeUser(){
       try { return JSON.parse(localStorage.getItem('currentUser') || 'null'); }
       catch (_) { return null; }
-    }
-
-    if (safeUser()) {
-      try { localStorage.removeItem('guestMode'); } catch (_) {}
     }
 
     function isLoggedIn(){
@@ -380,7 +305,7 @@
           if (!href) return;
           if (isLoggedIn()) return;
           const guestBlocked = isGuestMode() && !allowedForGuest(href);
-          if (isGuestMode() && !guestBlocked) return; // guest can only go to allowed pages
+          if (isGuestMode() && !guestBlocked) return;
           evt.preventDefault();
           pendingHref = href;
           pendingLabel = link.textContent.trim();
@@ -422,9 +347,29 @@
         }
       });
     }
-  })();
-  </script>
+})();
 
+// --- Admin Link Handler ---
+(function adminLinkHandler(){
+    const adminLinks = document.querySelectorAll('.admin-link');
+    if (!adminLinks.length) return;
+
+    adminLinks.forEach(link => {
+        link.addEventListener('click', function(evt){
+            let user;
+            try { user = JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+            catch (_) { user = null; }
+
+            const isAdmin = user && user.role && user.role.toLowerCase() === "admin";
+
+            if (!isAdmin) {
+                evt.preventDefault();
+                alert("Access Denied: You are not an admin.");
+            }
+            // if admin, link works as normal and goes to /admin.html
+        });
+    });
+})();
+</script>
 </body>
 </html>
-

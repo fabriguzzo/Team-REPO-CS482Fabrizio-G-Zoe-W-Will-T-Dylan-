@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="/css/site.css" />
+
+  <style>
+    #adminContainer {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .admin-btn {
+      padding: 12px;
+      background: #ff8c00;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .admin-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+    }
+    #message {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 18px;
+      color: red;
+    }
+  </style>
+
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo"><a href="/">Baseball League</a></div>
+  <nav class="top-nav">
+    <a href="/viewRatings" class="auth-link">Rating</a>
+    <a href="/viewGames">Games</a>
+    <a href="/viewTeams">Teams</a>
+    <a href="/schedule">Schedule</a>
+  </nav>
+</header>
+
+<main class="page-shell">
+  <section class="card">
+
+    <h1>Admin Panel</h1>
+
+    <div id="adminContainer" style="display:none;">
+      <button class="admin-btn" onclick="location.href='updateUser.html'">Update User</button>
+      <button class="admin-btn" onclick="location.href='userView.html'">View Users</button>
+      <button class="admin-btn" onclick="location.href='deleteUser.html'">Delete User</button>
+    </div>
+
+    <p id="message"></p>
+
+  </section>
+</main>
+
+<script>
+  (function checkAdminAccess() {
+    let user;
+    try {
+      user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    } catch (_) {
+      user = null;
+    }
+
+    const isAdmin = user && user.role && user.role.toLowerCase() === "admin";
+    const adminContainer = document.getElementById("adminContainer");
+    const msg = document.getElementById("message");
+
+    if (isAdmin) {
+      adminContainer.style.display = "flex";
+      msg.textContent = "";
+    } else {
+      adminContainer.style.display = "none";
+      msg.textContent = "Access Denied: You are not an admin.";
+    }
+  })();
+</script>
+
+</body>
+</html>
