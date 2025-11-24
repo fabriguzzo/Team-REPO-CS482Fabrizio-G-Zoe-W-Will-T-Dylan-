@@ -332,7 +332,7 @@
     });
 
     if (loginBtn) loginBtn.addEventListener('click', () => { window.location.href = '/login'; });
-    if (signupBtn) signupBtn.addEventListener('click', () => { window.location.href = '/signup'; });
+    if (signupBtn) loginBtn && signupBtn.addEventListener('click', () => { window.location.href = '/signup'; });
     if (guestBtn) {
       guestBtn.addEventListener('click', () => {
         if (overlayGuestBlocked) {
@@ -367,9 +367,57 @@
                 evt.preventDefault();
                 alert("Access Denied: You are not an admin.");
             }
-            // if admin, link works as normal and goes to /admin.html
+            // if admin, link works as normal and goes to /admin
         });
     });
+})();
+
+// --- Invitations + Add Team (role-based nav links) ---
+(function addRoleBasedNavLinks(){
+    const nav = document.querySelector('.top-nav');
+    if (!nav) return;
+
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    } catch (_) {
+        user = null;
+    }
+
+    // Only show if signed in
+    if (!user || !user.username) return;
+
+    // Insert before first auth-link (Login / Sign Up)
+    const firstAuthLink = nav.querySelector('.auth-link');
+    const insertBeforeNode = firstAuthLink || null;
+
+    // Invitations link (for any signed-in user)
+    const invLink = document.createElement('a');
+    invLink.href = '/invitations.html';
+    invLink.textContent = 'Invitations';
+
+    // Add Team link (only for manager or admin)
+    const isManagerOrAdmin = user.role === 'manager' || user.role === 'admin';
+
+    if (isManagerOrAdmin) {
+        const addTeamLink = document.createElement('a');
+        addTeamLink.href = '/addTeam';
+        addTeamLink.textContent = 'Add Team';
+
+        if (insertBeforeNode) {
+            nav.insertBefore(addTeamLink, insertBeforeNode);
+            nav.insertBefore(invLink, insertBeforeNode);
+        } else {
+            nav.appendChild(addTeamLink);
+            nav.appendChild(invLink);
+        }
+    } else {
+        if (insertBeforeNode) {
+            nav.insertBefore(invLink, insertBeforeNode);
+        } else {
+            nav.appendChild(invLink);
+        }
+    }
 })();
 </script>
 </body>
