@@ -110,7 +110,7 @@
       }
 
       ratedUsers.forEach(user => {
-        const avg = user.rating ?? "No rating";
+        const avg = (user.rating === 0 || user.rating == null) ? "No rating" : user.rating;
 
         const row = document.createElement("div");
         row.className = "rating-row";
