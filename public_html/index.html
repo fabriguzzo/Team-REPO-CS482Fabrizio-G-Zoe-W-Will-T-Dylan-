@@ -295,18 +295,16 @@
 
     <div id="accessOverlay" class="access-overlay" aria-hidden="true">
         <div class="access-modal" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
-            <button class="close-btn" type="button" aria-label="Close" data-close>&times;</button>
-            <h3 id="accessTitle">Sign in to continue</h3>
-            <p class="auth-message">Access to <strong data-tab-label>this tab</strong> requires signing in or choosing guest access.</p>
-            <div class="auth-actions">
-                <button class="primary" type="button" data-action="login">Log In</button>
-                <button class="outline" type="button" data-action="signup">Sign Up</button>
-                <button class="secondary" type="button" data-action="guest">Continue as Guest</button>
-            </div>
-            <p class="auth-note">Guests can only access the Games tab.</p>
-            <div class="auth-error" role="alert"></div>
+        <button class="close-btn" type="button" aria-label="Close" data-close>&times;</button>
+        <h3 id="accessTitle">Sign in to continue</h3>
+        <p class="auth-message">Access to <strong data-tab-label>this tab</strong> requires signing in.</p>
+        <div class="auth-actions">
+            <button class="primary" type="button" data-action="login">Log In</button>
+            <button class="outline" type="button" data-action="signup">Sign Up</button>
         </div>
+        <div class="auth-error" role="alert"></div>
     </div>
+</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -560,39 +558,32 @@
     }
 
     const user = parseUser();
-    const guest = (!user || !user.username) && inGuestMode();
-    if (!guest && (!user || !user.username)) {
-      removeBadge();
-      return;
-    }
+    const guest = (!user || !user.username);
 
     const badge = ensureBadge();
     if (guest) {
+      try { localStorage.setItem('guestMode', 'games-only'); } catch (_) {}
       badge.innerHTML = `
         <h3>Guest Access</h3>
-        <div>Signed in as <strong>Guest</strong></div>
-        <button class="secondary" id="exitGuestBtn">Exit Guest Mode</button>
+        <div>Browsing as <strong>Guest</strong></div>
+        <button class="secondary" id="guestLoginBtn">Sign In</button>
       `;
-      const exitBtn = document.getElementById('exitGuestBtn');
-      if (exitBtn) exitBtn.addEventListener('click', function(){
+      const loginBtn = document.getElementById('guestLoginBtn');
+      if (loginBtn) loginBtn.addEventListener('click', () => { window.location.href = '/login'; });
+    } else {
+      const role = user.role ? ` (Role: ${user.role})` : '';
+      badge.innerHTML = `
+        <h3>Account</h3>
+        <div>Signed in as <strong>${user.username}</strong>${role}</div>
+        <button id="signOutBtn">Sign Out</button>
+      `;
+      const btn = document.getElementById('signOutBtn');
+      if (btn) btn.addEventListener('click', function(){
+        try { localStorage.removeItem('currentUser'); } catch (_) {}
         try { localStorage.removeItem('guestMode'); } catch (_) {}
         location.reload();
       });
-      return;
     }
-
-    const role = user.role ? ` (Role: ${user.role})` : '';
-    badge.innerHTML = `
-      <h3>Account</h3>
-      <div>Signed in as <strong>${user.username}</strong>${role}</div>
-      <button id="signOutBtn">Sign Out</button>
-    `;
-    const btn = document.getElementById('signOutBtn');
-    if (btn) btn.addEventListener('click', function(){
-      try { localStorage.removeItem('currentUser'); } catch (_) {}
-      try { localStorage.removeItem('guestMode'); } catch (_) {}
-      location.reload();
-    });
   })();
 
   (function initChildPrompt(){
