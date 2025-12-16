@@ -119,7 +119,7 @@ app.put("/users/:username", userController.createOrUpdate);
 app.post("/login", userController.login);
 app.post("/logout", userController.logout);
 
-app.delete("/users/:id", userController.deleteOne);
+app.delete("/users/:username", userController.deleteOne);
 app.delete("/users", userController.deleteAll);
 
 app.post("/users/:parentId/children", userController.addChild);
